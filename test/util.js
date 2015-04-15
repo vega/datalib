@@ -1,0 +1,329 @@
+'use strict';
+
+var assert = require('chai').assert;
+var util = require('../src/util');
+
+describe('util', function() {
+
+  describe('isNode', function() {
+    it('should be true', function() {
+      assert.isTrue(util.isNode);
+    });
+  });
+
+  describe('type checkers', function() {
+    it('isNumber(0) should be true', function() {
+      assert.isTrue(util.isNumber(0));
+    });
+  });
+  
+  describe('comparison function', function() {
+    it('should compare numbers', function() {
+      assert(util.cmp(1, 0) > 0);
+      assert(util.cmp(0, 1) < 0);
+      assert.strictEqual(util.cmp(12, 12), 0);
+    });
+
+    it('should compare strings', function() {
+      assert(util.cmp('a', 'b') < 0);
+      assert(util.cmp('b', 'a') > 0);
+      assert.strictEqual(util.cmp('foo', 'foo'), 0);
+    });
+
+    it('should compare numbers to null', function() {
+      assert(util.cmp(1, null) > 0);
+      assert(util.cmp(null, 1) < 0);
+      assert.strictEqual(util.cmp(null, null), 0);
+    });
+
+    it('should compare strings to null', function() {
+      assert(util.cmp(null, 'b') < 0);
+      assert(util.cmp('b', null) > 0);
+    });
+  });
+  
+  describe('comparator generator', function() {
+    it('should always return 0 when called without arguments', function() {
+      assert.equal(util.comparator()('a', 'b'), 0);
+    });
+
+    it('should handle single argument without prefix', function() {
+      var comparator = util.comparator(['p']);
+      assert.equal(comparator({'p': 1}, {'p': 0}), 1);
+      assert.equal(comparator({'p': 0}, {'p': 1}), -1);
+      assert.equal(comparator({'p': 1}, {'p': 1}), 0);
+    });
+    
+    it('should handle single argument with "+" prefix', function() {
+      var comparator = util.comparator(['+p']);
+      assert.equal(comparator({'p': 1}, {'p': 0}), 1);
+      assert.equal(comparator({'p': 0}, {'p': 1}), -1);
+      assert.equal(comparator({'p': 1}, {'p': 1}), 0);
+    });
+
+    it('should handle single argument with "-" prefix', function() {
+      var comparator = util.comparator(['-p']);
+      assert.equal(comparator({'p': 1}, {'p': 0}), -1);
+      assert.equal(comparator({'p': 0}, {'p': 1}), 1);
+      assert.equal(comparator({'p': 1}, {'p': 1}), 0);
+    });
+
+    it('should handle two arguments without prefix', function() {
+      var comparator = util.comparator(['p', 'q']);
+      assert.equal(comparator({'p': 1}, {'p': 0}), 1);
+      assert.equal(comparator({'p': 0}, {'p': 1}), -1);
+      assert.equal(comparator({'p': 1, 'q': 2}, {'p': 1, 'q': -2}), 1);
+      assert.equal(comparator({'p': 1, 'q': -2}, {'p': 1, 'q': 2}), -1);
+      assert.equal(comparator({'p': 1, 'q': 5}, {'p': 1, 'q': 5}), 0);
+    });
+  });
+  
+  describe('number', function() {
+    it('should convert String containing int to number', function() {
+      assert.strictEqual(util.number('2.2'), 2.2);
+    });
+
+    it('should return NaN for unparseable Strings', function() {
+      assert(isNaN(util.number('not a number')));
+    });
+
+    it('should return NaN for objects', function() {
+      assert(isNaN(util.number({})));
+    });
+
+    it('should return 0 for empty arrays', function() {
+      assert.strictEqual(util.number([]), 0);
+    });
+
+    it('should return value of single-item numerical arrays', function() {
+      assert.strictEqual(util.number([2.2]), 2.2);
+    });
+
+    it('should return value of single-item String arrays if it can be converted', function() {
+      assert.strictEqual(util.number(['2.2']), 2.2);
+    });
+
+    it('should return NaN for single-item String arrays that cannot be parsed', function() {
+      assert(isNaN(util.number(['not a number'])));
+    });
+
+    it('should return NaN for arrays with several elements', function() {
+      assert(isNaN(util.number([5, 2])));
+    });
+
+    it('should return NaN for functions', function() {
+      assert(isNaN(util.number(function () {})));
+    });
+
+    it('should return number argument', function() {
+      assert.strictEqual(util.number(2.2), 2.2);
+    });
+  });
+  
+  describe('array', function() {
+    it('should return an empty array for null argument', function() {
+      assert.deepEqual(util.array(null), []);
+    });
+
+    it('should return an empty array for undefined argument', function() {
+      assert.deepEqual(util.array(), []);
+    });
+
+    it('should return an unmodified array argument', function() {
+      var value = [1, 2, 3];
+      assert.strictEqual(util.array(value), value);
+    });
+
+    it('should return an array for non-array argument', function() {
+      assert.deepEqual(util.array(1), [1]);
+    });
+  });
+  
+  describe('str', function() {
+    it('should wrap string arguments in single quotation marks', function() {
+      assert.strictEqual(util.str('test'), "'test'");
+    });
+
+    it('should wrap arrays in square brackets', function() {
+      assert.equal(util.str(['1', '2']), "['1','2']");
+    });
+
+    it('should return boolean arguments as they are', function() {
+      assert.equal(util.str(true), true);
+      assert.equal(util.str(false), false);
+    });
+
+    it('should return number arguments as they are', function() {
+      assert.equal(util.str(2), 2);
+      assert.equal(util.str(-2), -2);
+      assert.equal(util.str(-5.32), -5.32);
+    });
+
+    it('should recursively wrap arrays in square brackets', function() {
+      assert.equal(util.str([['1', 3], '2']), "[['1',3],'2']");
+    });
+  });
+
+  describe("keys", function() {
+    it("should enumerate every defined key", function() {
+      assert.deepEqual(util.keys({a: 1, b: 1}), ["a", "b"]);
+    });
+
+    it("should include keys defined on prototypes", function() {
+      function Abc() {
+        this.a = 1;
+        this.b = 2;
+      }
+      Abc.prototype.c = 3;
+      assert.deepEqual(util.keys(new Abc()), ["a", "b", "c"]);
+    });
+
+    it("should include keys with null or undefined values", function() {
+      assert.deepEqual(util.keys({a: undefined, b: null, c: NaN}), ["a", "b", "c"]);
+    });
+  });
+  
+  describe('vals', function() {
+    it("should enumerate every defined key", function() {
+      assert.deepEqual(util.vals({a: 1, b: 1}), [1, 1]);
+    });
+
+    it("should include keys defined on prototypes", function() {
+      function Abc() {
+        this.a = 1;
+        this.b = 2;
+      }
+      Abc.prototype.c = 3;
+      assert.deepEqual(util.vals(new Abc()), [1, 2, 3]);
+    });
+
+    it("should include keys with null or undefined values", function() {
+      assert.deepEqual(util.vals({a: undefined, b: null, c: NaN}), [undefined, null, NaN]);
+    });
+  });
+
+  describe('field', function() {
+    it('should treat \\. as . in field name', function() {
+      assert.deepEqual(util.field('a\\.b\\.c'), ['a.b.c' ]);
+    });
+
+    it('should separate fields on .', function() {
+      assert.deepEqual(util.field('a.b.c'), ['a', 'b', 'c' ]);
+    });
+    
+    it('should support mix of \\. and .', function() {
+      assert.deepEqual(
+        util.field('a\\.b\\.c.a2\\.b2.a3\\.b3\\.c3'),
+        ['a.b.c', 'a2.b2', 'a3.b3.c3' ]);
+    });
+  });
+  
+  describe('accessor', function() {
+    it('should return null argument', function() {
+      assert.isNull(util.accessor(null));
+    });
+
+    it('should return function argument', function() {
+      var f = function() {};
+      assert.strictEqual(util.accessor(f), f);
+    });
+
+    it('should handle property of simple String argument', function() {
+      assert.equal(util.accessor('test')({ 'test': 'value'}), 'value');
+    });
+
+    it('should resolve property paths for String arguments with "."', function() {
+      assert.equal(util.accessor('a\\.b.c.d')({ 'a.b': { 'c': { 'd': 'value'}}}), 'value');
+    });
+
+    it('should handle property for number arguments', function() {
+      assert.equal(util.accessor(1)(['a', 'b']), 'b');
+    });
+  });
+
+  describe('extend', function() {
+    var topic = (function() {
+      function createChild(o) {
+        var F = function () {
+        };
+        F.prototype = o;
+        return new F();
+      }
+      var grandParent = { 'p2_1': 'vp2_1', 'p2_2': 'vp2_2' },
+        parent = createChild(grandParent),
+        object1 = createChild(parent),
+        object2 = { 'o2_1': 'vo2_1', 'override_1': 'overridden' };
+      object1['o1_1'] = 'vo1_1';
+      object1['o1_2'] = 'vo1_2';
+      object1['override_1'] = 'x';
+      parent['p1_1'] = 'vp1_1';
+      return util.extend({ 'c1': 'vc1', 'p2_2': 'x', 'o1_1': 'y'}, object1, object2);
+    })();
+
+    it('should inherit all direct properties', function() {
+      assert.equal(topic['o1_1'], 'vo1_1');
+      assert.equal(topic['o1_2'], 'vo1_2');
+      assert.equal(topic['o2_1'], 'vo2_1');
+    });
+
+    it('should inherit all parent properties', function() {
+      assert.equal(topic['p1_1'], 'vp1_1');
+      assert.equal(topic['p2_1'], 'vp2_1');
+      assert.equal(topic ['p2_2'], 'vp2_2');
+    });
+
+    it('should override object properties', function() {
+      assert.equal(topic['o1_1'], 'vo1_1');
+      assert.equal(topic['p2_2'], 'vp2_2');
+    });
+
+    it('should override values from previous arguments', function() {
+      assert.equal(topic['override_1'], 'overridden');
+    });
+  });
+
+  describe('duplicate', function() {
+    it('should perform a deep clone of the argument', function() {
+      var original = {
+        'number': -3.452,
+        'string': 'text',
+        'boolean': true,
+        'array': [ 'arrayvalue' ],
+        'child': { 'value': 'original value' }
+      };
+      var topic = {
+        'original': original,
+        'clone': util.duplicate(original)
+      };
+      var clone = topic.clone;
+
+      assert.strictEqual(clone.child.value, 'original value');
+      assert.strictEqual(clone.number, -3.452);
+      assert.strictEqual(clone.string, 'text');
+      assert.strictEqual(clone.boolean, true);
+      assert.deepEqual(clone.array, [ 'arrayvalue' ]);
+      
+      topic.clone.child.value = 'changed value';
+      assert.equal(topic.original.child.value, 'original value');
+
+      topic.clone.child.value = 'original value';
+      topic.original.child.value = 'changed value';
+      assert.equal(topic.clone.child.value, 'original value');
+    });
+
+    it('duplicating functions should throw error', function() {
+      var f = function() { util.duplicate(function() {}); };
+      assert.throws(f);
+    });
+
+    it('duplicating objects with circular dependencies should throw error', function() {
+      var f = function() {
+        var o1 = {}, o2 = { 'o1': o1 };
+        o1['o2'] = o2;
+        util.duplicate(o1);
+      };
+      assert.throws(f);
+    });
+  });
+  
+});
