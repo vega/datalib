@@ -33,18 +33,18 @@ describe('stats', function() {
     });
   });
   
-  describe('uniq', function() {
-    it('should count unique values', function() {
-      assert.equal(stats.uniq([3, 1, 2]), 3);
-      assert.equal(stats.uniq([1, 1, 2, 1, 2, 3, 1, 2, 3, 3, 3]), 3);
+  describe('distinct', function() {
+    it('should count distinct values', function() {
+      assert.equal(stats.distinct([3, 1, 2]), 3);
+      assert.equal(stats.distinct([1, 1, 2, 1, 2, 3, 1, 2, 3, 3, 3]), 3);
     });
     
     it('should recognize null values', function() {
-      assert.equal(stats.uniq([null, 1, 2]), 3);
+      assert.equal(stats.distinct([null, 1, 2]), 3);
     });
 
     it('should recognize undefined values', function() {
-      assert.equal(stats.uniq([1, undefined, 2, undefined]), 3);
+      assert.equal(stats.distinct([1, undefined, 2, undefined]), 3);
     });
   });
   

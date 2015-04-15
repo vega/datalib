@@ -15,7 +15,7 @@ stats.unique = function(data, f, results) {
   return results;
 };
 
-stats.uniq = function(data, f) {
+stats.distinct = function(data, f) {
   if (!util.isArray(data) || data.length===0) return 0;
   f = f || util.identity;
   var u = {}, v, i, count = 0;;
