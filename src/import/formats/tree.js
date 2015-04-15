@@ -1,6 +1,6 @@
 var TREE_KEY = '__tree_data__';
 
-function isTree(data) {
+function isTree(obj) {
   return obj && obj[TREE_KEY];
 }
 

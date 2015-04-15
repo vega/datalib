@@ -11,17 +11,18 @@ var fileProtocol = 'file://';
 // Returns cleaned up URL, or false if access is not allowed
 function sanitizeUrl(opt) {
   var url = opt.url;
+  if (!url && opt.file) { return fileProtocol + opt.file; }
 
   // In case this is a relative url (has no host), prepend opt.baseURL
   if (opt.baseURL && !protocol_re.test(url)) {
-    if (!util.startsWith(url, '/') && opt.baseURL[baseURL.length-1] !== '/') {
+    if (!util.startsWith(url, '/') && opt.baseURL[opt.baseURL.length-1] !== '/') {
       url = '/' + url; // Ensure that there is a slash between the baseURL (e.g. hostname) and url
     }
     url = opt.baseURL + url;
   }
   // relative protocol, starts with '//'
   if (util.isNode && util.startsWith(url, '//')) {
-    url = opt.defaultProtocol + url;
+    url = (opt.defaultProtocol || 'http') + ':' + url;
   }
   // If opt.domainWhiteList is set, only allows url, whose hostname
   // * Is the same as the origin (window.location.hostname)
@@ -32,10 +33,6 @@ function sanitizeUrl(opt) {
     if (util.isNode) {
       // relative protocol is broken: https://github.com/defunctzombie/node-url/issues/5
       var parts = require('url').parse(url);
-      // In safe mode, make sure url begins with http:// or https://
-      if (opt.safeMode && parts.protocol !== 'http:' && parts.protocol !== 'https:') {
-        return false;
-      }
       domain = parts.hostname;
       origin = null;
     } else {
@@ -59,8 +56,7 @@ function sanitizeUrl(opt) {
           (idx > 1 && domain[idx-1] === '.' && domain.lastIndexOf(d) === idx);
       });
       if (!whiteListed) {
-        util.error('URL is not whitelisted: ' + url);
-        url = false;
+        throw 'URL is not whitelisted: ' + url;
       }
     }
   }
@@ -68,9 +64,15 @@ function sanitizeUrl(opt) {
 }
 
 function load(opt, callback) {
-  var url = load.sanitizeUrl(opt); // enable override
+  try {
+    var url = load.sanitizeUrl(opt); // enable override
+  } catch (err) {
+    callback(err, null);
+    return;
+  }
+
   if (!url) {
-    callback('Bad URL', null);
+    callback('Invalid URL: ' + url, null);
   } else if (!util.isNode) {
     // in browser, use xhr
     xhr(url, callback);
@@ -91,8 +93,6 @@ function xhrHasResponse(request) {
 }
 
 function xhr(url, callback) {
-  util.log('LOAD XHR: ' + url);
-
   var request = new XMLHttpRequest;
   // If IE does not support CORS, use XDomainRequest (from d3.xhr)
   if (this.XDomainRequest
@@ -117,12 +117,10 @@ function xhr(url, callback) {
 }
 
 function file(file, callback) {
-  util.log('LOAD FILE: ' + file);
   require('fs').readFile(file, callback);
 }
 
 function http(url, callback) {
-  util.log('LOAD HTTP: ' + url);
   var req = require('request')(url, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       callback(null, body);

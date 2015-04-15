@@ -35,11 +35,11 @@ u.isBoolean = function(obj) {
 
 // type coercion functions
 
-u.number = function(s) { return s === null ? null : +s; };
+u.number = function(s) { return s == null ? null : +s; };
 
-u.boolean = function(s) { return s === null ? null :  !!s; };
+u.boolean = function(s) { return s == null ? null : s==='false' ? false : !!s; };
 
-u.date = function(s) {return s === null ? null : Date.parse(s); }
+u.date = function(s) { return s == null ? null : Date.parse(s); }
 
 u.array = function(x) { return x != null ? (u.isArray(x) ? x : [x]) : []; };
 
@@ -217,7 +217,8 @@ u.stablesort = function(array, sortBy, keyFn) {
 u.bins = require('./bins');
 
 var log = require('./log');
-u.log = function(msg) { log(msg, msg.LOG); };
+u.log = function(msg) { log(msg, log.LOG); };
+u.log.silent = log.silent;
 u.error = function(msg) { log(msg, log.ERR); };
 
 u.truncate = require('./truncate');

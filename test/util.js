@@ -120,6 +120,37 @@ describe('util', function() {
     });
   });
   
+  describe('boolean', function() {
+    it('should convert string "true" to true', function() {
+      assert.strictEqual(util.boolean("true"), true);
+    });
+    
+    it('should convert string "false" to false', function() {
+      assert.strictEqual(util.boolean("false"), false);
+    });
+    
+    it('should convert string "1" to true', function() {
+      assert.strictEqual(util.boolean("1"), true);
+    });
+    
+    it('should convert string "0" to true', function() {
+      assert.strictEqual(util.boolean("0"), true);
+    });
+    
+    it('should convert number 1 to true', function() {
+      assert.strictEqual(util.boolean(1), true);
+    });
+    
+    it('should convert number 0 to false', function() {
+      assert.strictEqual(util.boolean(0), false);
+    });
+    
+    it('should return null for null argument', function() {
+      assert.strictEqual(util.boolean(null), null);
+      assert.strictEqual(util.boolean(undefined), null);
+    });
+  });
+  
   describe('array', function() {
     it('should return an empty array for null argument', function() {
       assert.deepEqual(util.array(null), []);

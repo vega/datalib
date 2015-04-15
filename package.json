@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "d3": "3.5.x",
-    "topojson": "^1.6.18"
+    "topojson": "^1.6.18",
+    "request": "2.53.0"
   },
   "devDependencies": {
     "browser-sync": "^2.6.0",

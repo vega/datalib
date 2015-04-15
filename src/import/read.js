@@ -1,5 +1,5 @@
 var util = require('../util');
-var tree = require('../util/tree');
+var tree = require('./formats/tree');
 var formats = require('./formats');
 
 var parsers = {
@@ -17,18 +17,20 @@ function read(data, format) {
 
 function parseValues(data, types) {
   var cols = util.keys(types),
-      parse = cols.map(function(col) { return parsers[types[col]]; });
-  parseArray(tree ? [data] : data, cols, parse, tree.isTree(data));
+      parse = cols.map(function(col) { return parsers[types[col]]; }),
+      isTree = tree.isTree(data);
+
+  parseArray(isTree ? [data] : data, cols, parse, isTree);
 }
 
-function parseArray(data, cols, parse, tree) {
+function parseArray(data, cols, parse, isTree) {
   var d, i, j, len, clen;
   for (i=0, len=data.length; i<len; ++i) {
     d = data[i];
     for (j=0, clen=cols.length; j<clen; ++j) {
       d[cols[j]] = parse[j](d[cols[j]]);
     }
-    if (tree && d.values) {
+    if (isTree && d.values) {
       parseArray(d.values, cols, parse, true);
     }
   }
