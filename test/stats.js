@@ -54,8 +54,8 @@ describe('stats', function() {
       assert.equal(stats.median([-2, -2, -1, 1, 2, 2]), 0);
     });
     
-    it('should include null values', function() {
-      assert.equal(stats.median([1, 2, null]), 1);
+    it('should ignore null values', function() {
+      assert.equal(stats.median([1, 2, null]), 1.5);
     });
   });
   
