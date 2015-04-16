@@ -128,7 +128,7 @@ function xhr(url, callback) {
 function file(file, callback) {
   var fs = require('fs');
   if (!callback) {
-    return fs.readFileSync(file);
+    return fs.readFileSync(file, 'utf8');
   }
   require('fs').readFile(file, callback);
 }

@@ -3,5 +3,5 @@ module.exports = {
   csv: require('./csv'),
   tsv: require('./tsv'),
   topojson: require('./topojson'),
-  treejson: require('./treejson'),
+  treejson: require('./treejson')
 };
