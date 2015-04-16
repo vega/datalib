@@ -64,24 +64,26 @@ function sanitizeUrl(opt) {
 }
 
 function load(opt, callback) {
+  var error = callback || function(e) { throw e; };
+  
   try {
     var url = load.sanitizeUrl(opt); // enable override
   } catch (err) {
-    callback(err, null);
+    error(err);
     return;
   }
 
   if (!url) {
-    callback('Invalid URL: ' + url, null);
+    error('Invalid URL: ' + url);
   } else if (!util.isNode) {
     // in browser, use xhr
-    xhr(url, callback);
+    return xhr(url, callback);
   } else if (util.startsWith(url, fileProtocol)) {
     // in node.js, if url starts with 'file://', strip it and load from file
-    file(url.slice(fileProtocol.length), callback);
+    return file(url.slice(fileProtocol.length), callback);
   } else {
     // for regular URLs in node.js
-    http(url, callback);
+    return http(url, callback);
   }
 }
 
@@ -93,15 +95,12 @@ function xhrHasResponse(request) {
 }
 
 function xhr(url, callback) {
+  var async = !!callback;
   var request = new XMLHttpRequest;
-  // If IE does not support CORS, use XDomainRequest (from d3.xhr)
+  // If IE does not support CORS, use XDomainRequest (copied from d3.xhr)
   if (this.XDomainRequest
       && !("withCredentials" in request)
       && /^(http(s)?:)?\/\//.test(url)) request = new XDomainRequest;
-
-  "onload" in request
-    ? request.onload = request.onerror = respond
-    : request.onreadystatechange = function() { request.readyState > 3 && respond(); };
 
   function respond() {
     var status = request.status;
@@ -111,17 +110,34 @@ function xhr(url, callback) {
       callback(request, null);
     }
   }
+
+  if (async) {
+    "onload" in request
+      ? request.onload = request.onerror = respond
+      : request.onreadystatechange = function() { request.readyState > 3 && respond(); };
+  }
   
-  request.open("GET", url, true);
+  request.open("GET", url, async);
   request.send();
+  
+  if (!async && xhrHasResponse(request)) {
+    return request.responseText;
+  }
 }
 
 function file(file, callback) {
+  var fs = require('fs');
+  if (!callback) {
+    return fs.readFileSync(file);
+  }
   require('fs').readFile(file, callback);
 }
 
 function http(url, callback) {
-  var req = require('request')(url, function(error, response, body) {
+  if (!callback) {
+    return require('sync-request')('GET', url).getBody();
+  }
+  require('request')(url, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       callback(null, body);
     } else {

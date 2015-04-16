@@ -25,7 +25,6 @@ function parse(data, types) {
       if (PARSERS[type]) types[c] = type;
       return types;
     }, {});
-    console.log("AUTO_TYPE", types);
   }
   cols = util.keys(types);
   parsers = cols.map(function(c) { return PARSERS[types[c]]; });

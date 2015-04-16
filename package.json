@@ -13,9 +13,10 @@
     "request": false
   },
   "dependencies": {
-    "d3": "3.5.x",
+    "d3": "^3.5.x",
     "topojson": "^1.6.18",
-    "request": "2.53.0"
+    "request": "^2.53.0",
+    "sync-request": "^2.0.1"
   },
   "devDependencies": {
     "browser-sync": "^2.6.0",

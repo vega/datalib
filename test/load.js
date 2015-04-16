@@ -21,6 +21,10 @@ describe('load', function() {
       done();
     });
   });
+  
+  it('should load from file path synchronously', function() {
+    assert.equal(text, load({file: file}));
+  });
 
   it('should load from file url', function(done) {
     load({url: "file://" + file}, function(error, data) {
@@ -34,6 +38,10 @@ describe('load', function() {
       assert.equal(text, data);
       done();
     });
+  });
+
+  it('should load from http url synchronously', function() {
+    assert.equal(text, load({url: url}));
   });
 
   it('should load from http base url + uri', function(done) {
