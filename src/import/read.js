@@ -1,5 +1,4 @@
 var util = require('../util');
-var tree = require('./formats/tree');
 var formats = require('./formats');
 
 var parsers = {
@@ -11,32 +10,23 @@ var parsers = {
 function read(data, format) {
   var type = (format && format.type) || "json";
   data = formats[type](data, format);
-  if (format && format.parse) parseValues(data, format.parse);
+  if (format && format.parse) parse(data, format.parse);
   return data;
 }
 
-function parseValues(data, types) {
+function parse(data, types) {
   var cols = util.keys(types),
-      parse = cols.map(function(col) { return parsers[types[col]]; }),
-      isTree = tree.isTree(data);
+      parser = cols.map(function(col) { return parsers[types[col]]; }),
+      d, i, j, len = data.length, clen = cols.length;
 
-  parseArray(isTree ? [data] : data, cols, parse, isTree);
-}
-
-function parseArray(data, cols, parse, isTree) {
-  var d, i, j, len, clen;
-  for (i=0, len=data.length; i<len; ++i) {
+  for (i=0; i<len; ++i) {
     d = data[i];
-    for (j=0, clen=cols.length; j<clen; ++j) {
-      d[cols[j]] = parse[j](d[cols[j]]);
-    }
-    if (isTree && d.values) {
-      parseArray(d.values, cols, parse, true);
+    for (j=0; j<clen; ++j) {
+      d[cols[j]] = parser[j](d[cols[j]]);
     }
   }
 }
 
 read.formats = formats;
-read.parse = parseValues;
-
+read.parse = parse;
 module.exports = read;

@@ -1,8 +1,8 @@
 var util = require('../../util');
-var tree = require('./tree');
+var tree = require('../../util/tree');
 var json = require('./json');
 
 module.exports = function(data, format) {
   data = json(data, format);
-  return tree.makeTree(data, format.children);
+  return tree.toTable(data, (format && format.children));
 };

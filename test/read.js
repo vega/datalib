@@ -2,6 +2,7 @@
 
 var assert = require('chai').assert;
 var util = require('../src/util');
+var tree = require('../src/util/tree');
 var read = require('../src/import/read');
 
 var fs = require('fs');
@@ -92,11 +93,13 @@ describe('read', function() {
   
   describe('treejson', function() {
     var flare = fs.readFileSync('./test/data/flare.json', 'utf8');
-  
+    var json = JSON.parse(flare);
+
     it('should read treejson data', function() {
       assert.doesNotThrow(function() { read(flare, {type:'treejson'}); });
-      var tree = read(flare, {type:'treejson'});
-      assert.deepEqual(JSON.parse(flare), tree[0]);
+      var data = read(flare, {type:'treejson'});
+      assert.equal(-1, data[0][tree.fields.parent]);
+      assert.equal(json.name, data[0].name);
     });
   });
 });

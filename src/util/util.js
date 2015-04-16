@@ -33,6 +33,10 @@ u.isBoolean = function(obj) {
   return toString.call(obj) == '[object Boolean]';
 };
 
+u.isDate = function(obj) {
+  return toString.call(obj) == '[object Date]';
+};
+
 u.isNotNull = function(obj) {
   return obj != null; // TODO include NaN here?
 };
