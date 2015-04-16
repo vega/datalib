@@ -1,7 +1,8 @@
 var util = require('../util');
 var formats = require('./formats');
+var infer = require('./infer-types');
 
-var parsers = {
+var PARSERS = {
   "number": util.number,
   "boolean": util.boolean,
   "date": util.date
@@ -15,14 +16,24 @@ function read(data, format) {
 }
 
 function parse(data, types) {
-  var cols = util.keys(types),
-      parser = cols.map(function(col) { return parsers[types[col]]; }),
-      d, i, j, len = data.length, clen = cols.length;
+  var cols, parsers, d, i, j, clen, len = data.length;
 
-  for (i=0; i<len; ++i) {
+  if (types === 'auto') {
+    // perform type inference
+    types = util.keys(data[0]).reduce(function(types, c) {
+      var type = infer(data, util.accessor(c));
+      if (PARSERS[type]) types[c] = type;
+      return types;
+    }, {});
+    console.log("AUTO_TYPE", types);
+  }
+  cols = util.keys(types);
+  parsers = cols.map(function(c) { return PARSERS[types[c]]; });
+
+  for (i=0, clen=cols.length; i<len; ++i) {
     d = data[i];
     for (j=0; j<clen; ++j) {
-      d[cols[j]] = parser[j](d[cols[j]]);
+      d[cols[j]] = parsers[j](d[cols[j]]);
     }
   }
 }

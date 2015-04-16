@@ -48,6 +48,9 @@ describe('read', function() {
     it('should parse json fields', function() {
       assert.deepEqual(read(json, {type:'json', parse: format}), parsed);
     });
+    it('should auto-parse json fields', function() {
+      assert.deepEqual(read(json, {type:'json', parse:'auto'}), parsed);
+    });
     it('should read json from property', function() {
       var json = JSON.stringify({foo: data});
       assert.deepEqual(read(json, {type:'json', property:'foo'}), data);
@@ -62,6 +65,9 @@ describe('read', function() {
     it('should parse csv fields', function() {
       assert.deepEqual(read(csv, {type:'csv', parse: format}), parsed);
     });
+    it('should auto-parse csv fields', function() {
+      assert.deepEqual(read(csv, {type:'csv', parse:'auto'}), parsed);
+    });
   });
 
   describe('tsv', function() {
@@ -71,6 +77,9 @@ describe('read', function() {
     });
     it('should parse tsv fields', function() {
       assert.deepEqual(read(tsv, {type:'tsv', parse: format}), parsed);
+    });
+    it('should auto-parse tsv fields', function() {
+      assert.deepEqual(read(tsv, {type:'tsv', parse:'auto'}), parsed);
     });
   });
 
