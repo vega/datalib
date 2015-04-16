@@ -14,7 +14,7 @@ var gulp = require('gulp'),
 function browser() {
   return browserify({
       entries: ['./src/'],
-      standalone: 'datalib',
+      standalone: 'dl',
       debug: true,
       cache: {}, packageCache: {}
     })
@@ -27,7 +27,7 @@ function watcher() {
 
 function build(watch) {
   var b = watch ? watcher() : browser();
-  if(watch) {
+  if (watch) {
     b.on('update', function() { build(true) });
     b.on('log', gutil.log); // output build logs to terminal
   }
@@ -37,7 +37,7 @@ function build(watch) {
     .pipe(buffer())
     .pipe(gulp.dest('.'))
     .pipe(sourcemaps.init({loadMaps: true}))
-    // This will minify and rename to datautil.min.js
+    // This will minify and rename to datalib.min.js
     .pipe(uglify())
     .pipe(rename({ extname: '.min.js' }))
     .pipe(sourcemaps.write('./'))
