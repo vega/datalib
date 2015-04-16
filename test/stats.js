@@ -32,19 +32,49 @@ describe('stats', function() {
       assert.deepEqual(u, [1, 3]);
     });
   });
+
+  describe('count', function() {
+    it('should count non-null values', function() {
+      assert.equal(stats.count([3, 1, 2]), 3);
+      assert.equal(stats.count([null, 1, 2, null]), 2);
+    });
+    
+    it('should count NaN values', function() {
+      assert.equal(stats.count([NaN, 1, 2]), 3);
+    });
+
+    it('should ignore undefined values', function() {
+      assert.equal(stats.count([1, undefined, 2, undefined, 3]), 3);
+    });
+  });
   
-  describe('distinct', function() {
+  describe('count.distinct', function() {
     it('should count distinct values', function() {
-      assert.equal(stats.distinct([3, 1, 2]), 3);
-      assert.equal(stats.distinct([1, 1, 2, 1, 2, 3, 1, 2, 3, 3, 3]), 3);
+      assert.equal(stats.count.distinct([3, 1, 2]), 3);
+      assert.equal(stats.count.distinct([1, 1, 2, 1, 2, 3, 1, 2, 3, 3, 3]), 3);
     });
     
     it('should recognize null values', function() {
-      assert.equal(stats.distinct([null, 1, 2]), 3);
+      assert.equal(stats.count.distinct([null, 1, 2]), 3);
     });
 
     it('should recognize undefined values', function() {
-      assert.equal(stats.distinct([1, undefined, 2, undefined]), 3);
+      assert.equal(stats.count.distinct([1, undefined, 2, undefined, 3]), 4);
+    });
+  });
+
+  describe('count.nulls', function() {
+    it('should count null values', function() {
+      assert.equal(stats.count.nulls([3, 1, 2]), 0);
+      assert.equal(stats.count.nulls([null, 0, 1, 2, null]), 2);
+    });
+    
+    it('should ignore NaN values', function() {
+      assert.equal(stats.count.nulls([NaN, 1, 2]), 0);
+    });
+
+    it('should count undefined values', function() {
+      assert.equal(stats.count.nulls([1, undefined, 2, undefined, 3]), 2);
     });
   });
   

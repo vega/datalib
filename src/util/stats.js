@@ -3,11 +3,10 @@ var stats = {};
 
 stats.unique = function(values, f, results) {
   if (!util.isArray(values) || values.length===0) return [];
-  f = f || util.identity;
   results = results || [];
   var u = {}, v, i;
   for (i=0, n=values.length; i<n; ++i) {
-    v = f(values[i]);
+    v = f ? f(values[i]) : values[i];
     if (v in u) continue;
     u[v] = 1;
     results.push(v);
@@ -15,15 +14,34 @@ stats.unique = function(values, f, results) {
   return results;
 };
 
-stats.distinct = function(values, f) {
+stats.count = function(values, f) {
   if (!util.isArray(values) || values.length===0) return 0;
-  f = f || util.identity;
-  var u = {}, v, i, count = 0;;
+  var v, i, count = 0;
   for (i=0, n=values.length; i<n; ++i) {
-    v = f(values[i]);
+    v = f ? f(values[i]) : values[i];
+    if (v != null) count += 1;
+  }
+  return count;
+};
+
+stats.count.distinct = function(values, f) {
+  if (!util.isArray(values) || values.length===0) return 0;
+  var u = {}, v, i, count = 0;
+  for (i=0, n=values.length; i<n; ++i) {
+    v = f ? f(values[i]) : values[i];
     if (v in u) continue;
     u[v] = 1;
     count += 1;
+  }
+  return count;
+};
+
+stats.count.nulls = function(values, f) {
+  if (!util.isArray(values) || values.length===0) return 0;
+  var v, i, count = 0;
+  for (i=0, n=values.length; i<n; ++i) {
+    v = f ? f(values[i]) : values[i];
+    if (v == null) count += 1;
   }
   return count;
 };
@@ -40,10 +58,9 @@ stats.median = function(values, f) {
 };
 
 stats.mean = function(values, f) {
-  if (f) values = values.map(f);
   var mean = 0, delta, i, c, v;
   for (i=0, c=0; i<values.length; ++i) {
-    v = values[i];
+    v = f ? f(values[i]) : values[i];
     if (v != null) {
       delta = values[i] - mean;
       mean = mean + delta / (++c);
@@ -53,10 +70,9 @@ stats.mean = function(values, f) {
 };
 
 stats.variance = function(values, f) {
-  if (f) values = values.map(f);
   var mean = 0, M2, delta, i, c, v;
   for (i=0, c=0; i<values.length; ++i) {
-    v = values[i];
+    v = f ? f(values[i]) : values[i];
     if (v != null) {
       delta = values[i] - mean;
       mean = mean + delta / (++c);
@@ -68,23 +84,20 @@ stats.variance = function(values, f) {
 };
 
 stats.stdev = function(values, f) {
-  if (f) values = values.map(f);
-  return Math.sqrt(stats.variance(values));
+  return Math.sqrt(stats.variance(values, f));
 };
 
 stats.skew = function(values, f) {
-  if (f) values = values.map(f);
-  var avg = stats.mean(values),
-      med = stats.median(values),
-      std = stats.stdev(values);
+  var avg = stats.mean(values, f),
+      med = stats.median(values, f),
+      std = stats.stdev(values, f);
   return 1.0 * (avg - med) / std;
 };
 
 stats.minmax = function(values, f) {
   var s = {min: +Infinity, max: -Infinity}, v, i, n;
   for (i=0; i<values.length; ++i) {
-    v = values[i];
-    if (f) v = f(v);
+    v = f ? f(values[i]) : values[i];
     if (v != null) {
       if (v > s.max) s.max = v;
       if (v < s.min) s.min = v;
