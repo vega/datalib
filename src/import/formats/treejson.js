@@ -1,5 +1,4 @@
-var util = require('../../util');
-var tree = require('../../util/tree');
+var tree = require('../../tree');
 var json = require('./json');
 
 module.exports = function(data, format) {

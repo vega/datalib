@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('chai').assert;
-var util = require('../src/util/');
+var util = require('../src/util');
 var infer = require('../src/import/infer-types');
 
 describe('infer-types', function() {

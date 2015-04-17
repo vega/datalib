@@ -1,4 +1,4 @@
-var util = require('../util/');
+var util = require('../util');
 var load = require('./load');
 var read = require('./read');
 

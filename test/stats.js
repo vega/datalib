@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('chai').assert;
-var stats = require('../src/util/stats');
+var stats = require('../src/stats');
 var EPSILON = 1e-15;
 
 describe('stats', function() {

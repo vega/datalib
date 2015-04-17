@@ -2,7 +2,7 @@
 
 var assert = require('chai').assert;
 var util = require('../src/util');
-var tree = require('../src/util/tree');
+var tree = require('../src/tree');
 var read = require('../src/import/read');
 
 var fs = require('fs');

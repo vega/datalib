@@ -1,8 +1,17 @@
-var exports = module.exports = {};
+var dl = module.exports = {};
 var util = require('./util');
-util.extend(exports, util);
-util.extend(exports, require('./util/stats'));
-exports.template = require('./template');
-exports.load = require('./import/load');
-exports.read = require('./import/read');
-util.extend(exports, require('./import/loaders'));
+
+util.extend(dl, util);
+util.extend(dl, require('./generate'));
+util.extend(dl, require('./stats'));
+dl.bin = require('./bin');
+dl.template = require('./template');
+
+dl.load = require('./import/load');
+dl.read = require('./import/read');
+util.extend(dl, require('./import/loaders'));
+
+var log = require('./log');
+dl.log = function(msg) { log(msg, log.LOG); };
+dl.log.silent = log.silent;
+dl.error = function(msg) { log(msg, log.ERR); };

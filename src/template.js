@@ -1,10 +1,10 @@
-var util = require('../util');
+var util = require('./util');
 var d3 = require('d3');
 
 var context = {
   formats:    [],
   format_map: {},
-  truncate:   require('../util/truncate')
+  truncate:   require('./truncate')
 };
 
 function template(text) {
