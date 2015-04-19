@@ -2,12 +2,9 @@ var gulp = require('gulp'),
     browserify = require('browserify'),
     buffer = require('vinyl-buffer'),
     rename = require('gulp-rename'),
-    run = require('gulp-run'),
     source = require('vinyl-source-stream'),
     sourcemaps = require('gulp-sourcemaps'),
     uglify = require('gulp-uglify'),
-    watchify = require('watchify'),
-    browserSync = require('browser-sync'),
     gutil = require('gulp-util'),
     mocha = require('gulp-spawn-mocha');
 
@@ -25,14 +22,8 @@ function watcher() {
   return watchify(browser());
 }
 
-function build(watch) {
-  var b = watch ? watcher() : browser();
-  if (watch) {
-    b.on('update', function() { build(true) });
-    b.on('log', gutil.log); // output build logs to terminal
-  }
-
-  return b.bundle()
+function build() {
+  return browser().bundle()
     .pipe(source('datalib.js'))
     .pipe(buffer())
     .pipe(gulp.dest('.'))
@@ -45,7 +36,6 @@ function build(watch) {
 }
 
 gulp.task('build', function() { build() });
-gulp.task('watch', function() { build(true); });
 
 gulp.task('test', function() {
   return gulp.src(['test/**/*.js'], { read: false })
