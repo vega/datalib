@@ -7,10 +7,14 @@ stats.unique = function(values, f, results) {
   var u = {}, v, i;
   for (i=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v in u) continue;
-    u[v] = 1;
-    results.push(v);
+    if (v in u) {
+      u[v] += 1;
+    } else {
+      u[v] = 1;
+      results.push(v);
+    }
   }
+  results.counts = u;
   return results;
 };
 
@@ -94,7 +98,7 @@ stats.skew = function(values, f) {
   var avg = stats.mean(values, f),
       med = stats.median(values, f),
       std = stats.stdev(values, f);
-  return (avg - med) / std;
+  return std === 0 ? 0 : (avg - med) / std;
 };
 
 stats.minmax = function(values, f) {
@@ -142,6 +146,12 @@ stats.entropy = function(counts) {
   return -H;
 };
 
+stats.entropy.normalized = function(counts) {
+  var H = stats.entropy(counts);
+  var max = -Math.log(1/counts.length) / Math.LN2;
+  return H / max;
+};
+
 stats.profile = function(values, f) {
   if (!util.isArray(values) || values.length===0) return null;
 
@@ -155,22 +165,23 @@ stats.profile = function(values, f) {
       M2 = 0,
       median = null,
       vals = [],
-      u = {}, delta, sd, i, v, half;
+      u = {}, delta, sd, i, v, x, half;
 
-  // compute profile stats
+  // compute summary stats
   for (i=0, c=0; i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
     if (v != null) {
-      vals.push(v);
+      // update unique values
+      u[v] = (v in u) ? u[v] + 1 : (distinct += 1, 1);
+      // update min/max
       if (v < min) min = v;
       if (v > max) max = v;
-      if (!(v in u)) {
-        u[v] = 1;
-        distinct += 1;
-      }
-      delta = v - mean;
+      // update stats
+      x = (typeof v === 'string') ? v.length : v;
+      delta = x - mean;
       mean = mean + delta / (++count);
-      M2 = M2 + delta * (v - mean);
+      M2 = M2 + delta * (x - mean);
+      vals.push(x);
     }
   }
   M2 = M2 / (count - 1);
@@ -184,6 +195,7 @@ stats.profile = function(values, f) {
    : (vals[half-1] + vals[half]) / 2.0;
 
   return {
+    unique:   u,
     count:    count,
     nulls:    values.length - count,
     distinct: distinct,
@@ -192,7 +204,7 @@ stats.profile = function(values, f) {
     mean:     mean,
     median:   median,
     stdev:    sd,
-    skew:     (mean - median) / sd
+    skew:     sd === 0 ? 0 : (mean - median) / sd
   };
 };
 

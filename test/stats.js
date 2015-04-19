@@ -9,27 +9,27 @@ describe('stats', function() {
   describe('unique', function() {
     it('should return unique values in the original order', function() {
       var u = stats.unique([3, 1, 2]);
-      assert.deepEqual(u, [3, 1, 2]);
+      [3, 1, 2].forEach(function(v, i) { assert.equal(v, u[i]); });
     });
 
     it('should filter out repeated occurrences of values', function() {
       var u = stats.unique([1, 1, 2, 1, 2, 3, 1, 2, 3, 3, 3]);
-      assert.deepEqual(u, [1, 2, 3]);
+      [1, 2, 3].forEach(function(v, i) { assert.equal(v, u[i]); });
     });
 
     it('should treat undefined as a value and remove duplicates', function() {
-      var u = stats.unique([1, undefined, 2, undefined])
-      assert.deepEqual(u, [1, undefined, 2]);
+      var u = stats.unique([1, undefined, 2, undefined]);
+      [1, undefined, 2].forEach(function(v, i) { assert.equal(v, u[i]); });
     });
 
     it('should apply transformation to array elements', function() {
       var u = stats.unique([1,2,3], function (d) { return -2 * d; });
-      assert.deepEqual(u, [-2, -4, -6]);
+      [-2, -4, -6].forEach(function(v, i) { assert.equal(v, u[i]); });
     });
 
     it('should filter out repeated occurrences of transformed values', function() {
       var u = stats.unique([1,1,2,3], function (d) { return d<3 ? 1 : 3; });
-      assert.deepEqual(u, [1, 3]);
+      [1, 3].forEach(function(v, i) { assert.equal(v, u[i]); });
     });
   });
 

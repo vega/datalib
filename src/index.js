@@ -5,7 +5,9 @@ util.extend(dl, util);
 util.extend(dl, require('./generate'));
 util.extend(dl, require('./stats'));
 dl.bin = require('./bin');
+dl.summary = require('./summary');
 dl.template = require('./template');
+dl.truncate = require('./truncate');
 
 dl.load = require('./import/load');
 dl.read = require('./import/read');

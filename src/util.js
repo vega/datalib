@@ -73,6 +73,10 @@ u.duplicate = function(obj) {
   return JSON.parse(JSON.stringify(obj));
 };
 
+u.equal = function(a, b) {
+  return JSON.stringify(a) === JSON.stringify(b);
+};
+
 u.extend = function(obj) {
   for (var x, name, i=1, len=arguments.length; i<len; ++i) {
     x = arguments[i];
@@ -196,8 +200,6 @@ u.stablesort = function(array, sortBy, keyFn) {
 };
 
 // string functions
-
-u.truncate = require('./truncate');
 
 // ES6 compatibility per https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith#Polyfill
 // We could have used the polyfill code, but lets wait until ES6 becomes a standard first
