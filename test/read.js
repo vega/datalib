@@ -105,9 +105,9 @@ describe('read', function() {
     var json = JSON.parse(flare);
 
     it('should read treejson data', function() {
-      assert.doesNotThrow(function() { read(flare, {type:'treejson'}); });
-      var data = read(flare, {type:'treejson'});
-      assert.equal(-1, data[0][tree.fields.parent]);
+      var data = null;
+      assert.doesNotThrow(function() { data = read(flare, {type:'treejson'}); });
+      assert.equal(null, data[0][tree.fields.parent]);
       assert.equal(json.name, data[0].name);
     });
   });
