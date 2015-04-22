@@ -79,7 +79,7 @@ describe('util', function() {
   });
   
   describe('number', function() {
-    it('should convert String containing int to number', function() {
+    it('should convert numeric String to number', function() {
       assert.strictEqual(util.number('2.2'), 2.2);
     });
 
