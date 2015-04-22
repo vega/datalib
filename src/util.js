@@ -20,13 +20,13 @@ u.isFunction = function(obj) {
 u.isString = function(obj) {
   return toString.call(obj) == '[object String]';
 };
-  
+
 u.isArray = Array.isArray || function(obj) {
   return toString.call(obj) == '[object Array]';
 };
 
 u.isNumber = function(obj) {
-  return toString.call(obj) == '[object Number]';
+  return !isNaN(parseFloat(obj)) && isFinite(obj);
 };
 
 u.isBoolean = function(obj) {
@@ -180,7 +180,7 @@ u.cmp = function(a, b) {
     return 1;
   }
   return NaN;
-}
+};
 
 u.numcmp = function(a, b) { return a - b; };
 
