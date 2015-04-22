@@ -1,6 +1,17 @@
 {
   "name": "datalib",
-  "version": "1.0.3",
+  "version": "1.0.4",
+  "description": "Utilities for loading, summarizing and working with data.",
+  "keywords": [
+    "data",
+    "table",
+    "statistics",
+    "parse",
+    "csv",
+    "tsv",
+    "json",
+    "utility"
+  ],
   "repository": {
     "type": "git",
     "url": "http://github.com/uwdata/datalib.git"
@@ -9,7 +20,7 @@
     "name": "UW Interactive Data Lab",
     "url": "http://idl.cs.washington.edu"
   },
-  "main": "src/index.js",
+  "license": "BSD-3-Clause",
   "dependencies": {
     "d3": "^3.5.x",
     "topojson": "^1.6.18",
@@ -30,6 +41,7 @@
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
+  "main": "src/index.js",
   "scripts": {
     "test": "gulp test"
   },
