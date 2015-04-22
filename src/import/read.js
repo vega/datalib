@@ -37,6 +37,7 @@ function parse(data, types) {
   }
 }
 
+read.infer = infer;
 read.formats = formats;
 read.parse = parse;
 module.exports = read;
