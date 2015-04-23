@@ -1,6 +1,10 @@
 var util = require('./util');
 var stats = {};
 
+// Unique values
+// Output: an array of unique values, in observed order
+// The array includes an additional 'counts' property,
+// which is a hash from unique values to occurrence counts.
 stats.unique = function(values, f, results) {
   if (!util.isArray(values) || values.length===0) return [];
   results = results || [];
@@ -18,6 +22,7 @@ stats.unique = function(values, f, results) {
   return results;
 };
 
+// Count of Non-Null values
 stats.count = function(values, f) {
   if (!util.isArray(values) || values.length===0) return 0;
   var v, i, count = 0;
@@ -28,6 +33,7 @@ stats.count = function(values, f) {
   return count;
 };
 
+// Count of Distinct values (including nulls)
 stats.count.distinct = function(values, f) {
   if (!util.isArray(values) || values.length===0) return 0;
   var u = {}, v, i, count = 0;
@@ -40,6 +46,7 @@ stats.count.distinct = function(values, f) {
   return count;
 };
 
+// Count of Null or Undefined values
 stats.count.nulls = function(values, f) {
   if (!util.isArray(values) || values.length===0) return 0;
   var v, i, count = 0;
@@ -50,6 +57,7 @@ stats.count.nulls = function(values, f) {
   return count;
 };
 
+// Median
 stats.median = function(values, f) {
   if (!util.isArray(values) || values.length===0) return 0;
   if (f) values = values.map(f);
@@ -62,6 +70,7 @@ stats.median = function(values, f) {
   }
 };
 
+// Mean (Average)
 stats.mean = function(values, f) {
   if (!util.isArray(values) || values.length===0) return 0;
   var mean = 0, delta, i, c, v;
@@ -75,6 +84,7 @@ stats.mean = function(values, f) {
   return mean;
 };
 
+// Sample Variance
 stats.variance = function(values, f) {
   if (!util.isArray(values) || values.length===0) return 0;
   var mean = 0, M2 = 0, delta, i, c, v;
@@ -90,17 +100,21 @@ stats.variance = function(values, f) {
   return M2;
 };
 
+// Sample Standard Deviation
 stats.stdev = function(values, f) {
   return Math.sqrt(stats.variance(values, f));
 };
 
-stats.skew = function(values, f) {
+// Pearson Mode Skewness
+stats.modeskew = function(values, f) {
   var avg = stats.mean(values, f),
       med = stats.median(values, f),
       std = stats.stdev(values, f);
   return std === 0 ? 0 : (avg - med) / std;
 };
 
+// Minimum and Maximum values
+// Output: '{min: x, max: y}'
 stats.minmax = function(values, f) {
   var s = {min: +Infinity, max: -Infinity}, v, i, n;
   for (i=0; i<values.length; ++i) {
@@ -113,6 +127,41 @@ stats.minmax = function(values, f) {
   return s;
 };
 
+// Dot Product of two vectors
+stats.dot = function(values, a, b) {
+  var sum = 0, i;
+  if (!b) {
+    if (values.length !== a.length) {
+      throw Error("Array lengths must match.");
+    }
+    for (i=0; i<values.length; ++i) {
+      sum += values[i] * a[i];
+    }
+  } else {  
+    for (i=0; i<values.length; ++i) {
+      sum += a(values[i]) * b(values[i]);
+    }
+  }
+  return sum;
+};
+
+// Sample Pearson Product-Moment Correlation
+stats.cor = function(values, a, b) {
+  var fn = b;
+  b = fn ? values.map(b) : a,
+  a = fn ? values.map(a) : values;
+
+  var dot = stats.dot(a, b),
+      mua = stats.mean(a),
+      mub = stats.mean(b),
+      sda = stats.stdev(a),
+      sdb = stats.stdev(b),
+      n = values.length;
+
+  return (dot - n*mua*mub) / ((n-1) * sda * sdb);
+};
+
+// Index of Minimum value of 'f'
 stats.minIndex = function(values, f) {
   if (!util.isArray(values) || values.length==0) return -1;
   var idx = 0, v, i, n, min = +Infinity;
@@ -123,6 +172,7 @@ stats.minIndex = function(values, f) {
   return idx;
 };
 
+// Index of Maximum value of 'f'
 stats.maxIndex = function(values, f) {
   if (!util.isArray(values) || values.length==0) return -1;
   var idx = 0, v, i, n, max = -Infinity;
@@ -133,6 +183,7 @@ stats.maxIndex = function(values, f) {
   return idx;
 };
 
+// Shannon Entropy (base 2) of a set of counts
 stats.entropy = function(counts) {
   var i, p, s = 0, H = 0;
   for (i=0; i<counts.length; ++i) {
@@ -146,12 +197,14 @@ stats.entropy = function(counts) {
   return -H;
 };
 
+// Normalized Shannon Entropy (base 2) of a set of counts
 stats.entropy.normalized = function(counts) {
   var H = stats.entropy(counts);
   var max = -Math.log(1/counts.length) / Math.LN2;
   return H / max;
 };
 
+// Profile of summary statistics for attribute 'f'
 stats.profile = function(values, f) {
   if (!util.isArray(values) || values.length===0) return null;
 
@@ -204,7 +257,7 @@ stats.profile = function(values, f) {
     mean:     mean,
     median:   median,
     stdev:    sd,
-    skew:     sd === 0 ? 0 : (mean - median) / sd
+    modeskew: sd === 0 ? 0 : (mean - median) / sd
   };
 };
 

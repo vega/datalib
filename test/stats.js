@@ -100,5 +100,77 @@ describe('stats', function() {
       assert.closeTo(stats.mean([1, 2, null]), 1.5, EPSILON);
     });
   });
+  
+  describe('dot', function() {
+    var table = [{a:1, b:2, c:3}, {a:4, b:5, c:6}, {a:7, b:8, c:9}],
+        a = function(x) { return x.a; },
+        b = function(x) { return x.b; },
+        c = function(x) { return x.c; };
+
+    it('should accept object array and accessors', function() {
+      assert.equal(1*2+4*5+7*8, stats.dot(table, a, b));
+      assert.equal(1*2+4*5+7*8, stats.dot(table, b, a));
+      assert.equal(1*3+4*6+7*9, stats.dot(table, a, c));
+      assert.equal(1*3+4*6+7*9, stats.dot(table, c, a));
+      assert.equal(2*3+5*6+8*9, stats.dot(table, b, c));
+      assert.equal(2*3+5*6+8*9, stats.dot(table, c, b));
+    });
+
+    it('should accept two arrays', function() {
+      var x = table.map(a),
+          y = table.map(b),
+          z = table.map(c);
+      assert.equal(1*2+4*5+7*8, stats.dot(x, y));
+      assert.equal(1*2+4*5+7*8, stats.dot(y, x));
+      assert.equal(1*3+4*6+7*9, stats.dot(x, z));
+      assert.equal(1*3+4*6+7*9, stats.dot(z, x));
+      assert.equal(2*3+5*6+8*9, stats.dot(y, z));
+      assert.equal(2*3+5*6+8*9, stats.dot(z, y));
+    });
+
+    it('should throw error with inputs of unequal length', function() {
+      assert.throws(function() { stats.dot([1,2,3], [1,2]); });
+    });
+  });
+
+  describe('correlation', function() {
+    var table = [{a:1, b:0, c:-1}, {a:0, b:1, c:0}, {a:-1, b:0, c:1}],
+        a = function(x) { return x.a; },
+        b = function(x) { return x.b; },
+        c = function(x) { return x.c; };
+
+    it('should accept object array and accessors', function() {
+      assert.closeTo( 0, stats.cor(table, a, b), EPSILON);
+      assert.closeTo( 0, stats.cor(table, b, a), EPSILON);
+      assert.closeTo(-1, stats.cor(table, a, c), EPSILON);
+      assert.closeTo(-1, stats.cor(table, c, a), EPSILON);
+      assert.closeTo( 0, stats.cor(table, b, c), EPSILON);
+      assert.closeTo( 0, stats.cor(table, c, b), EPSILON);
+      assert.closeTo( 1, stats.cor(table, a, a), EPSILON);
+      assert.closeTo( 1, stats.cor(table, b, b), EPSILON);
+      assert.closeTo( 1, stats.cor(table, c, c), EPSILON);
+    });
+
+    it('should accept two arrays', function() {
+      var x = table.map(a),
+          y = table.map(b),
+          z = table.map(c);
+      assert.closeTo( 0, stats.cor(x, y), EPSILON);
+      assert.closeTo( 0, stats.cor(y, x), EPSILON);
+      assert.closeTo(-1, stats.cor(x, z), EPSILON);
+      assert.closeTo(-1, stats.cor(z, x), EPSILON);
+      assert.closeTo( 0, stats.cor(y, z), EPSILON);
+      assert.closeTo( 0, stats.cor(z, y), EPSILON);
+      assert.closeTo( 1, stats.cor(x, x), EPSILON);
+      assert.closeTo( 1, stats.cor(y, y), EPSILON);
+      assert.closeTo( 1, stats.cor(z, z), EPSILON);
+    });
+    
+    it('should return NaN with zero-valued input', function() {
+      assert(isNaN(stats.cor([0,0,0], [0,0,0])));
+      assert(isNaN(stats.cor([0,0,0], [1,2,3])));
+      assert(isNaN(stats.cor([1,2,3], [0,0,0])));
+    });
+  });
 
 });
