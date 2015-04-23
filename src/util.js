@@ -41,6 +41,11 @@ u.isNotNull = function(obj) {
   return obj != null; // TODO include NaN here?
 };
 
+u.isBuffer = function(obj) {
+  var isBuffer = require('buffer').isBuffer;
+  return isBuffer && isBuffer(obj);
+};
+
 // type coercion functions
 
 u.number = function(s) { return s == null ? null : +s; };
