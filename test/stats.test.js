@@ -106,8 +106,21 @@ describe('stats', function() {
     });
   });
   
+  describe('rank', function() {
+    it('should calculate rank values', function() {
+      assert.deepEqual([1,   3,   2, 4], stats.rank([3,5,4,6]));
+      assert.deepEqual([1.5, 1.5, 3, 4], stats.rank([3,3,4,5]));
+      assert.deepEqual([1, 2.5, 2.5, 4], stats.rank([3,4,4,5]));
+      assert.deepEqual([1, 2, 3.5, 3.5], stats.rank([3,4,5,5]));
+    });
+  });
+
   describe('dot', function() {
-    var table = [{a:1, b:2, c:3}, {a:4, b:5, c:6}, {a:7, b:8, c:9}];
+    var table = [
+      {a:1, b:2, c:3},
+      {a:4, b:5, c:6},
+      {a:7, b:8, c:9}
+    ];
 
     it('should accept object array and accessors', function() {
       assert.equal(1*2+4*5+7*8, stats.dot(table, a, b));
@@ -134,7 +147,11 @@ describe('stats', function() {
   });
 
   describe('cor', function() {
-    var table = [{a:1, b:0, c:-1}, {a:0, b:1, c:0}, {a:-1, b:0, c:1}];
+    var table = [
+      {a:1,  b:0, c:-1},
+      {a:0,  b:1, c:0},
+      {a:-1, b:0, c:1}
+    ];
 
     it('should accept object array and accessors', function() {
       assert.closeTo( 0, stats.cor(table, a, b), EPSILON);
@@ -168,37 +185,90 @@ describe('stats', function() {
     });
   });
 
-  describe('dcor', function() {
-    var table = [{a:1, b:-1}, {a:0, b:0}, {a:-1, b:1}];
+  describe('cor.rank', function() {
+    var table = [
+      {a:1, b:5, c:8, d:3},
+      {a:2, b:6, c:7, d:1},
+      {a:3, b:7, c:6, d:4},
+      {a:4, b:8, c:5, d:2}
+    ];
+
+    it('should accept two arrays', function() {
+      assert.equal( 1, stats.cor.rank([1,2,3,4],[5,6,7,8]));
+      assert.equal(-1, stats.cor.rank([1,2,3,4],[8,7,6,5]));
+      assert.equal( 0, stats.cor.rank([1,2,3,4],[3,1,4,2]));
+    });
+    
+    it('should accept object array and accessors', function() {
+      assert.equal( 1, stats.cor.rank(table, a, b));
+      assert.equal(-1, stats.cor.rank(table, a, c));
+      assert.equal( 0, stats.cor.rank(table, a, d));
+    });
+  });
+
+  describe('cor.dist', function() {
+    var table = [
+      {a:1,  b:-1},
+      {a:0,  b:0},
+      {a:-1, b:1}
+    ];
 
     it('should accept object array and accessors', function() {
-      assert.closeTo( 1, stats.dcor(table, a, b), EPSILON);
-      assert.closeTo( 1, stats.dcor(table, b, a), EPSILON);
-      assert.closeTo( 1, stats.dcor(table, a, a), EPSILON);
-      assert.closeTo( 1, stats.dcor(table, b, b), EPSILON);
+      assert.closeTo(1, stats.cor.dist(table, a, b), EPSILON);
+      assert.closeTo(1, stats.cor.dist(table, b, a), EPSILON);
+      assert.closeTo(1, stats.cor.dist(table, a, a), EPSILON);
+      assert.closeTo(1, stats.cor.dist(table, b, b), EPSILON);
     });
 
     it('should accept two arrays', function() {
       var x = table.map(a), y = table.map(b), z = table.map(c);
-      assert.closeTo( 1, stats.dcor(x, y), EPSILON);
-      assert.closeTo( 1, stats.dcor(y, x), EPSILON);
-      assert.closeTo( 1, stats.dcor(x, x), EPSILON);
-      assert.closeTo( 1, stats.dcor(y, y), EPSILON);
+      assert.closeTo(1, stats.cor.dist(x, y), EPSILON);
+      assert.closeTo(1, stats.cor.dist(y, x), EPSILON);
+      assert.closeTo(1, stats.cor.dist(x, x), EPSILON);
+      assert.closeTo(1, stats.cor.dist(y, y), EPSILON);
     });
     
     it('should return NaN with zero-valued input', function() {
-      assert(isNaN(stats.dcor([0,0,0], [0,0,0])));
-      assert(isNaN(stats.dcor([0,0,0], [1,2,3])));
-      assert(isNaN(stats.dcor([1,2,3], [0,0,0])));
+      assert(isNaN(stats.cor.dist([0,0,0], [0,0,0])));
+      assert(isNaN(stats.cor.dist([0,0,0], [1,2,3])));
+      assert(isNaN(stats.cor.dist([1,2,3], [0,0,0])));
     });
   });
-  
+
+  describe('dist', function() {
+    var table = [
+      {a:1,  b:-1},
+      {a:0,  b:0},
+      {a:-1, b:1}
+    ];
+
+    it('should accept object array and accessors', function() {
+      assert.equal(0, stats.dist(table, a, a));
+      assert.equal(0, stats.dist(table, b, b));
+      assert.equal(Math.sqrt(8), stats.dist(table, a, b));
+      assert.equal(Math.sqrt(8), stats.dist(table, b, a));
+    });
+
+    it('should accept two arrays', function() {
+      var x = table.map(a), y = table.map(b);
+      assert.equal(0, stats.dist(x, x));
+      assert.equal(0, stats.dist(y, y));
+      assert.equal(Math.sqrt(8), stats.dist(x, y));
+      assert.equal(Math.sqrt(8), stats.dist(y, x));
+    });
+    
+    it('should compute non-Euclidean distances', function() {
+      assert.equal(2, stats.dist([1,1], [2,2], 1));
+      assert.equal(4, stats.dist([1,1], [2,2], 0.5));
+      assert.equal(Math.pow(2, 1/3), stats.dist([1,1], [2,2], 3));
+    });
+  });
+
   describe('entropy', function() {
     var even = [1, 1, 1, 1, 1, 1], ee = -Math.log(1/6)/Math.LN2;
     var skew = [6, 0, 0, 0, 0, 0], se = 0;
     
     it('should calculate entropy', function() {
-      console.log("HI", stats.entropy);
       assert.equal(ee, stats.entropy(even));
       assert.equal(se, stats.entropy(skew));
     });

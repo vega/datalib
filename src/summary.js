@@ -1,6 +1,7 @@
 var util = require('./util');
 var stats = require('./stats');
 
+// Compute profiles for all variables in a data set.
 module.exports = function(data, fields) {
   if (data == null || data.length === 0) return null;
   fields = fields || util.keys(data[0]);
