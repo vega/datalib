@@ -42,8 +42,8 @@ u.isNotNull = function(obj) {
 };
 
 u.isBuffer = function(obj) {
-  var isBuffer = require('buffer').isBuffer;
-  return isBuffer && isBuffer(obj);
+  var Buffer = require('buffer').Buffer;
+  return (Buffer && Buffer.isBuffer) ? Buffer.isBuffer(obj) : false;
 };
 
 // type coercion functions

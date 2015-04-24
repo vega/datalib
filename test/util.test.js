@@ -15,6 +15,15 @@ describe('util', function() {
     it('isNumber(0) should be true', function() {
       assert.isTrue(util.isNumber(0));
     });
+
+    it('isBuffer should recognize Buffers', function() {
+      var b = new Buffer('[{"a":1, "b":2}]');
+      assert.isTrue(util.isBuffer(b));
+      assert.isFalse(util.isBuffer(null));
+      assert.isFalse(util.isBuffer(0));
+      assert.isFalse(util.isBuffer("string"));
+      assert.isFalse(util.isBuffer({}));
+    });
   });
   
   describe('comparison function', function() {
