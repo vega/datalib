@@ -1,6 +1,6 @@
 {
   "name": "datalib",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Utilities for loading, summarizing and working with data.",
   "keywords": [
     "data",
