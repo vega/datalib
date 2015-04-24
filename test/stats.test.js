@@ -133,7 +133,7 @@ describe('stats', function() {
     });
   });
 
-  describe('correlation', function() {
+  describe('cor', function() {
     var table = [{a:1, b:0, c:-1}, {a:0, b:1, c:0}, {a:-1, b:0, c:1}],
         a = function(x) { return x.a; },
         b = function(x) { return x.b; },
@@ -170,6 +170,34 @@ describe('stats', function() {
       assert(isNaN(stats.cor([0,0,0], [0,0,0])));
       assert(isNaN(stats.cor([0,0,0], [1,2,3])));
       assert(isNaN(stats.cor([1,2,3], [0,0,0])));
+    });
+  });
+
+  describe('dcor', function() {
+    var table = [{a:1, b:-1}, {a:0, b:0}, {a:-1, b:1}],
+        a = function(x) { return x.a; },
+        b = function(x) { return x.b; };
+
+    it('should accept object array and accessors', function() {
+      assert.closeTo( 1, stats.dcor(table, a, b), EPSILON);
+      assert.closeTo( 1, stats.dcor(table, b, a), EPSILON);
+      assert.closeTo( 1, stats.dcor(table, a, a), EPSILON);
+      assert.closeTo( 1, stats.dcor(table, b, b), EPSILON);
+    });
+
+    it('should accept two arrays', function() {
+      var x = table.map(a),
+          y = table.map(b);
+      assert.closeTo( 1, stats.dcor(x, y), EPSILON);
+      assert.closeTo( 1, stats.dcor(y, x), EPSILON);
+      assert.closeTo( 1, stats.dcor(x, x), EPSILON);
+      assert.closeTo( 1, stats.dcor(y, y), EPSILON);
+    });
+    
+    it('should return NaN with zero-valued input', function() {
+      assert(isNaN(stats.dcor([0,0,0], [0,0,0])));
+      assert(isNaN(stats.dcor([0,0,0], [1,2,3])));
+      assert(isNaN(stats.dcor([1,2,3], [0,0,0])));
     });
   });
 

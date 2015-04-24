@@ -6,7 +6,7 @@ gen.repeat = function(val, n) {
   return a;
 };
 
-gen.zeroes = function(n) {
+gen.zeros = function(n) {
   return gen.repeat(0, n);
 };
 
@@ -34,7 +34,7 @@ gen.random.uniform = function(min, max) {
 	var f = function() {
 		return min + delta * Math.random();
 	};
-	f.samples = function(n) { return gen.zeroes(n).map(f); };
+	f.samples = function(n) { return gen.zeros(n).map(f); };
 	return f;
 };
 
@@ -46,7 +46,7 @@ gen.random.integer = function(a, b) {
 	var f = function() {
 		return a + Math.max(0, Math.floor(b*(Math.random()-0.001)));
 	};
-	f.samples = function(n) { return gen.zeroes(n).map(f); };
+	f.samples = function(n) { return gen.zeros(n).map(f); };
 	return f;
 };
 
@@ -70,6 +70,6 @@ gen.random.normal = function(mean, stdev) {
 		next = mean + y*c*stdev;
 		return mean + x*c*stdev;
 	};
-	f.samples = function(n) { return gen.zeroes(n).map(f); };
+	f.samples = function(n) { return gen.zeros(n).map(f); };
 	return f;
 };

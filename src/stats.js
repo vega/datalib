@@ -1,4 +1,5 @@
 var util = require('./util');
+var gen = require('./generate');
 var stats = {};
 
 // Unique values
@@ -159,6 +160,60 @@ stats.cor = function(values, a, b) {
       n = values.length;
 
   return (dot - n*mua*mub) / ((n-1) * sda * sdb);
+};
+
+// Distance Correlation
+// http://en.wikipedia.org/wiki/Distance_correlation
+stats.dcor = function(values, a, b) {
+  var X = b ? values.map(b) : a,
+      Y = b ? values.map(a) : values;
+  
+  var A = stats.dmat(X),
+      B = stats.dmat(Y),
+      n = A.length,
+      i, aa, bb, ab;
+
+  for (i=0, aa=0, bb=0, ab=0; i<n; ++i) {
+    aa += A[i]*A[i];
+    bb += B[i]*B[i];
+    ab += A[i]*B[i];
+  }
+
+  return Math.sqrt(ab / Math.sqrt(aa*bb));
+};
+
+// Mean-centered distances between elements of vector X
+stats.dmat = function(X) {
+  var n = X.length,
+      m = n*n,
+      A = Array(m),
+      R = gen.zeros(n),
+      M = 0, v, i, j;
+
+  for (i=0; i<n; ++i) {
+    A[i*n+i] = 0;
+    for (j=i+1; j<n; ++j) {
+      A[i*n+j] = (v = Math.abs(X[i] - X[j]));
+      A[j*n+i] = v;
+      R[i] += v;
+      R[j] += v;
+    }
+  }
+
+  for (i=0; i<n; ++i) {
+    M += R[i];
+    R[i] /= n;
+  }
+  M /= m;
+  
+  for (i=0; i<n; ++i) {
+    for (j=i; j<n; ++j) {
+      A[i*n+j] += M - R[i] - R[j];
+      A[j*n+i] = A[i*n+j];
+    }
+  }
+  
+  return A;
 };
 
 // Index of Minimum value of 'f'
