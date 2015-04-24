@@ -220,7 +220,7 @@ stats.cor = function(values, a, b) {
   return (dot - n*mua*mub) / ((n-1) * sda * sdb);
 };
 
-// Compute the sample Spearman rank correlation of two arrays of values.
+// Compute the Spearman rank correlation of two arrays of values.
 stats.cor.rank = function(values, a, b) {
   var ra = b ? stats.rank(values, a) : stats.rank(values),
       rb = b ? stats.rank(values, b) : stats.rank(a),
@@ -254,7 +254,7 @@ stats.cor.dist = function(values, a, b) {
   return Math.sqrt(ab / Math.sqrt(aa*bb));
 };
 
-// Compute the distance between two arrays of numbers.
+// Compute the vector distance between two arrays of numbers.
 // Default is Euclidean (exp=2) distance, configurable via exp argument.
 stats.dist = function(values, a, b, exp) {
   var f = util.isFunction(b),
@@ -378,8 +378,9 @@ stats.profile = function(values, f) {
       max = min,
       M2 = 0,
       median = null,
+      iqr = null,
       vals = [],
-      u = {}, delta, sd, i, v, x, half;
+      u = {}, delta, sd, i, v, x, half, h, h2;
 
   // compute summary stats
   for (i=0, c=0; i<values.length; ++i) {
@@ -401,12 +402,35 @@ stats.profile = function(values, f) {
   M2 = M2 / (count - 1);
   sd = Math.sqrt(M2);
 
-  // compute median
+  // compute median and iqr
   vals.sort(util.cmp);
   half = Math.floor(vals.length/2);
-  median = (vals.length % 2)
-   ? vals[half]
-   : (vals[half-1] + vals[half]) / 2.0;
+  if (vals.length % 2) {
+    median = vals[half];
+    h2 = Math.floor((half+1)/2);
+    if ((half+1) % 2) {
+      iqr = [vals[h2], vals[half + h2]];
+    } else {
+      iqr = [
+        (vals[h2-1]      + vals[h2])      / 2.0,
+        (vals[half+h2-1] + vals[half+h2]) / 2.0
+      ];
+    }
+  } else {
+    median = (vals[half-1] + vals[half]) / 2.0;
+    h2 = Math.floor(half/2);
+    if (vals.length % 4) {
+      iqr = [
+        (0.75*vals[h2]        + 0.25*vals[h2+1]),
+        (0.25*vals[half+h2-1] + 0.75*vals[half+h2])
+      ];
+    } else {
+      iqr = [
+        (0.25*vals[h2-1]      + 0.75*vals[h2]),
+        (0.75*vals[half+h2-1] + 0.25*vals[half+h2])
+      ];
+    }
+  }
 
   return {
     unique:   u,
@@ -416,8 +440,9 @@ stats.profile = function(values, f) {
     min:      min,
     max:      max,
     mean:     mean,
-    median:   median,
     stdev:    sd,
+    median:   median,
+    iqr:      iqr,
     modeskew: sd === 0 ? 0 : (mean - median) / sd
   };
 };

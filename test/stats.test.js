@@ -315,4 +315,17 @@ describe('stats', function() {
     });
   });
 
+  describe('profile', function() {
+    it('should compute iqr correctly', function() {
+      assert.deepEqual([1.00, 1.00], stats.profile([1]).iqr);
+      assert.deepEqual([1.25, 1.75], stats.profile([1,2]).iqr);
+      assert.deepEqual([1.50, 2.50], stats.profile([1,2,3]).iqr);
+      assert.deepEqual([1.75, 3.25], stats.profile([1,2,3,4]).iqr);
+      assert.deepEqual([2.00, 4.00], stats.profile([1,2,3,4,5]).iqr);
+      assert.deepEqual([2.25, 4.75], stats.profile([1,2,3,4,5,6]).iqr);
+      assert.deepEqual([2.50, 5.50], stats.profile([1,2,3,4,5,6,7]).iqr);
+      assert.deepEqual([2.75, 6.25], stats.profile([1,2,3,4,5,6,7,8]).iqr);
+    });
+  });
+
 });
