@@ -238,25 +238,57 @@ stats.maxIndex = function(values, f) {
   return idx;
 };
 
-// Shannon Entropy (base 2) of a set of counts
-stats.entropy = function(counts) {
-  var i, p, s = 0, H = 0;
-  for (i=0; i<counts.length; ++i) {
-    s += counts[i];
+// Shannon Entropy (base 2) of an array of counts
+stats.entropy = function(counts, f) {
+  var i, p, s = 0, H = 0, N = counts.length;
+  for (i=0; i<N; ++i) {
+    s += (f ? f(counts[i]) : counts[i]);
   }
   if (s === 0) return 0;
-  for (i=0; i<counts.length; ++i) {
-    p = counts[i] / s;
+  for (i=0; i<N; ++i) {
+    p = (f ? f(counts[i]) : counts[i]) / s;
     if (p > 0) H += p * Math.log(p) / Math.LN2;
   }
   return -H;
 };
 
-// Normalized Shannon Entropy (base 2) of a set of counts
-stats.entropy.normalized = function(counts) {
-  var H = stats.entropy(counts);
+// Normalized Shannon Entropy (base 2) of an array of counts
+stats.entropy.normalized = function(counts, f) {
+  var H = stats.entropy(counts, f);
   var max = -Math.log(1/counts.length) / Math.LN2;
   return H / max;
+};
+
+// Mutual Information
+// http://en.wikipedia.org/wiki/Mutual_information
+stats.entropy.mutual = function(values, a, b, counts) {
+  var x = counts ? values.map(a) : values,
+      y = counts ? values.map(b) : a,
+      z = counts ? values.map(counts) : b;
+
+  var px = {},
+	    py = {},
+	    i, xx, yy, zz, s = 0, t, N = z.length, p, I = 0;
+
+	for (i=0; i<N; ++i) {
+	  px[x[i]] = 0;
+	  py[y[i]] = 0;
+  }
+
+	for (i=0; i<N; ++i) {
+		px[x[i]] += z[i];
+		py[y[i]] += z[i];
+		s += z[i];
+	}
+
+	t = 1 / (s * Math.LN2);
+	for (i=0; i<N; ++i) {
+		if (z[i] === 0) continue;
+		p = (s * z[i]) / (px[x[i]] * py[y[i]]);
+		I += z[i] * t * Math.log(p);
+	}
+
+	return I;
 };
 
 // Profile of summary statistics for attribute 'f'

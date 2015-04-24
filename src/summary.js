@@ -38,7 +38,7 @@ function printQuantitativeProfile(p) {
     "median:   " + p.median,
     "mean:     " + p.mean,
     "stdev:    " + p.stdev,
-    "skew:     " + p.skew
+    "modeskew: " + p.modeskew
   ].join("\n");
 }
 

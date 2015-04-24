@@ -4,6 +4,11 @@ var assert = require('chai').assert;
 var stats = require('../src/stats');
 var EPSILON = 1e-15;
 
+var a = function(x) { return x.a; },
+    b = function(x) { return x.b; },
+    c = function(x) { return x.c; },
+    d = function(x) { return x.d; };
+
 describe('stats', function() {
 
   describe('unique', function() {
@@ -102,10 +107,7 @@ describe('stats', function() {
   });
   
   describe('dot', function() {
-    var table = [{a:1, b:2, c:3}, {a:4, b:5, c:6}, {a:7, b:8, c:9}],
-        a = function(x) { return x.a; },
-        b = function(x) { return x.b; },
-        c = function(x) { return x.c; };
+    var table = [{a:1, b:2, c:3}, {a:4, b:5, c:6}, {a:7, b:8, c:9}];
 
     it('should accept object array and accessors', function() {
       assert.equal(1*2+4*5+7*8, stats.dot(table, a, b));
@@ -117,9 +119,7 @@ describe('stats', function() {
     });
 
     it('should accept two arrays', function() {
-      var x = table.map(a),
-          y = table.map(b),
-          z = table.map(c);
+      var x = table.map(a), y = table.map(b), z = table.map(c);
       assert.equal(1*2+4*5+7*8, stats.dot(x, y));
       assert.equal(1*2+4*5+7*8, stats.dot(y, x));
       assert.equal(1*3+4*6+7*9, stats.dot(x, z));
@@ -134,10 +134,7 @@ describe('stats', function() {
   });
 
   describe('cor', function() {
-    var table = [{a:1, b:0, c:-1}, {a:0, b:1, c:0}, {a:-1, b:0, c:1}],
-        a = function(x) { return x.a; },
-        b = function(x) { return x.b; },
-        c = function(x) { return x.c; };
+    var table = [{a:1, b:0, c:-1}, {a:0, b:1, c:0}, {a:-1, b:0, c:1}];
 
     it('should accept object array and accessors', function() {
       assert.closeTo( 0, stats.cor(table, a, b), EPSILON);
@@ -152,9 +149,7 @@ describe('stats', function() {
     });
 
     it('should accept two arrays', function() {
-      var x = table.map(a),
-          y = table.map(b),
-          z = table.map(c);
+      var x = table.map(a), y = table.map(b), z = table.map(c);
       assert.closeTo( 0, stats.cor(x, y), EPSILON);
       assert.closeTo( 0, stats.cor(y, x), EPSILON);
       assert.closeTo(-1, stats.cor(x, z), EPSILON);
@@ -174,9 +169,7 @@ describe('stats', function() {
   });
 
   describe('dcor', function() {
-    var table = [{a:1, b:-1}, {a:0, b:0}, {a:-1, b:1}],
-        a = function(x) { return x.a; },
-        b = function(x) { return x.b; };
+    var table = [{a:1, b:-1}, {a:0, b:0}, {a:-1, b:1}];
 
     it('should accept object array and accessors', function() {
       assert.closeTo( 1, stats.dcor(table, a, b), EPSILON);
@@ -186,8 +179,7 @@ describe('stats', function() {
     });
 
     it('should accept two arrays', function() {
-      var x = table.map(a),
-          y = table.map(b);
+      var x = table.map(a), y = table.map(b), z = table.map(c);
       assert.closeTo( 1, stats.dcor(x, y), EPSILON);
       assert.closeTo( 1, stats.dcor(y, x), EPSILON);
       assert.closeTo( 1, stats.dcor(x, x), EPSILON);
@@ -198,6 +190,58 @@ describe('stats', function() {
       assert(isNaN(stats.dcor([0,0,0], [0,0,0])));
       assert(isNaN(stats.dcor([0,0,0], [1,2,3])));
       assert(isNaN(stats.dcor([1,2,3], [0,0,0])));
+    });
+  });
+  
+  describe('entropy', function() {
+    var even = [1, 1, 1, 1, 1, 1], ee = -Math.log(1/6)/Math.LN2;
+    var skew = [6, 0, 0, 0, 0, 0], se = 0;
+    
+    it('should calculate entropy', function() {
+      console.log("HI", stats.entropy);
+      assert.equal(ee, stats.entropy(even));
+      assert.equal(se, stats.entropy(skew));
+    });
+    
+    it('should handle accessor argument', function() {
+      var wrap = function(a, x) { return (a.push({a:x}), a); };
+      assert.equal(ee, stats.entropy(even.reduce(wrap, []), a));
+      assert.equal(se, stats.entropy(skew.reduce(wrap, []), a));
+    });
+
+    it('should handle zero vectors', function() {
+      assert.equal(0, stats.entropy([0,0,0,0]));
+    });
+    
+    it('should handle zero vectors', function() {
+      assert.equal(0, stats.entropy([0,0,0,0]));
+    });
+    
+    it('should calculate normalized entropy', function() {
+      assert.equal(1, stats.entropy.normalized(even));
+      assert.equal(0, stats.entropy.normalized(skew));
+      assert.equal(0, stats.entropy.normalized([0,0,0,0]));
+    });
+  });
+  
+  describe('entropy.mutual', function() {
+    var table = [
+      {a:'a', b:1, c:1, d:1},
+      {a:'a', b:2, c:0, d:1},
+      {a:'b', b:1, c:0, d:0},
+      {a:'b', b:2, c:1, d:0}
+    ];
+
+    it('should accept object array and accessors', function() {
+      assert.equal(1, stats.entropy.mutual(table, a, b, c));
+      assert.equal(0, stats.entropy.mutual(table, a, b, d));
+    });
+
+    it('should handle zero vectors', function() {
+      var u = table.map(a), v = table.map(b),
+          x = table.map(c), y = table.map(d);
+      assert.equal(1, stats.entropy.mutual(u, v, x));
+      assert.equal(0, stats.entropy.mutual(u, v, y));
     });
   });
 
