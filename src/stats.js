@@ -71,6 +71,17 @@ stats.median = function(values, f) {
   }
 };
 
+// Compute the quantile of a sorted array of numbers.
+// Adapted from the D3.js implementation.
+stats.quantile = function(values, f, p) {
+  if (p === undefined) { p = f; f = util.identity; }
+  var H = (values.length - 1) * p + 1,
+      h = Math.floor(H),
+      v = +f(values[h - 1]),
+      e = H - h;
+  return e ? v + e * (f(values[h]) - v) : v;
+};
+
 // Compute the mean (average) of an array of numbers.
 stats.mean = function(values, f) {
   if (!util.isArray(values) || values.length===0) return 0;
@@ -377,8 +388,6 @@ stats.profile = function(values, f) {
       min = f ? f(values[0]) : values[0],
       max = min,
       M2 = 0,
-      median = null,
-      iqr = null,
       vals = [],
       u = {}, delta, sd, i, v, x, half, h, h2;
 
@@ -402,35 +411,8 @@ stats.profile = function(values, f) {
   M2 = M2 / (count - 1);
   sd = Math.sqrt(M2);
 
-  // compute median and iqr
+  // sort values for median and iqr
   vals.sort(util.cmp);
-  half = Math.floor(vals.length/2);
-  if (vals.length % 2) {
-    median = vals[half];
-    h2 = Math.floor((half+1)/2);
-    if ((half+1) % 2) {
-      iqr = [vals[h2], vals[half + h2]];
-    } else {
-      iqr = [
-        (vals[h2-1]      + vals[h2])      / 2.0,
-        (vals[half+h2-1] + vals[half+h2]) / 2.0
-      ];
-    }
-  } else {
-    median = (vals[half-1] + vals[half]) / 2.0;
-    h2 = Math.floor(half/2);
-    if (vals.length % 4) {
-      iqr = [
-        (0.75*vals[h2]        + 0.25*vals[h2+1]),
-        (0.25*vals[half+h2-1] + 0.75*vals[half+h2])
-      ];
-    } else {
-      iqr = [
-        (0.25*vals[h2-1]      + 0.75*vals[h2]),
-        (0.75*vals[half+h2-1] + 0.25*vals[half+h2])
-      ];
-    }
-  }
 
   return {
     unique:   u,
@@ -441,9 +423,9 @@ stats.profile = function(values, f) {
     max:      max,
     mean:     mean,
     stdev:    sd,
-    median:   median,
-    iqr:      iqr,
-    modeskew: sd === 0 ? 0 : (mean - median) / sd
+    median:   (v = stats.quantile(vals, 0.5)),
+    iqr:      [stats.quantile(vals, 0.25), stats.quantile(vals, 0.75)],
+    modeskew: sd === 0 ? 0 : (mean - v) / sd
   };
 };
 
