@@ -4,7 +4,7 @@ var d3 = require('d3');
 var context = {
   formats:    [],
   format_map: {},
-  truncate:   require('./truncate')
+  truncate:   util.truncate
 };
 
 function template(text) {
@@ -162,7 +162,7 @@ var template_escaper = /\\|'|\r|\n|\u2028|\u2029/g;
 
 function template_escapeChar(match) {
   return '\\' + template_escapes[match];
-};
+}
 
 function template_format(pattern, fmt) {
   if ((pattern[0] === "'" && pattern[pattern.length-1] === "'") ||
@@ -178,4 +178,4 @@ function template_format(pattern, fmt) {
     context.format_map[pattern] = i;
   }
   return context.format_map[pattern];
-};
+}

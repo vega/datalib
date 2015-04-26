@@ -2,7 +2,6 @@
 
 var assert = require('chai').assert;
 var util = require('../src/util');
-var tree = require('../src/tree');
 var read = require('../src/import/read');
 
 var fs = require('fs');
@@ -107,7 +106,6 @@ describe('read', function() {
     it('should read treejson data', function() {
       var data = null;
       assert.doesNotThrow(function() { data = read(flare, {type:'treejson'}); });
-      assert.equal(null, data[0][tree.fields.parent]);
       assert.equal(json.name, data[0].name);
     });
   });
