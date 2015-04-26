@@ -126,17 +126,16 @@ stats.modeskew = function(values, f) {
 };
 
 // Find the minimum and maximum of an array of values.
-// Output: '{min: x, max: y}'
-stats.minmax = function(values, f) {
-  var s = {min: +Infinity, max: -Infinity}, v, i, n;
+stats.extent = function(values, f) {
+  var s = [+Infinity, -Infinity], v, i, n;
   for (i=0; i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
     if (v != null) {
-      if (v > s.max) s.max = v;
-      if (v < s.min) s.min = v;
+      if (v < s[0]) s[0] = v;
+      if (v > s[1]) s[1] = v;
     }
   }
-  return s;
+  return (s.min = s[0], s.max = s[1], s);
 };
 
 // Find the integer index of the first-observed minimum value.
