@@ -224,11 +224,11 @@ describe('util', function() {
   });
   
   describe('vals', function() {
-    it("should enumerate every defined key", function() {
+    it("should enumerate every defined value", function() {
       assert.deepEqual(util.vals({a: 1, b: 1}), [1, 1]);
     });
 
-    it("should include keys defined on prototypes", function() {
+    it("should include values defined on prototypes", function() {
       function Abc() {
         this.a = 1;
         this.b = 2;
@@ -237,7 +237,7 @@ describe('util', function() {
       assert.deepEqual(util.vals(new Abc()), [1, 2, 3]);
     });
 
-    it("should include keys with null or undefined values", function() {
+    it("should include values with null or undefined values", function() {
       assert.deepEqual(util.vals({a: undefined, b: null, c: NaN}), [undefined, null, NaN]);
     });
   });
