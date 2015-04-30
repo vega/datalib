@@ -28,11 +28,13 @@ gen.range = function(start, stop, step) {
 gen.random = {};
 
 gen.random.uniform = function(min, max) {
-	min = min || 0;
-	max = max || 1;
-	var delta = max - min;
+  if (max === undefined) {
+		max = min;
+		min = 0;
+	}
+	var d = max - min;
 	var f = function() {
-		return min + delta * Math.random();
+		return min + d * Math.random();
 	};
 	f.samples = function(n) { return gen.zeros(n).map(f); };
 	return f;
@@ -43,8 +45,9 @@ gen.random.integer = function(a, b) {
 		b = a;
 		a = 0;
 	}
+  var d = b - a;
 	var f = function() {
-		return a + Math.max(0, Math.floor(b*(Math.random()-0.001)));
+		return a + Math.floor(d * Math.random());
 	};
 	f.samples = function(n) { return gen.zeros(n).map(f); };
 	return f;
