@@ -127,37 +127,36 @@ stats.modeskew = function(values, f) {
 
 // Find the minimum and maximum of an array of values.
 stats.extent = function(values, f) {
-  var s = [+Infinity, -Infinity], v, i, n;
-  for (i=0; i<values.length; ++i) {
+  var a, b, v, i, n = values.length;
+  for (i=0; i<n; ++i) {
+    v = f ? f(values[i]) : values[i];
+    if (v != null) { a = b = v; break; }
+  }
+  for (; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
     if (v != null) {
-      if (v < s[0]) s[0] = v;
-      if (v > s[1]) s[1] = v;
+      if (v < a) a = v;
+      if (v > b) b = v;
     }
   }
-  return (s.min = s[0], s.max = s[1], s);
+  return [a, b];
 };
 
-// Find the integer index of the first-observed minimum value.
-stats.minIndex = function(values, f) {
-  if (!util.isArray(values) || values.length==0) return -1;
-  var idx = 0, v, i, n, min = +Infinity;
-  for (i=0; i<values.length; ++i) {
+// Find the integer indices of the minimum and maximum values.
+stats.extent.index = function(values, f) {
+  var a, b, x, y, v, i, n = values.length;
+  for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null && v < min) { min = v; idx = i; }
+    if (v != null) { a = b = v; x = y = i; break; }
   }
-  return idx;
-};
-
-// Find the integer index of the first-observed maximum value.
-stats.maxIndex = function(values, f) {
-  if (!util.isArray(values) || values.length==0) return -1;
-  var idx = 0, v, i, n, max = -Infinity;
-  for (i=0; i<values.length; ++i) {
+  for (; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null && v > max) { max = v; idx = i; }
+    if (v != null) {
+      if (v < a) { a = v; x = i; }
+      if (v > b) { b = v; y = i; }
+    }
   }
-  return idx;
+  return [x, y];
 };
 
 // Compute the dot product of two arrays of numbers.

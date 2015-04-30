@@ -82,7 +82,55 @@ describe('stats', function() {
       assert.equal(stats.count.nulls([1, undefined, 2, undefined, 3]), 2);
     });
   });
-  
+
+  describe('extent', function() {
+    it('should calculate min and max values', function() {
+      var e = stats.extent([1, 2, 3, 4, 5]);
+      assert.equal(e[0], 1);
+      assert.equal(e[1], 5);
+
+      e = stats.extent([1.1, 2.2, 3.3, 4.4, 5.5]);
+      assert.equal(e[0], 1.1);
+      assert.equal(e[1], 5.5);
+    });
+
+    it('should handle non-numeric values', function() {
+      var e = stats.extent(['a', 'e', 'b', 'c', 'd']);
+      assert.equal(e[0], 'a');
+      assert.equal(e[1], 'e');
+    });
+
+    it('should ignore null values', function() {
+      var e = stats.extent([2, 1, null, 5, 4]);
+      assert.equal(e[0], 1);
+      assert.equal(e[1], 5);
+    });
+  });
+
+  describe('extent.index', function() {
+    it('should calculate min and max indices', function() {
+      var e = stats.extent.index([1, 2, 3, 4, 5]);
+      assert.equal(e[0], 0);
+      assert.equal(e[1], 4);
+
+      e = stats.extent.index([1.1, 2.2, 3.3, 4.4, 5.5]);
+      assert.equal(e[0], 0);
+      assert.equal(e[1], 4);
+    });
+
+    it('should handle non-numeric values', function() {
+      var e = stats.extent.index(['a', 'e', 'b', 'c', 'd']);
+      assert.equal(e[0], 0);
+      assert.equal(e[1], 1);
+    });
+
+    it('should ignore null values', function() {
+      var e = stats.extent.index([2, 1, null, 5, 4]);
+      assert.equal(e[0], 1);
+      assert.equal(e[1], 3);
+    });
+  });
+
   describe('median', function() {
     it('should calculate median values', function() {
       assert.equal(stats.median([3, 1, 2]), 2);
@@ -91,6 +139,24 @@ describe('stats', function() {
     
     it('should ignore null values', function() {
       assert.equal(stats.median([1, 2, null]), 1.5);
+    });
+  });
+
+  describe('quantile', function() {
+    it('should calculate quantile values', function() {
+      var a = [1, 2, 3, 4, 5];
+      assert.equal(stats.quantile(a, 0.00), 1);
+      assert.equal(stats.quantile(a, 0.25), 2);
+      assert.equal(stats.quantile(a, 0.50), 3);
+      assert.equal(stats.quantile(a, 0.75), 4);
+      assert.equal(stats.quantile(a, 1.00), 5);
+
+      var a = [1, 2, 3, 4];
+      assert.equal(stats.quantile(a, 0.00), 1);
+      assert.equal(stats.quantile(a, 0.25), 1.75);
+      assert.equal(stats.quantile(a, 0.50), 2.5);
+      assert.equal(stats.quantile(a, 0.75), 3.25);
+      assert.equal(stats.quantile(a, 1.00), 4);
     });
   });
   
