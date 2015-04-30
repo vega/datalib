@@ -18,10 +18,6 @@ function browser() {
     .external(['d3', 'topojson']); 
 }
 
-function watcher() {
-  return watchify(browser());
-}
-
 function build() {
   return browser().bundle()
     .pipe(source('datalib.js'))
