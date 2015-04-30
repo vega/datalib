@@ -49,3 +49,10 @@ To use datalib in the browser, you need to build the datalib.js and datalib.min.
 1. Install gulp, as needed. Follow [step 1 on the Gulp Getting Started guide](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md).
 2. Run `npm install` in the datalib folder to install dependencies.
 3. Run `gulp`.
+
+## Dependencies
+
+When used in the browser, datalib has two (weak) dependencies to note. If dependent methods are invoked, the appropriate library (either [D3.js](http://d3js.org) or [TopoJSON](https://github.com/mbostock/topojson)) is expected to reside in the global scope.
+
+1. [D3.js](http://d3js.org) is used for CSV (`dl.csv`) and TSV (`dl.tsv`) import, and by the `format` filter of `dl.template` string templates.
+2. [TopoJSON](https://github.com/mbostock/topojson) is used for TopoJSON (`dl.topojson`) file parsing.
