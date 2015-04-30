@@ -225,7 +225,7 @@ u.truncate = function(s, length, pos, word, ellipsis) {
 
   switch (pos) {
     case "left":
-      return ellipsis + (word ? u_truncateOnWord(s,l,1) : s.slice(len-l));
+      return ellipsis + (word ? truncateOnWord(s,l,1) : s.slice(len-l));
     case "middle":
     case "center":
       var l1 = Math.ceil(l/2), l2 = Math.floor(l/2);

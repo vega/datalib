@@ -242,6 +242,13 @@ describe('util', function() {
     });
   });
 
+  describe('toMap', function() {
+    it("should return a boolean map of array values", function() {
+      var m = util.toMap([1,3,5]);
+      assert.deepEqual({'1':1, '3':1, '5':1}, m);
+    });
+  });
+
   describe('field', function() {
     it('should treat \\. as . in field name', function() {
       assert.deepEqual(util.field('a\\.b\\.c'), ['a.b.c' ]);
@@ -278,6 +285,28 @@ describe('util', function() {
 
     it('should handle property for number arguments', function() {
       assert.equal(util.accessor(1)(['a', 'b']), 'b');
+    });
+  });
+
+  describe('mutator', function() {
+    it('should handle property of simple String argument', function() {
+      var o = {a: 1};
+      util.mutator('a')(o, 2);
+      assert.equal(2, o.a);
+    });
+
+    it('should resolve property paths for String arguments with "."', function() {
+      var o = {'a.b': {'c': {'d': 'value'}}};
+      util.mutator('a\\.b.c.d')(o, 'hello');
+      assert.equal(o['a.b'].c.d, 'hello');
+    });
+
+    it('should handle property for number arguments', function() {
+      var o = [1,2,3];
+      util.mutator(0)(o, 2);
+      util.mutator(1)(o, 3);
+      util.mutator(2)(o, 1);
+      assert.deepEqual([2,3,1], o);
     });
   });
 
@@ -365,5 +394,30 @@ describe('util', function() {
       assert.throws(f);
     });
   });
-  
+
+  describe('startsWith', function() {
+    it('should check string prefixes', function() {
+      assert.isTrue(util.startsWith('1234512345', '12345'));
+      assert.isFalse(util.startsWith('1234554321', '54321'));
+    });
+  });
+
+  describe('truncate', function() {
+    it('should reduce string length', function() {
+      assert.equal(util.truncate('123456789', 5), '12...');
+      assert.equal(util.truncate('123456789', 5, null, null, ""), '12...');
+    });
+
+    it('should respect position argument', function() {
+      assert.equal(util.truncate('123456789', 5, 'right'), '12...');
+      assert.equal(util.truncate('123456789', 5, 'left'), '...89');
+      assert.equal(util.truncate('123456789', 5, 'middle'), '1...9');
+    });
+
+    it('should truncate on word boundary', function() {
+      assert.equal(util.truncate('hello there', 10, 'right', true), 'hello...');
+      assert.equal(util.truncate('hello there', 10, 'left', true), '...there');
+      assert.equal(util.truncate('hello there friend', 15, 'middle', true), 'hello...friend');
+    });
+  });
 });
