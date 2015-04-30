@@ -1,12 +1,13 @@
 var util = require('./util');
 
 var dl = {
-  load: require('./import/load'),
-  read: require('./import/read'),
-  bin: require('./bin'),
+  load:      require('./import/load'),
+  read:      require('./import/read'),
+  bin:       require('./bin'),
   histogram: require('./histogram'),
-  summary: require('./summary'),
-  template: require('./template')
+  summary:   require('./summary'),
+  template:  require('./template'),
+  dateunits: require('./date-units')
 };
 
 util.extend(dl, util);
