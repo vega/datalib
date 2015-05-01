@@ -1,3 +1,4 @@
+var Buffer = require('buffer').Buffer;
 var u = module.exports = {};
 
 // where are we?
@@ -38,13 +39,10 @@ u.isDate = function(obj) {
 };
 
 u.isNotNull = function(obj) {
-  return obj != null; // TODO include NaN here?
+  return obj != null && (typeof obj !== 'number' ? true : !isNaN(obj));
 };
 
-u.isBuffer = function(obj) {
-  var Buffer = require('buffer').Buffer;
-  return (Buffer && Buffer.isBuffer) ? Buffer.isBuffer(obj) : false;
-};
+u.isBuffer = (Buffer && Buffer.isBuffer) || u.false;
 
 // type coercion functions
 
@@ -73,6 +71,8 @@ function util_escape_str(x) {
 u.identity = function(x) { return x; };
 
 u.true = function() { return true; };
+
+u.false = function() { return false; };
 
 u.duplicate = function(obj) {
   return JSON.parse(JSON.stringify(obj));

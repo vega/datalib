@@ -58,7 +58,7 @@ stats.count.nulls = function(values, f) {
   return count;
 };
 
-// Compute the median of an array of values.
+// Compute the median of an array of numbers.
 stats.median = function(values, f) {
   if (!util.isArray(values) || values.length===0) return 0;
   if (f) values = values.map(f);
@@ -88,7 +88,7 @@ stats.mean = function(values, f) {
   var mean = 0, delta, i, c, v;
   for (i=0, c=0; i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null) {
+    if (v != null && !isNaN(v)) {
       delta = v - mean;
       mean = mean + delta / (++c);
     }
@@ -102,7 +102,7 @@ stats.variance = function(values, f) {
   var mean = 0, M2 = 0, delta, i, c, v;
   for (i=0, c=0; i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null) {
+    if (v != null && !isNaN(v)) {
       delta = v - mean;
       mean = mean + delta / (++c);
       M2 = M2 + delta * (v - mean);
@@ -130,11 +130,11 @@ stats.extent = function(values, f) {
   var a, b, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null) { a = b = v; break; }
+    if (util.isNotNull(v)) { a = b = v; break; }
   }
   for (; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null) {
+    if (util.isNotNull(v)) {
       if (v < a) a = v;
       if (v > b) b = v;
     }
@@ -147,11 +147,11 @@ stats.extent.index = function(values, f) {
   var a, b, x, y, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null) { a = b = v; x = y = i; break; }
+    if (util.isNotNull(v)) { a = b = v; x = y = i; break; }
   }
   for (; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null) {
+    if (util.isNotNull(v)) {
       if (v < a) { a = v; x = i; }
       if (v > b) { b = v; y = i; }
     }
@@ -161,17 +161,19 @@ stats.extent.index = function(values, f) {
 
 // Compute the dot product of two arrays of numbers.
 stats.dot = function(values, a, b) {
-  var sum = 0, i;
+  var sum = 0, i, v;
   if (!b) {
     if (values.length !== a.length) {
       throw Error("Array lengths must match.");
     }
     for (i=0; i<values.length; ++i) {
-      sum += values[i] * a[i];
+      v = values[i] * a[i];
+      if (!isNaN(v)) sum += v;
     }
   } else {  
     for (i=0; i<values.length; ++i) {
-      sum += a(values[i]) * b(values[i]);
+      v = a(values[i]) * b(values[i]);
+      if (!isNaN(v)) sum += v;
     }
   }
   return sum;
@@ -338,8 +340,7 @@ stats.entropy = function(counts, f) {
 // Compute the normalized Shannon entropy (log base 2) of an array of counts.
 stats.entropy.normalized = function(counts, f) {
   var H = stats.entropy(counts, f);
-  var max = -Math.log(1/counts.length) / Math.LN2;
-  return H / max;
+  return H===0 ? 0 : H * Math.LN2 / Math.log(counts.length);
 };
 
 // Compute the mutual information between two discrete variables.
@@ -376,15 +377,12 @@ stats.entropy.mutual = function(values, a, b, counts) {
 
 // Compute a profile of summary statistics for a variable.
 stats.profile = function(values, f) {
-  if (!util.isArray(values) || values.length===0) return null;
-
-  // init
   var p = {},
       mean = 0,
       count = 0,
       distinct = 0,
-      min = f ? f(values[0]) : values[0],
-      max = min,
+      min = null,
+      max = null,
       M2 = 0,
       vals = [],
       u = {}, delta, sd, i, v, x, half, h, h2;
@@ -392,12 +390,14 @@ stats.profile = function(values, f) {
   // compute summary stats
   for (i=0, c=0; i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null) {
-      // update unique values
-      u[v] = (v in u) ? u[v] + 1 : (distinct += 1, 1);
+
+    // update unique values
+    u[v] = (v in u) ? u[v] + 1 : (distinct += 1, 1);
+
+    if (util.isNotNull(v)) {
       // update min/max
-      if (v < min) min = v;
-      if (v > max) max = v;
+      if (min===null || v < min) min = v;
+      if (max===null || v > max) max = v;
       // update stats
       x = (typeof v === 'string') ? v.length : v;
       delta = x - mean;
@@ -422,8 +422,8 @@ stats.profile = function(values, f) {
     mean:     mean,
     stdev:    sd,
     median:   (v = stats.quantile(vals, 0.5)),
-    iqr:      [stats.quantile(vals, 0.25), stats.quantile(vals, 0.75)],
-    modeskew: sd === 0 ? 0 : (mean - v) / sd
+    modeskew: sd === 0 ? 0 : (mean - v) / sd,
+    iqr:      [stats.quantile(vals, 0.25), stats.quantile(vals, 0.75)]
   };
 };
 

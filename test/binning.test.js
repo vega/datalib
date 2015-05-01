@@ -108,10 +108,42 @@ describe('binning', function() {
       assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor("count")));
     });
 
+    it('should ignore null values among numbers', function() {
+      var numbers = [null,1,2,3,NaN,4,5,6,undefined,7,1,2,3,4,5,1,null,2,3];
+      var h = histogram(numbers, {maxbins: 10});
+      assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor("value")));
+      assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor("count")));
+    });
+
+    it('should bin integer values', function() {
+      var numbers = [1,2,3,4,5,6,7,1,2,3,4,5,1,2,3];
+      var h = histogram(numbers, {type: 'integer', maxbins: 20});
+      assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor("value")));
+      assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor("count")));
+    });
+
     it('should bin date values', function() {
       var dates = [
         new Date(1979, 5, 15),
         new Date(1982, 2, 19),
+        new Date(1985, 4, 20)
+      ];
+      var h = histogram(dates);
+      assert(h.bins.unit.type, 'year');
+      assert.deepEqual(
+        gen.range(1979, 1986).map(units.year.date),
+        h.map(util.accessor("value"))
+      );
+      assert.deepEqual([1,0,0,1,0,0,1], h.map(util.accessor("count")));
+    });
+
+    it('should ignore null values among dates', function() {
+      var dates = [
+        null,
+        new Date(1979, 5, 15),
+        undefined,
+        new Date(1982, 2, 19),
+        NaN,
         new Date(1985, 4, 20)
       ];
       var h = histogram(dates);
@@ -128,7 +160,7 @@ describe('binning', function() {
       var h = histogram(strings);
       assert.deepEqual(['a','b','c','d','e','f'], h.map(util.accessor("value")));
       assert.deepEqual([6,5,8,5,7,5], h.map(util.accessor("count")));
-    });  
+    });
   });
 
 });
