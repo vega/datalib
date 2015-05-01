@@ -404,20 +404,20 @@ describe('util', function() {
 
   describe('truncate', function() {
     it('should reduce string length', function() {
-      assert.equal(util.truncate('123456789', 5), '12...');
-      assert.equal(util.truncate('123456789', 5, null, null, ""), '12...');
+      assert.equal(util.truncate('123456789', 5), '1234…');
+      assert.equal(util.truncate('123456789', 5, null, null, ""), '12345');
     });
 
     it('should respect position argument', function() {
-      assert.equal(util.truncate('123456789', 5, 'right'), '12...');
-      assert.equal(util.truncate('123456789', 5, 'left'), '...89');
-      assert.equal(util.truncate('123456789', 5, 'middle'), '1...9');
+      assert.equal(util.truncate('123456789', 5, 'right'), '1234…');
+      assert.equal(util.truncate('123456789', 5, 'left'), '…6789');
+      assert.equal(util.truncate('123456789', 5, 'middle'), '12…89');
     });
 
     it('should truncate on word boundary', function() {
-      assert.equal(util.truncate('hello there', 10, 'right', true), 'hello...');
-      assert.equal(util.truncate('hello there', 10, 'left', true), '...there');
-      assert.equal(util.truncate('hello there friend', 15, 'middle', true), 'hello...friend');
+      assert.equal(util.truncate('hello there', 10, 'right', true), 'hello…');
+      assert.equal(util.truncate('hello there', 10, 'left', true), '…there');
+      assert.equal(util.truncate('hello there friend', 15, 'middle', true), 'hello…friend');
     });
   });
 });

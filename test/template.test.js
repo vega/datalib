@@ -87,14 +87,14 @@ describe('template', function() {
     var f = template("{{a|truncate:5}}");
     assert.equal("hello", f({a: "hello"}));
 
-    f = template("{{a|truncate:8}}");
-    assert.equal("hello...", f({a: "hello there"}));
+    f = template("{{a|truncate:6}}");
+    assert.equal("hello…", f({a: "hello there"}));
 
-    f = template("{{a|truncate:8,left}}");
-    assert.equal("...there", f({a: "hello there"}));
+    f = template("{{a|truncate:6,left}}");
+    assert.equal("…there", f({a: "hello there"}));
 
     f = template("hello {{a|truncate:5}}");
-    assert.equal("hello 12...", f({a: 123456}));
+    assert.equal("hello 1234…", f({a: 123456}));
   });
 
   it('should handle number filter', function() {

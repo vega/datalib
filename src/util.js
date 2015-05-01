@@ -220,7 +220,7 @@ u.startsWith = String.prototype.startsWith
 u.truncate = function(s, length, pos, word, ellipsis) {
   var len = s.length;
   if (len <= length) return s;
-  ellipsis = ellipsis || "...";
+  ellipsis = ellipsis !== undefined ? String(ellipsis) : "…";
   var l = Math.max(0, length - ellipsis.length);
 
   switch (pos) {
