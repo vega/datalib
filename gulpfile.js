@@ -3,7 +3,6 @@ var gulp = require('gulp'),
     buffer = require('vinyl-buffer'),
     rename = require('gulp-rename'),
     source = require('vinyl-source-stream'),
-    sourcemaps = require('gulp-sourcemaps'),
     uglify = require('gulp-uglify'),
     gutil = require('gulp-util'),
     mocha = require('gulp-spawn-mocha');
@@ -23,11 +22,9 @@ function build() {
     .pipe(source('datalib.js'))
     .pipe(buffer())
     .pipe(gulp.dest('.'))
-    .pipe(sourcemaps.init({loadMaps: true}))
     // This will minify and rename to datalib.min.js
     .pipe(uglify())
     .pipe(rename({ extname: '.min.js' }))
-    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('.')); 
 }
 

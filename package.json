@@ -1,6 +1,6 @@
 {
   "name": "datalib",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "JavaScript utilites for loading, summarizing and working with data.",
   "keywords": [
     "data",
@@ -33,7 +33,6 @@
     "chai": "^1.10.0",
     "gulp": "^3.8.11",
     "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^1.5.1",
     "gulp-spawn-mocha": "^2.0.1",
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.4",
