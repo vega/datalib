@@ -54,5 +54,5 @@ To use datalib in the browser, you need to build the datalib.js and datalib.min.
 
 When used in the browser, datalib has two (weak) dependencies to note. If dependent methods are invoked, the appropriate library (either [D3.js](http://d3js.org) or [TopoJSON](https://github.com/mbostock/topojson)) is expected to reside in the global scope.
 
-1. [D3.js](http://d3js.org) is used for CSV (`dl.csv`) and TSV (`dl.tsv`) import, and by the `format` filter of `dl.template` string templates.
-2. [TopoJSON](https://github.com/mbostock/topojson) is used for TopoJSON (`dl.topojson`) file parsing.
+1. [D3.js](http://d3js.org) is used for CSV ([dl.csv](https://github.com/uwdata/datalib/wiki/Import#dl_csv)) and TSV ([dl.tsv](https://github.com/uwdata/datalib/wiki/Import#dl_tsv)) import, and by the `number` and `time` formatting filters of [dl.template](https://github.com/uwdata/datalib/wiki/Utilities#dl_template) string templates.
+2. [TopoJSON](https://github.com/mbostock/topojson) is used for TopoJSON ([dl.topojson](https://github.com/uwdata/datalib/wiki/Import#dl_topojson)) file parsing.
