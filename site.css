@@ -77,3 +77,11 @@ a:hover {
 .credits a:hover img {
   border: 1px solid #f05a00;
 }
+
+.code {
+  font-family: Monaco, Courier New;
+  color: #333;
+  font-size: 15px;
+  background-color: #ddd;
+  padding: 1px 4px;
+}
