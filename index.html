@@ -8,6 +8,41 @@
     <script src="d3.min.js"></script>
     <script src="topojson.min.js"></script>
     <script src="datalib.js"></script>
+    <script>
+    var datasets = [
+      "data/antibiotics.json",
+      "data/barley.json",
+      "data/cars.json",
+      "data/crimea.json",
+      "data/driving.json",
+      "data/flare.json",
+      "data/iris.json",
+      "data/jobs.json",
+      "data/miserables.json",
+      "data/napoleon.json",
+      "data/population.json",
+      "data/stocks.csv",
+      "data/unemployment.tsv",
+      "data/us-10m.json",
+      "data/weather.json",
+      "data/world-110m.json"
+    ];
+    var msg = "Welcome to Datalib!\n\n"
+      + "Datalib (dl), D3.js (d3) and TopoJSON (topojson)"
+      + " are all available in the global scope."
+      + " Available datasets are included in the 'datasets' variable.\n\n"
+      + "You can load a file like so:\n\n"
+      + "// Load a CSV file. Datalib does type inference for you.\n"
+      + "var data = dl.csv('data/stocks.csv');\n\n"
+      + "// Show summary statistics for each column of the data table.\n"
+      + "dl.summary(data).toString()\n\n"
+      + "// Compute correlation measures between price and date.\n"
+      + "var price = dl.accessor('price');\n"
+      + "var date = dl.accessor('date');\n"
+      + "dl.cor(data, price, date) // Pearson product-moment correlation\n"
+      + "dl.cor.rank(data, price, date) // Spearman rank correlation\n\n";
+    console.log(msg);
+    </script>
   </head>
   <body>
     <div id="main">
