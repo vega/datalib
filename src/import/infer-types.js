@@ -6,7 +6,7 @@ var tests = {
   num: function(x) { return !isNaN(+x) && !util.isDate(x); }
 };
 
-module.exports = function(values, f) {
+function infer(values, f) {
   var i, j, v;
 
   // types to test for
@@ -31,4 +31,14 @@ module.exports = function(values, f) {
   }
 
   return types[0].type;
+}
+
+infer.table = function (data) {
+  return util.keys(data[0]).reduce(function(types, c) {
+    var type = infer(data, util.accessor(c));
+    types[c] = type;
+    return types;
+  }, {});
 };
+
+module.exports = infer;
