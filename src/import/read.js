@@ -29,6 +29,7 @@ function parse(data, types) {
   if (types === 'auto') {
     // perform type inference
     types = inferTable(data);
+    data.types = types;
   }
   cols = util.keys(types);
   parsers = cols.map(function(c) { return PARSERS[types[c]]; });
@@ -39,7 +40,6 @@ function parse(data, types) {
       d[cols[j]] = parsers[j](d[cols[j]]);
     }
   }
-  data.types = types;
 }
 
 read.infer = infer;
