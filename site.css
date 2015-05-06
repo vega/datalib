@@ -17,12 +17,13 @@ body {
 }
 
 a {
-  color: #0aa84a;
+  color: #652c90;
   text-decoration: none;
+  font-weight: normal;
 }
 
 a:hover {
-  color: #f05a00;
+  color: #d5a928;
 }
 
 #wordmark {
@@ -44,11 +45,11 @@ a:hover {
 }
 
 #links a {
-  color: #0aa84a;
+  color: #652c90;
 }
 
 #links a:hover {
-  color: #f05a00;
+  color: #d5a928;
 }
 
 .example img {
@@ -75,7 +76,7 @@ a:hover {
 }
 
 .credits a:hover img {
-  border: 1px solid #f05a00;
+  border: 1px solid #652c90;
 }
 
 .code {
