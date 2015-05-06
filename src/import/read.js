@@ -43,7 +43,7 @@ function parse(data, types) {
 }
 
 read.infer = infer;
-read.inferTable = inferTable;
+read.infer.table = inferTable;
 read.formats = formats;
 read.parse = parse;
 module.exports = read;

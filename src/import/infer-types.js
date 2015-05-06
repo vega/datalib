@@ -8,14 +8,14 @@ var tests = {
 
 module.exports = function(values, f) {
   var i, j, v;
-  
+
   // types to test for
   var types = [
     {type: "boolean", test: tests.bool},
     {type: "number", test: tests.num},
     {type: "date", test: tests.date}
   ];
-  
+
   for (i=0; i<values.length; ++i) {
     // get next value to test
     v = f ? f(values[i]) : values[i];
@@ -29,6 +29,6 @@ module.exports = function(values, f) {
     // if no types left, return 'string'
     if (types.length === 0) return "string";
   }
-  
+
   return types[0].type;
 };

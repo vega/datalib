@@ -20,7 +20,7 @@ var strings = data.map(function(x) {
 var parsed = data.map(function(x) {
   return {a:x.a, b:x.b, c:x.c, d:Date.parse(x.d)};
 });
-parsed.types = read.inferTable(data);
+parsed.types = read.infer.table(data);
 
 var format = {
   a: "number",
