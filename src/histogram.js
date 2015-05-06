@@ -4,9 +4,9 @@ var bin = require('./bin');
 var gen = require('./generate');
 
 module.exports = function(values, f, options) {
-  if (options === undefined) { options = f; f = null; }
+  if (options === undefined && !util.isFunction(f)) { options = f; f = null; }
 
-  var type = options && options.type || infertype(values, f);
+  var type = options && options.type || infer(values, f);
   if (type !== 'number' && type !== 'date' && type !== 'integer') {
     return categorical(values, f, options && options.sort);
   }
@@ -18,8 +18,15 @@ module.exports = function(values, f, options) {
   return numerical(values, f, b);
 };
 
-function infertype(values, f) {
+function infer(values, f) {
   var v = null, i;
+
+  // if data array has type annotations, use them
+  if (values.types) {
+    v = f(values.types);
+    if (util.isString(v)) return v;
+  }
+
   for (i=0; !util.isNotNull(v) && i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
   }
