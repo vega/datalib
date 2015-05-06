@@ -35,6 +35,7 @@ function parse(data, types) {
       d[cols[j]] = parsers[j](d[cols[j]]);
     }
   }
+  data.types = types;
 }
 
 read.infer = infer;
