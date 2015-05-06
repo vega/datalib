@@ -20,6 +20,8 @@ var strings = data.map(function(x) {
 var parsed = data.map(function(x) {
   return {a:x.a, b:x.b, c:x.c, d:Date.parse(x.d)};
 });
+parsed.types = read.inferTable(data);
+
 var format = {
   a: "number",
   c: "boolean",
@@ -98,7 +100,7 @@ describe('read', function() {
       assert.equal(JSON.stringify(tj), JSON.stringify(feature));
     });
   });
-  
+
   describe('treejson', function() {
     var flare = fs.readFileSync('./test/data/flare.json', 'utf8');
     var json = JSON.parse(flare);

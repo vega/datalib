@@ -15,16 +15,20 @@ function read(data, format) {
   return data;
 }
 
+function inferTable(data) {
+  return util.keys(data[0]).reduce(function(types, c) {
+    var type = infer(data, util.accessor(c));
+    if (PARSERS[type]) types[c] = type;
+    return types;
+  }, {});
+}
+
 function parse(data, types) {
   var cols, parsers, d, i, j, clen, len = data.length;
 
   if (types === 'auto') {
     // perform type inference
-    types = util.keys(data[0]).reduce(function(types, c) {
-      var type = infer(data, util.accessor(c));
-      if (PARSERS[type]) types[c] = type;
-      return types;
-    }, {});
+    types = inferTable(data);
   }
   cols = util.keys(types);
   parsers = cols.map(function(c) { return PARSERS[types[c]]; });
@@ -39,6 +43,7 @@ function parse(data, types) {
 }
 
 read.infer = infer;
+read.inferTable = inferTable;
 read.formats = formats;
 read.parse = parse;
 module.exports = read;
