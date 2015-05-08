@@ -170,7 +170,7 @@ stats.dot = function(values, a, b) {
       v = values[i] * a[i];
       if (!isNaN(v)) sum += v;
     }
-  } else {
+  } else {  
     for (i=0; i<values.length; ++i) {
       v = a(values[i]) * b(values[i]);
       if (!isNaN(v)) sum += v;
@@ -279,7 +279,7 @@ stats.dist = function(values, a, b, exp) {
       d = f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]);
       s += d*d;
     }
-    return Math.sqrt(s);
+    return Math.sqrt(s); 
   } else {
     for (i=0; i<n; ++i) {
       d = Math.abs(f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]));
@@ -395,11 +395,11 @@ stats.profile = function(values, f) {
     u[v] = (v in u) ? u[v] + 1 : (distinct += 1, 1);
 
     if (util.isNotNull(v)) {
+      // update min/max
+      if (min===null || v < min) min = v;
+      if (max===null || v > max) max = v;
       // update stats
       x = (typeof v === 'string') ? v.length : v;
-      if (min===null || x < min) min = x;
-      if (max===null || x > max) max = x;
-
       delta = x - mean;
       mean = mean + delta / (++count);
       M2 = M2 + delta * (x - mean);
