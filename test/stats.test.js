@@ -95,9 +95,9 @@ describe('stats', function() {
     });
 
     it('should handle non-numeric values', function() {
-      var e = stats.extent(['a', 'e', 'b', 'c', 'd']);
-      assert.equal(e[0], 'a');
-      assert.equal(e[1], 'e');
+      var e = stats.extent(['aa', 'eeeeeeeee', 'bbb', 'cccc', 'dddddd']);
+      assert.equal(e[0], 2);
+      assert.equal(e[1], 9);
     });
 
     it('should ignore null values', function() {
@@ -119,7 +119,7 @@ describe('stats', function() {
     });
 
     it('should handle non-numeric values', function() {
-      var e = stats.extent.index(['a', 'e', 'b', 'c', 'd']);
+      var e = stats.extent.index(['aa', 'eeeeeeeee', 'bbb', 'cccc', 'dddddd']);
       assert.equal(e[0], 0);
       assert.equal(e[1], 1);
     });

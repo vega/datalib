@@ -130,10 +130,12 @@ stats.extent = function(values, f) {
   var a, b, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = (typeof v === 'string') ? v.length : v;
     if (util.isNotNull(v)) { a = b = v; break; }
   }
   for (; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = (typeof v === 'string') ? v.length : v;
     if (util.isNotNull(v)) {
       if (v < a) a = v;
       if (v > b) b = v;
@@ -147,10 +149,12 @@ stats.extent.index = function(values, f) {
   var a, b, x, y, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = (typeof v === 'string') ? v.length : v;
     if (util.isNotNull(v)) { a = b = v; x = y = i; break; }
   }
   for (; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = (typeof v === 'string') ? v.length : v;
     if (util.isNotNull(v)) {
       if (v < a) { a = v; x = i; }
       if (v > b) { b = v; y = i; }
