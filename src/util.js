@@ -1,4 +1,5 @@
 var Buffer = require('buffer').Buffer;
+var units = require('./date-units');
 var u = module.exports = {};
 
 // where are we?
@@ -129,9 +130,8 @@ u.accessor = function(f) {
   var s;
   return (u.isFunction(f) || f==null)
     ? f : u.isString(f) && (s=u.field(f)).length > 1
-    ? function(x) { return s.reduce(function(x,f) {
-          return x[f];
-        }, x);
+    ? function(x) {
+        return s.reduce(function(x,f) { return x[f]; }, x);
       }
     : function(x) { return x[f]; };
 };
@@ -144,6 +144,42 @@ u.mutator = function(f) {
         x[s[i]] = v;
       }
     : function(x, v) { x[f] = v; };
+};
+
+u.year = function(f) {
+  var get = u.accessor(f);
+  var unit = units.year.unit;
+  return function year(d) { return unit(get(d)); };
+};
+
+u.month = function(f) {
+  var get = u.accessor(f);
+  var unit = units.monthOfYear.unit;
+  return function month(d) { return unit(get(d)); };
+};
+
+u.day = function(f) {
+  var get = u.accessor(f);
+  var unit = units.dayOfMonth.unit;
+  return function day(d) { return unit(get(d)); };
+};
+
+u.dayofweek = function(f) {
+  var get = u.accessor(f);
+  var unit = units.dayOfWeek.unit;
+  return function dayofweek(d) { return unit(get(d)) };
+};
+
+u.hour = function(f) {
+  var get = u.accessor(f);
+  var unit = units.hourOfDay.unit;
+  return function hour(d) { return unit(get(d)) };
+};
+
+u.minute = function(f) {
+  var get = u.accessor(f);
+  var unit = units.minuteOfHour.unit;
+  return function minute(d) { return unit(get(d)) };
 };
 
 

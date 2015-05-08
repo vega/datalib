@@ -7,7 +7,8 @@ var dl = {
   histogram: require('./histogram'),
   summary:   require('./summary'),
   template:  require('./template'),
-  dateunits: require('./date-units')
+  dateunits: require('./date-units'),
+  groupby:   require('./aggregate/groupby')
 };
 
 util.extend(dl, util);
