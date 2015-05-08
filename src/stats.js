@@ -391,9 +391,10 @@ stats.profile = function(values, f) {
       distinct = 0,
       min = null,
       max = null,
+      length = {max: -1, min: Number.POSITIVE_INFINITY},
       M2 = 0,
       vals = [],
-      u = {}, delta, sd, i, v, x, half, h, h2;
+      u = {}, delta, sd, i, v, x, half, h, h2, profile;
 
   // compute summary stats
   for (i=0, c=0; i<values.length; ++i) {
@@ -410,8 +411,12 @@ stats.profile = function(values, f) {
       x = (typeof v === 'string') ? v.length : v;
       delta = x - mean;
       mean = mean + delta / (++count);
-      M2 = M2 + delta * (x - mean);
+      M2 = M2 + delta * delta;
       vals.push(x);
+      if (typeof v === 'string') {
+        length.max = Math.max(v.length, length.max);
+        length.min = Math.min(v.length, length.min);
+      }
     }
   }
   M2 = M2 / (count - 1);
@@ -420,7 +425,7 @@ stats.profile = function(values, f) {
   // sort values for median and iqr
   vals.sort(util.cmp);
 
-  return {
+  profile = {
     unique:   u,
     count:    count,
     nulls:    values.length - count,
@@ -431,8 +436,10 @@ stats.profile = function(values, f) {
     stdev:    sd,
     median:   (v = stats.quantile(vals, 0.5)),
     modeskew: sd === 0 ? 0 : (mean - v) / sd,
-    iqr:      [stats.quantile(vals, 0.25), stats.quantile(vals, 0.75)]
+    iqr:      [stats.quantile(vals, 0.25), stats.quantile(vals, 0.75)],
   };
+  if (length.max !== -1) profile.length = length;
+  return profile;
 };
 
 module.exports = stats;

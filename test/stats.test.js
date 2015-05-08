@@ -400,6 +400,11 @@ describe('stats', function() {
       assert.deepEqual([2.50, 5.50], stats.profile([1,2,3,4,5,6,7]).iqr);
       assert.deepEqual([2.75, 6.25], stats.profile([1,2,3,4,5,6,7,8]).iqr);
     });
+
+    it('should add maxlength for strings', function () {
+      assert.equal(7, stats.profile(['aa','bbbbbbb', 'ccc']).length.max);
+      assert.equal(2, stats.profile(['aa','bbbbbbb', 'ccc']).length.min);
+    }); 
   });
 
 });
