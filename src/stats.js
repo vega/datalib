@@ -411,7 +411,7 @@ stats.profile = function(values, f) {
       x = (typeof v === 'string') ? v.length : v;
       delta = x - mean;
       mean = mean + delta / (++count);
-      M2 = M2 + delta * delta;
+      M2 = M2 + delta * (x - mean);
       vals.push(x);
       if (typeof v === 'string') {
         length.max = Math.max(v.length, length.max);
