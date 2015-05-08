@@ -142,6 +142,14 @@ stats.extent = function(values, f) {
   return [a, b];
 };
 
+stats.length = {};
+stats.length.extent = function(values, f) {
+  return stats.extent(values, function(x) {
+    var fx = f ? f(x) : x;
+    return fx.toString().length;
+  });
+};
+
 // Find the integer indices of the minimum and maximum values.
 stats.extent.index = function(values, f) {
   var a, b, x, y, v, i, n = values.length;
@@ -170,7 +178,7 @@ stats.dot = function(values, a, b) {
       v = values[i] * a[i];
       if (!isNaN(v)) sum += v;
     }
-  } else {  
+  } else {
     for (i=0; i<values.length; ++i) {
       v = a(values[i]) * b(values[i]);
       if (!isNaN(v)) sum += v;
@@ -279,7 +287,7 @@ stats.dist = function(values, a, b, exp) {
       d = f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]);
       s += d*d;
     }
-    return Math.sqrt(s); 
+    return Math.sqrt(s);
   } else {
     for (i=0; i<n; ++i) {
       d = Math.abs(f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]));
