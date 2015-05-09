@@ -128,7 +128,7 @@ function resolve(agg) {
   return all;
 }
 
-function compile(agg, accessor) {
+function create(agg, accessor, mutator) {
   var all = resolve(agg),
       ctr = "this.tuple = t; this.cell = c; c.valid = 0;",
       add = "if (!this.valid(v)) return; this.cell.valid++;",
@@ -152,7 +152,7 @@ function compile(agg, accessor) {
   set += "return t;";
 
   ctr = Function("c", "t", ctr);
-  ctr.prototype.assign = assign;
+  ctr.prototype.assign = mutator || assign;
   ctr.prototype.add = Function("t", "var v = this.get(t);" + add);
   ctr.prototype.rem = Function("t", "var v = this.get(t);" + rem);
   ctr.prototype.set = Function(set);
@@ -174,5 +174,5 @@ function mod(v_new, v_old) {
   this.add(v_new);
 };
 
-types.create = compile;
+types.create = create;
 module.exports = types;
