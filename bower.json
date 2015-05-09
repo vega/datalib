@@ -1,6 +1,6 @@
 {
   "name": "datalib",
-  "main": "src/index.js",
+  "main": "datalib.js",
   "version": "1.0.11",
   "homepage": "http://github.com/uwdata/datalib.git",
   "authors": [
