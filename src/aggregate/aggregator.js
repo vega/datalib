@@ -117,7 +117,7 @@ proto.ingest = util.identity;
 
 // Process Tuples
 
-proto.add = function(x) {
+proto._add = function(x) {
   var cell = this.cell(x),
       aggr = this._aggr;
 
@@ -128,7 +128,7 @@ proto.add = function(x) {
   cell.flag |= Flags.MOD_CELL;
 };
 
-proto.rem = function(x) {
+proto._rem = function(x) {
   var cell = this.cell(x),
       aggr = this._aggr;
 
@@ -139,7 +139,7 @@ proto.rem = function(x) {
   cell.flag |= Flags.MOD_CELL;
 };
 
-proto.results = function() {
+proto._results = function() {
   var results = [],
       aggr = this._aggr,
       cell, i, k;
@@ -164,16 +164,16 @@ proto.execute = function(input) {
 
 proto.insert = function(input) {
   for (var i=0; i<input.length; ++i) {
-    this.add(input[i]);
+    this._add(input[i]);
   }
-  return this.results();
+  return this._results();
 };
 
 proto.remove = function(input) {
   for (var i=0; i<input.length; ++i) {
-    this.rem(input[i]);
+    this._rem(input[i]);
   }
-  return this.results();
+  return this._results();
 };
 
 module.exports = Aggregator;
