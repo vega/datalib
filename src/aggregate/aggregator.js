@@ -33,16 +33,17 @@ proto.groupby = function(dims) {
 proto.summary = function(fields) {
   var fields = summary_args(fields),
       aggr = (this._aggr = []),
-      m = [], f, i, j, op;
+      m = [], f, i, j, op, as;
 
   for (i=0; i<fields.length; ++i) {
     for (j=0, f=fields[i]; j<f.ops.length; ++j) {
       op = f.ops[j];
-      m.push(Measures[op](op + (f.name==='*' ? '' : '_'+f.name)));
+      out = f.as && f.as[j] || op + (f.name==='*' ? '' : '_'+f.name);
+      m.push(Measures[op](out));
     }
     aggr.push({
       name: f.name,
-      measures: Measures.create(m, util.accessor(f.name))
+      measures: Measures.create(m, f.get || util.accessor(f.name))
     });
   }
   return this;
