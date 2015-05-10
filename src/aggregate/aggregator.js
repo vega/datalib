@@ -30,8 +30,8 @@ proto.groupby = function(dims) {
 
 // Input: array of objects of the form
 // {name: string, ops: [string, ...]}
-proto.summary = function(fields) {
-  var fields = summary_args(fields),
+proto.summarize = function(fields) {
+  var fields = summarize_args(fields),
       aggr = (this._aggr = []),
       m = [], f, i, j, op, as;
 
@@ -49,7 +49,17 @@ proto.summary = function(fields) {
   return this;
 };
 
-function summary_args(fields) {
+proto.accessors = function(fields) {
+  var aggr = this._aggr, i, n, f;
+  for (i=0, n=aggr.length; i<n; ++i) {
+    if (f = fields[aggr[i].name]) {
+      aggr[i].measures.prototype.get = util.accessor(f);
+    }
+  }
+  return this;
+};
+
+function summarize_args(fields) {
   if (util.isArray(fields)) { return fields; }
   var a = [], name, ops;
   for (name in fields) {
@@ -63,16 +73,6 @@ function summary_args(fields) {
 
 proto.clear = function() {
   return (this._cells = {}, this);
-};
-
-proto.reset = function() {
-  var k, c, tuples = [];
-  for (k in this._cells) {
-    if (!(c = this._cells[k])) continue;
-    tuples.push(c.tuple);
-  }
-  this.clear();
-  return tuples;
 };
 
 proto.keys = function(x) {
@@ -92,12 +92,13 @@ proto.new_cell = function(x, k) {
   var cell = {
     num:   0,
     tuple: this.new_tuple(x, k),
-    flag:  Flags.ADD_CELL
+    flag:  Flags.ADD_CELL,
+    aggs:  {}
   };
 
   var aggr = this._aggr, i;
   for (i=0; i<aggr.length; ++i) {
-    cell[aggr[i].name] = new aggr[i].measures(cell, cell.tuple);
+    cell.aggs[aggr[i].name] = new aggr[i].measures(cell, cell.tuple);
   }
 
   return cell;
@@ -117,29 +118,29 @@ proto.ingest = util.identity;
 
 // Process Tuples
 
-proto._add = function(x) {
+proto.add = function(x) {
   var cell = this.cell(x),
       aggr = this._aggr;
 
   cell.num += 1;
   for (i=0; i<aggr.length; ++i) {
-    cell[aggr[i].name].add(x);
+    cell.aggs[aggr[i].name].add(x);
   }
   cell.flag |= Flags.MOD_CELL;
 };
 
-proto._rem = function(x) {
+proto.rem = function(x) {
   var cell = this.cell(x),
       aggr = this._aggr;
 
   cell.num -= 1;
   for (i=0; i<aggr.length; ++i) {
-    cell[aggr[i].name].rem(x);
+    cell.aggs[aggr[i].name].rem(x);
   }
   cell.flag |= Flags.MOD_CELL;
 };
 
-proto._results = function() {
+proto.result = function() {
   var results = [],
       aggr = this._aggr,
       cell, i, k;
@@ -148,7 +149,7 @@ proto._results = function() {
     cell = this._cells[k];
     if (cell.num > 0) {
       for (i=0; i<aggr.length; ++i) {
-        cell[aggr[i].name].set();
+        cell.aggs[aggr[i].name].set();
       }
       results.push(cell.tuple);
     }
@@ -159,21 +160,21 @@ proto._results = function() {
 };
 
 proto.execute = function(input) {
-  return this.clear().insert(input);
+  return this.clear().insert(input).result();
 };
 
 proto.insert = function(input) {
   for (var i=0; i<input.length; ++i) {
-    this._add(input[i]);
+    this.add(input[i]);
   }
-  return this._results();
+  return this;
 };
 
 proto.remove = function(input) {
   for (var i=0; i<input.length; ++i) {
-    this._rem(input[i]);
+    this.rem(input[i]);
   }
-  return this._results();
+  return this;
 };
 
 module.exports = Aggregator;
