@@ -43,7 +43,7 @@ describe('stats', function() {
       assert.equal(stats.count([3, 1, 2]), 3);
       assert.equal(stats.count([null, 1, 2, null]), 2);
     });
-    
+
     it('should count NaN values', function() {
       assert.equal(stats.count([NaN, 1, 2]), 3);
     });
@@ -52,13 +52,13 @@ describe('stats', function() {
       assert.equal(stats.count([1, undefined, 2, undefined, 3]), 3);
     });
   });
-  
+
   describe('count.distinct', function() {
     it('should count distinct values', function() {
       assert.equal(stats.count.distinct([3, 1, 2]), 3);
       assert.equal(stats.count.distinct([1, 1, 2, 1, 2, 3, 1, 2, 3, 3, 3]), 3);
     });
-    
+
     it('should recognize null values', function() {
       assert.equal(stats.count.distinct([null, 1, 2]), 3);
     });
@@ -73,7 +73,7 @@ describe('stats', function() {
       assert.equal(stats.count.nulls([3, 1, 2]), 0);
       assert.equal(stats.count.nulls([null, 0, 1, 2, null]), 2);
     });
-    
+
     it('should ignore NaN values', function() {
       assert.equal(stats.count.nulls([NaN, 1, 2]), 0);
     });
@@ -95,9 +95,9 @@ describe('stats', function() {
     });
 
     it('should handle non-numeric values', function() {
-      var e = stats.extent(['a', 'e', 'b', 'c', 'd']);
-      assert.equal(e[0], 'a');
-      assert.equal(e[1], 'e');
+      var e = stats.extent(['aa', 'eeeeeeeee', 'bbb', 'cccc', 'dddddd']);
+      assert.equal(e[0], 2);
+      assert.equal(e[1], 9);
     });
 
     it('should ignore null values', function() {
@@ -119,7 +119,7 @@ describe('stats', function() {
     });
 
     it('should handle non-numeric values', function() {
-      var e = stats.extent.index(['a', 'e', 'b', 'c', 'd']);
+      var e = stats.extent.index(['aa', 'eeeeeeeee', 'bbb', 'cccc', 'dddddd']);
       assert.equal(e[0], 0);
       assert.equal(e[1], 1);
     });
@@ -136,7 +136,7 @@ describe('stats', function() {
       assert.equal(stats.median([3, 1, 2]), 2);
       assert.equal(stats.median([-2, -2, -1, 1, 2, 2]), 0);
     });
-    
+
     it('should ignore null values', function() {
       assert.equal(stats.median([1, 2, null]), 1.5);
     });
@@ -159,19 +159,19 @@ describe('stats', function() {
       assert.equal(stats.quantile(a, 1.00), 4);
     });
   });
-  
+
   describe('mean', function() {
     it('should calculate mean values', function() {
       assert.closeTo(stats.mean([3, 1, 2]), 2, EPSILON);
       assert.closeTo(stats.mean([-2, -2, -1, 1, 2, 2]), 0, EPSILON);
       assert.closeTo(stats.mean([4, 5]), 4.5, EPSILON);
     });
-    
+
     it('should ignore null values', function() {
       assert.closeTo(stats.mean([1, 2, null]), 1.5, EPSILON);
     });
   });
-  
+
   describe('rank', function() {
     it('should calculate rank values', function() {
       assert.deepEqual([1,   3,   2, 4], stats.rank([3,5,4,6]));
@@ -243,7 +243,7 @@ describe('stats', function() {
       assert.closeTo( 1, stats.cor(y, y), EPSILON);
       assert.closeTo( 1, stats.cor(z, z), EPSILON);
     });
-    
+
     it('should return NaN with zero-valued input', function() {
       assert(isNaN(stats.cor([0,0,0], [0,0,0])));
       assert(isNaN(stats.cor([0,0,0], [1,2,3])));
@@ -264,7 +264,7 @@ describe('stats', function() {
       assert.equal(-1, stats.cor.rank([1,2,3,4],[8,7,6,5]));
       assert.equal( 0, stats.cor.rank([1,2,3,4],[3,1,4,2]));
     });
-    
+
     it('should accept object array and accessors', function() {
       assert.equal( 1, stats.cor.rank(table, a, b));
       assert.equal(-1, stats.cor.rank(table, a, c));
@@ -293,7 +293,7 @@ describe('stats', function() {
       assert.closeTo(1, stats.cor.dist(x, x), EPSILON);
       assert.closeTo(1, stats.cor.dist(y, y), EPSILON);
     });
-    
+
     it('should return NaN with zero-valued input', function() {
       assert(isNaN(stats.cor.dist([0,0,0], [0,0,0])));
       assert(isNaN(stats.cor.dist([0,0,0], [1,2,3])));
@@ -322,7 +322,7 @@ describe('stats', function() {
       assert.equal(Math.sqrt(8), stats.dist(x, y));
       assert.equal(Math.sqrt(8), stats.dist(y, x));
     });
-    
+
     it('should compute non-Euclidean distances', function() {
       assert.equal(2, stats.dist([1,1], [2,2], 1));
       assert.equal(4, stats.dist([1,1], [2,2], 0.5));
@@ -333,12 +333,12 @@ describe('stats', function() {
   describe('entropy', function() {
     var even = [1, 1, 1, 1, 1, 1], ee = -Math.log(1/6)/Math.LN2;
     var skew = [6, 0, 0, 0, 0, 0], se = 0;
-    
+
     it('should calculate entropy', function() {
       assert.equal(ee, stats.entropy(even));
       assert.equal(se, stats.entropy(skew));
     });
-    
+
     it('should handle accessor argument', function() {
       var wrap = function(a, x) { return (a.push({a:x}), a); };
       assert.equal(ee, stats.entropy(even.reduce(wrap, []), a));
@@ -348,18 +348,18 @@ describe('stats', function() {
     it('should handle zero vectors', function() {
       assert.equal(0, stats.entropy([0,0,0,0]));
     });
-    
+
     it('should handle zero vectors', function() {
       assert.equal(0, stats.entropy([0,0,0,0]));
     });
-    
+
     it('should calculate normalized entropy', function() {
       assert.equal(1, stats.entropy.normalized(even));
       assert.equal(0, stats.entropy.normalized(skew));
       assert.equal(0, stats.entropy.normalized([0,0,0,0]));
     });
   });
-  
+
   describe('entropy.mutual', function() {
     var table = [
       {a:'a', b:1, c:1, d:1},
@@ -391,6 +391,12 @@ describe('stats', function() {
       assert.deepEqual([2.25, 4.75], stats.profile([1,2,3,4,5,6]).iqr);
       assert.deepEqual([2.50, 5.50], stats.profile([1,2,3,4,5,6,7]).iqr);
       assert.deepEqual([2.75, 6.25], stats.profile([1,2,3,4,5,6,7,8]).iqr);
+    });
+
+    it('should return min, max length for strings', function(){
+      var p = stats.profile(['aa', 'eeeeeeeee', 'bbb', 'cccc', 'dddddd']);
+      assert.equal(p.min, 2);
+      assert.equal(p.max, 9);
     });
   });
 
