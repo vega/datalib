@@ -167,7 +167,7 @@ function create(agg, stream, accessor, mutator) {
   ctr.prototype.get = accessor;
   ctr.prototype.mod = mod;
   ctr.prototype.distinct = require('../stats').count.distinct;
-  ctr.prototype.isValid = util.isNotNull;
+  ctr.prototype.isValid = util.isValid;
   return ctr;
 }
 

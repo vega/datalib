@@ -34,7 +34,7 @@ function infer_type(values, f) {
     v = f ? f(values[i]) : values[i];
     // test value against remaining types
     for (j=0; j<types.length; ++j) {
-      if (util.isNotNull(v) && !TESTS[types[j]](v)) {
+      if (util.isValid(v) && !TESTS[types[j]](v)) {
         types.splice(j, 1);
         j -= 1;
       }

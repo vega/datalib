@@ -27,7 +27,7 @@ function infer(values, f) {
     if (util.isString(v)) return v;
   }
 
-  for (i=0; !util.isNotNull(v) && i<values.length; ++i) {
+  for (i=0; !util.isValid(v) && i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
   }
   return util.isDate(v) ? 'date' : util.isNumber(v) ? 'number' : 'string';
@@ -39,7 +39,7 @@ function numerical(values, f, b) {
 
   for (var i=0, v, j; i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (util.isNotNull(v)) {
+    if (util.isValid(v)) {
       j = b.index(v);
       if (j < 0 || j >= h.length || !isFinite(j)) continue;
       h[j].count += 1;

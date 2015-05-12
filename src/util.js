@@ -16,31 +16,31 @@ u.isObject = function(obj) {
 };
 
 u.isFunction = function(obj) {
-  return toString.call(obj) == '[object Function]';
+  return toString.call(obj) === '[object Function]';
 };
 
 u.isString = function(obj) {
-  return toString.call(obj) == '[object String]';
+  return typeof value === 'string' || toString.call(obj) === '[object String]';
 };
 
 u.isArray = Array.isArray || function(obj) {
-  return toString.call(obj) == '[object Array]';
+  return toString.call(obj) === '[object Array]';
 };
 
 u.isNumber = function(obj) {
-  return !isNaN(parseFloat(obj)) && isFinite(obj);
+  return typeof obj === 'number' || toString.call(obj) === '[object Number]';
 };
 
 u.isBoolean = function(obj) {
-  return toString.call(obj) == '[object Boolean]';
+  return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
 };
 
 u.isDate = function(obj) {
-  return toString.call(obj) == '[object Date]';
+  return toString.call(obj) === '[object Date]';
 };
 
-u.isNotNull = function(obj) {
-  return obj != null && (typeof obj !== 'number' ? true : !isNaN(obj));
+u.isValid = function(obj) {
+  return obj != null && !Number.isNaN(obj);
 };
 
 u.isBuffer = (Buffer && Buffer.isBuffer) || u.false;

@@ -7,9 +7,8 @@ var stats = {};
 // The array includes an additional 'counts' property,
 // which is a hash from unique values to occurrence counts.
 stats.unique = function(values, f, results) {
-  if (!util.isArray(values) || values.length===0) return [];
   results = results || [];
-  var u = {}, v, i;
+  var u = {}, v, i, n;
   for (i=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
     if (v in u) {
@@ -23,21 +22,35 @@ stats.unique = function(values, f, results) {
   return results;
 };
 
-// Count the number of non-null values.
-stats.count = function(values, f) {
-  if (!util.isArray(values) || values.length===0) return 0;
-  var v, i, count = 0;
+// Return the length of the input array.
+stats.count = function(values) {
+  return values && values.length || 0;
+};
+
+// Count the number of non-null, non-undefined, non-NaN values.
+stats.count.valid = function(values, f) {
+  var v, i, n, valid = 0;
   for (i=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null) count += 1;
+    if (util.isValid(v)) valid += 1;
+  }
+  return valid;
+};
+
+// Count the number of null or undefined values.
+stats.count.nulls = function(values, f) {
+  var v, i, n, count = 0;
+  for (i=0, n=values.length; i<n; ++i) {
+    v = f ? f(values[i]) : values[i];
+    if (v == null) count += 1;
   }
   return count;
 };
 
 // Count the number of distinct values.
+// Null, undefined and NaN are each considered distinct values.
 stats.count.distinct = function(values, f) {
-  if (!util.isArray(values) || values.length===0) return 0;
-  var u = {}, v, i, count = 0;
+  var u = {}, v, i, n, count = 0;
   for (i=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
     if (v in u) continue;
@@ -47,35 +60,17 @@ stats.count.distinct = function(values, f) {
   return count;
 };
 
-// Count the number of null or undefined values.
-stats.count.nulls = function(values, f) {
-  if (!util.isArray(values) || values.length===0) return 0;
-  var v, i, count = 0;
-  for (i=0, n=values.length; i<n; ++i) {
-    v = f ? f(values[i]) : values[i];
-    if (v == null) count += 1;
-  }
-  return count;
-};
-
 // Compute the median of an array of numbers.
 stats.median = function(values, f) {
-  if (!util.isArray(values) || values.length===0) return 0;
   if (f) values = values.map(f);
-  values = values.filter(util.isNotNull).sort(util.cmp);
-  var half = Math.floor(values.length/2);
-  if (values.length % 2) {
-    return values[half];
-  } else {
-    return (values[half-1] + values[half]) / 2.0;
-  }
+  values = values.filter(util.isValid).sort(util.cmp);
+  return stats.quantile(values, 0.5);
 };
 
 // Computes the quartile boundaries of an array of numbers.
 stats.quartile = function(values, f) {
-  if (!util.isArray(values) || values.length===0) return 0;
   if (f) values = values.map(f);
-  values = values.filter(util.isNotNull).sort(util.cmp);
+  values = values.filter(util.isValid).sort(util.cmp);
   var q = stats.quantile;
   return [q(values, 0.25), q(values, 0.50), q(values, 0.75)];
 };
@@ -93,11 +88,10 @@ stats.quantile = function(values, f, p) {
 
 // Compute the mean (average) of an array of numbers.
 stats.mean = function(values, f) {
-  if (!util.isArray(values) || values.length===0) return 0;
-  var mean = 0, delta, i, c, v;
-  for (i=0, c=0; i<values.length; ++i) {
+  var mean = 0, delta, i, n, c, v;
+  for (i=0, c=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null && !isNaN(v)) {
+    if (util.isValid(v)) {
       delta = v - mean;
       mean = mean + delta / (++c);
     }
@@ -111,7 +105,7 @@ stats.variance = function(values, f) {
   var mean = 0, M2 = 0, delta, i, c, v;
   for (i=0, c=0; i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v != null && !isNaN(v)) {
+    if (util.isValid(v)) {
       delta = v - mean;
       mean = mean + delta / (++c);
       M2 = M2 + delta * (v - mean);
@@ -139,13 +133,11 @@ stats.extent = function(values, f) {
   var a, b, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    v = (typeof v === 'string') ? v.length : v;
-    if (util.isNotNull(v)) { a = b = v; break; }
+    if (util.isValid(v)) { a = b = v; break; }
   }
   for (; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    v = (typeof v === 'string') ? v.length : v;
-    if (util.isNotNull(v)) {
+    if (util.isValid(v)) {
       if (v < a) a = v;
       if (v > b) b = v;
     }
@@ -158,13 +150,11 @@ stats.extent.index = function(values, f) {
   var a, b, x, y, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    v = (typeof v === 'string') ? v.length : v;
-    if (util.isNotNull(v)) { a = b = v; x = y = i; break; }
+    if (util.isValid(v)) { a = b = v; x = y = i; break; }
   }
   for (; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    v = (typeof v === 'string') ? v.length : v;
-    if (util.isNotNull(v)) {
+    if (util.isValid(v)) {
       if (v < a) { a = v; x = i; }
       if (v > b) { b = v; y = i; }
     }
@@ -181,12 +171,12 @@ stats.dot = function(values, a, b) {
     }
     for (i=0; i<values.length; ++i) {
       v = values[i] * a[i];
-      if (!isNaN(v)) sum += v;
+      if (!Number.isNaN(v)) sum += v;
     }
   } else {
     for (i=0; i<values.length; ++i) {
       v = a(values[i]) * b(values[i]);
-      if (!isNaN(v)) sum += v;
+      if (!Number.isNaN(v)) sum += v;
     }
   }
   return sum;
@@ -196,10 +186,7 @@ stats.dot = function(values, a, b) {
 // Ties are assigned their collective mean rank.
 stats.rank = function(values, f) {
   var a = values.map(function(v, i) {
-      return {
-        idx: i,
-        val: (f ? f(v) : v)
-      };
+      return {idx: i, val: (f ? f(v) : v)};
     })
     .sort(util.comparator("val"));
 
@@ -392,7 +379,8 @@ stats.entropy.mutual = function(values, a, b, counts) {
 stats.profile = function(values, f) {
   var p = {},
       mean = 0,
-      count = 0,
+      valid = 0,
+      nulls = 0,
       distinct = 0,
       min = null,
       max = null,
@@ -407,19 +395,20 @@ stats.profile = function(values, f) {
     // update unique values
     u[v] = (v in u) ? u[v] + 1 : (distinct += 1, 1);
 
-    if (util.isNotNull(v)) {
+    if (v == null) {
+      ++nulls;
+    } else if (util.isValid(v)) {
       // update stats
       x = (typeof v === 'string') ? v.length : v;
       if (min===null || x < min) min = x;
       if (max===null || x > max) max = x;
-
       delta = x - mean;
-      mean = mean + delta / (++count);
+      mean = mean + delta / (++valid);
       M2 = M2 + delta * (x - mean);
       vals.push(x);
     }
   }
-  M2 = M2 / (count - 1);
+  M2 = M2 / (valid - 1);
   sd = Math.sqrt(M2);
 
   // sort values for median and iqr
@@ -427,16 +416,18 @@ stats.profile = function(values, f) {
 
   return {
     unique:   u,
-    count:    count,
-    nulls:    values.length - count,
+    count:    values.length,
+    valid:    valid,
+    nulls:    nulls,
     distinct: distinct,
     min:      min,
     max:      max,
     mean:     mean,
     stdev:    sd,
     median:   (v = stats.quantile(vals, 0.5)),
-    modeskew: sd === 0 ? 0 : (mean - v) / sd,
-    iqr:      [stats.quantile(vals, 0.25), stats.quantile(vals, 0.75)]
+    q1:       stats.quantile(vals, 0.25),
+    q3:       stats.quantile(vals, 0.75),
+    modeskew: sd === 0 ? 0 : (mean - v) / sd
   };
 };
 
