@@ -1,9 +1,11 @@
 var util = require('../util'),
-    Measures = require('./measures');
+    Measures = require('./measures'),
+    Collector = require('./collector');
 
 function Aggregator() {
   this._cells = {};
   this._aggr = [];
+  this._stream = false;
 }
 
 var Flags = Aggregator.Flags = {
@@ -14,6 +16,12 @@ var Flags = Aggregator.Flags = {
 var proto = Aggregator.prototype;
 
 // Parameters
+
+proto.streaming = function(v) {
+  if (v == null) return this._stream;
+  this._stream = Boolean(v);
+  return this;
+};
 
 // Input: array of objects of the form
 // {name: string, get: function}
@@ -43,10 +51,19 @@ proto.summarize = function(fields) {
     }
     aggr.push({
       name: f.name,
-      measures: Measures.create(m, f.get || util.accessor(f.name))
+      measures: Measures.create(
+        m,
+        this._stream, // streaming remove flag
+        f.get || util.accessor(f.name), // input tuple getter
+        this._assign) // output tuple setter
     });
   }
   return this;
+};
+
+// Override to perform custom tuple value assignment
+proto._assign = function(object, name, value) {
+  object[name] = value;
 };
 
 proto.accessors = function(fields) {
@@ -75,7 +92,7 @@ proto.clear = function() {
   return (this._cells = {}, this);
 };
 
-proto.keys = function(x) {
+proto._keys = function(x) {
   var d = this._dims,
       n = d.length,
       k = Array(n), i;
@@ -83,15 +100,15 @@ proto.keys = function(x) {
   return {key: util.keystr(k), keys: k};
 };
 
-proto.cell = function(x) {
-  var k = this.keys(x);
-  return this._cells[k.key] || (this._cells[k.key] = this.new_cell(x, k));
+proto._cell = function(x) {
+  var k = this._keys(x);
+  return this._cells[k.key] || (this._cells[k.key] = this._newcell(x, k));
 };
 
-proto.new_cell = function(x, k) {
+proto._newcell = function(x, k) {
   var cell = {
     num:   0,
-    tuple: this.new_tuple(x, k),
+    tuple: this._newtuple(x, k),
     flag:  Flags.ADD_CELL,
     aggs:  {}
   };
@@ -100,29 +117,33 @@ proto.new_cell = function(x, k) {
   for (i=0; i<aggr.length; ++i) {
     cell.aggs[aggr[i].name] = new aggr[i].measures(cell, cell.tuple);
   }
+  if (cell.collect) {
+    cell.data = new Collector();
+  }
 
   return cell;
 };
 
-proto.new_tuple = function(x) {
+proto._newtuple = function(x) {
   var dims = this._dims,
       t = {}, i, n;
   for(i=0, n=dims.length; i<n; ++i) {
     t[dims[i].name] = dims[i].get(x);
   }
-  return this.ingest(t);
+  return this._ingest(t);
 };
 
 // Override to perform custom tuple ingestion
-proto.ingest = util.identity;
+proto._ingest = util.identity;
 
 // Process Tuples
 
 proto.add = function(x) {
-  var cell = this.cell(x),
+  var cell = this._cell(x),
       aggr = this._aggr;
 
   cell.num += 1;
+  if (cell.collect) cell.data.add(x);
   for (i=0; i<aggr.length; ++i) {
     cell.aggs[aggr[i].name].add(x);
   }
@@ -130,10 +151,11 @@ proto.add = function(x) {
 };
 
 proto.rem = function(x) {
-  var cell = this.cell(x),
+  var cell = this._cell(x),
       aggr = this._aggr;
 
   cell.num -= 1;
+  if (cell.collect) cell.data.rem(x);
   for (i=0; i<aggr.length; ++i) {
     cell.aggs[aggr[i].name].rem(x);
   }
