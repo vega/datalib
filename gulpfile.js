@@ -14,7 +14,7 @@ function browser() {
       debug: true,
       cache: {}, packageCache: {}
     })
-    .external(['d3', 'topojson']); 
+    .external(['d3', 'topojson']);
 }
 
 function build() {
@@ -25,10 +25,10 @@ function build() {
     // This will minify and rename to datalib.min.js
     .pipe(uglify())
     .pipe(rename({ extname: '.min.js' }))
-    .pipe(gulp.dest('.')); 
+    .pipe(gulp.dest('.'));
 }
 
-gulp.task('build', function() { build() });
+gulp.task('build', function() { build(); });
 
 gulp.task('test', function() {
   return gulp.src(['test/**/*.js'], { read: false })
