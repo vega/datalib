@@ -72,7 +72,7 @@ stats.median = function(values, f) {
 };
 
 // Computes the quartile boundaries of an array of numbers.
-stats.quartiles = function(values, f) {
+stats.quartile = function(values, f) {
   if (!util.isArray(values) || values.length===0) return 0;
   if (f) values = values.map(f);
   values = values.filter(util.isNotNull).sort(util.cmp);

@@ -36,8 +36,11 @@ proto.values = function() {
   }
   
   this._rem = [];
+  this._f = null;
   return (this._add = x);
 };
+
+// memoizing statistics methods
 
 proto.extent = function(get) {
   if (this._f !== get || !this._ext) {
@@ -51,15 +54,15 @@ proto.extent = function(get) {
 proto.min = function(f) { return this.extent(f)[0]; };
 proto.max = function(f) { return this.extent(f)[1]; };
 
-proto.quartiles = function(get) {
+proto.quartile = function(get) {
   if (this._f !== get || !this._q) {
-    this._q = stats.quartiles(this.values(), get);
+    this._q = stats.quartile(this.values(), get);
     this._f = get;    
   }
   return this._q;
 };
-proto.q1 = function(f) { return this.quartiles(f)[0]; };
-proto.q2 = function(f) { return this.quartiles(f)[1]; };
-proto.q3 = function(f) { return this.quartiles(f)[2]; };
+proto.q1 = function(f) { return this.quartile(f)[0]; };
+proto.q2 = function(f) { return this.quartile(f)[1]; };
+proto.q3 = function(f) { return this.quartile(f)[2]; };
 
 module.exports = Collector;
