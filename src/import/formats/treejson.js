@@ -9,7 +9,7 @@ function toTable(root, childrenField) {
   childrenField = childrenField || "children";
   var table = [];
   
-  function visit(node, parent) {
+  function visit(node) {
     table.push(node);
     var children = node[childrenField];
     if (children) {

@@ -4,8 +4,8 @@ var u = module.exports = {};
 
 // where are we?
 
-u.isNode = typeof process !== 'undefined'
-        && typeof process.stderr !== 'undefined';
+u.isNode = typeof process !== 'undefined' &&
+           typeof process.stderr !== 'undefined';
 
 // utility functions
 
@@ -51,7 +51,12 @@ u.toMap = function(list) {
 
 u.keystr = function(values) {
   // use to ensure consistent key generation across modules
-  return values.join("|");
+  var n = values.length;
+  if (!n) return "";
+  for (var s=String(values[0]), i=1; i<n; ++i) {
+    s += "|" + String(values[i]);
+  }
+  return s;
 };
 
 // type checking functions
@@ -98,7 +103,7 @@ u.number = function(s) { return s == null ? null : +s; };
 
 u.boolean = function(s) { return s == null ? null : s==='false' ? false : !!s; };
 
-u.date = function(s) { return s == null ? null : Date.parse(s); }
+u.date = function(s) { return s == null ? null : Date.parse(s); };
 
 u.array = function(x) { return x != null ? (u.isArray(x) ? x : [x]) : []; };
 
@@ -128,22 +133,20 @@ u.field = function(f) {
 
 u.accessor = function(f) {
   var s;
-  return (u.isFunction(f) || f==null)
-    ? f : u.isString(f) && (s=u.field(f)).length > 1
-    ? function(x) {
-        return s.reduce(function(x,f) { return x[f]; }, x);
-      }
-    : function(x) { return x[f]; };
+  return (u.isFunction(f) || f==null) ? f :
+    u.isString(f) && (s=u.field(f)).length > 1 ?
+    function(x) { return s.reduce(function(x,f) { return x[f]; }, x); } :
+    function(x) { return x[f]; };
 };
 
 u.mutator = function(f) {
   var s;
-  return u.isString(f) && (s=u.field(f)).length > 1
-    ? function(x, v) {
-        for (var i=0; i<s.length-1; ++i) x = x[s[i]];
-        x[s[i]] = v;
-      }
-    : function(x, v) { x[f] = v; };
+  return u.isString(f) && (s=u.field(f)).length > 1 ?
+    function(x, v) {
+      for (var i=0; i<s.length-1; ++i) x = x[s[i]];
+      x[s[i]] = v;
+    } :
+    function(x, v) { x[f] = v; };
 };
 
 u.year = function(f) {
@@ -167,19 +170,19 @@ u.day = function(f) {
 u.dayofweek = function(f) {
   var get = u.accessor(f);
   var unit = units.dayOfWeek.unit;
-  return function dayofweek(d) { return unit(get(d)) };
+  return function dayofweek(d) { return unit(get(d)); };
 };
 
 u.hour = function(f) {
   var get = u.accessor(f);
   var unit = units.hourOfDay.unit;
-  return function hour(d) { return unit(get(d)) };
+  return function hour(d) { return unit(get(d)); };
 };
 
 u.minute = function(f) {
   var get = u.accessor(f);
   var unit = units.minuteOfHour.unit;
-  return function minute(d) { return unit(get(d)) };
+  return function minute(d) { return unit(get(d)); };
 };
 
 
@@ -245,11 +248,11 @@ u.stablesort = function(array, sortBy, keyFn) {
 
 // ES6 compatibility per https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith#Polyfill
 // We could have used the polyfill code, but lets wait until ES6 becomes a standard first
-u.startsWith = String.prototype.startsWith
-  ? function(string, searchString) {
+u.startsWith = String.prototype.startsWith ?
+  function(string, searchString) {
     return string.startsWith(searchString);
-  }
-  : function(string, searchString) {
+  } :
+  function(string, searchString) {
     return string.lastIndexOf(searchString, 0) === 0;
   };
 
@@ -265,8 +268,8 @@ u.truncate = function(s, length, pos, word, ellipsis) {
     case "middle":
     case "center":
       var l1 = Math.ceil(l/2), l2 = Math.floor(l/2);
-      return (word ? truncateOnWord(s,l1) : s.slice(0,l1)) + ellipsis
-        + (word ? truncateOnWord(s,l2,1) : s.slice(len-l2));
+      return (word ? truncateOnWord(s,l1) : s.slice(0,l1)) +
+        ellipsis + (word ? truncateOnWord(s,l2,1) : s.slice(len-l2));
     default:
       return (word ? truncateOnWord(s,l) : s.slice(0,l)) + ellipsis;
   }

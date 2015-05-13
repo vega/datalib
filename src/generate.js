@@ -29,50 +29,50 @@ gen.random = {};
 
 gen.random.uniform = function(min, max) {
   if (max === undefined) {
-		max = min;
-		min = 0;
-	}
-	var d = max - min;
-	var f = function() {
-		return min + d * Math.random();
-	};
-	f.samples = function(n) { return gen.zeros(n).map(f); };
-	return f;
+    max = min;
+    min = 0;
+  }
+  var d = max - min;
+  var f = function() {
+    return min + d * Math.random();
+  };
+  f.samples = function(n) { return gen.zeros(n).map(f); };
+  return f;
 };
 
 gen.random.integer = function(a, b) {
-	if (b === undefined) {
-		b = a;
-		a = 0;
-	}
+  if (b === undefined) {
+    b = a;
+    a = 0;
+  }
   var d = b - a;
-	var f = function() {
-		return a + Math.floor(d * Math.random());
-	};
-	f.samples = function(n) { return gen.zeros(n).map(f); };
-	return f;
+  var f = function() {
+    return a + Math.floor(d * Math.random());
+  };
+  f.samples = function(n) { return gen.zeros(n).map(f); };
+  return f;
 };
 
 gen.random.normal = function(mean, stdev) {
-	mean = mean || 0;
-	stdev = stdev || 1;
-	var next = undefined;
-	var f = function() {
-		var x = 0, y = 0, rds, c;
-		if (next !== undefined) {
-			x = next;
-			next = undefined;
-			return x;
-		}
-		do {
-			x = Math.random()*2-1;
-			y = Math.random()*2-1;
-			rds = x*x + y*y;
-		} while (rds == 0 || rds > 1);
-		c = Math.sqrt(-2*Math.log(rds)/rds); // Box-Muller transform
-		next = mean + y*c*stdev;
-		return mean + x*c*stdev;
-	};
-	f.samples = function(n) { return gen.zeros(n).map(f); };
-	return f;
+  mean = mean || 0;
+  stdev = stdev || 1;
+  var next;
+  var f = function() {
+    var x = 0, y = 0, rds, c;
+    if (next !== undefined) {
+      x = next;
+      next = undefined;
+      return x;
+    }
+    do {
+      x = Math.random()*2-1;
+      y = Math.random()*2-1;
+      rds = x*x + y*y;
+    } while (rds === 0 || rds > 1);
+    c = Math.sqrt(-2*Math.log(rds)/rds); // Box-Muller transform
+    next = mean + y*c*stdev;
+    return mean + x*c*stdev;
+  };
+  f.samples = function(n) { return gen.zeros(n).map(f); };
+  return f;
 };

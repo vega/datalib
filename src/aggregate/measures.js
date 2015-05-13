@@ -159,6 +159,7 @@ function create(agg, stream, accessor, mutator) {
     });
   set += "return t;";
 
+  /* jshint evil: true */
   ctr = Function("cell", "t", ctr);
   ctr.prototype.assign = mutator;
   ctr.prototype.add = Function("t", "var v = this.get(t);" + add);
@@ -175,7 +176,7 @@ function mod(v_new, v_old) {
   if (v_old === undefined || v_old === v_new) return;
   this.rem(v_old);
   this.add(v_new);
-};
+}
 
 types.create = create;
 module.exports = types;

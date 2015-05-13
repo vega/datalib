@@ -13,9 +13,9 @@ function bin(opt) {
       min = opt.min,
       max = opt.max,
       span = max - min,
-      step, logb, level, minstep, precision, v, i, eps;
+      step, level, minstep, precision, v, i, eps;
 
-  if (opt.step != null) {
+  if (opt.step) {
     // if step size is explicitly given, use that
     step = opt.step;
   } else if (opt.steps) {
@@ -58,7 +58,7 @@ function bin(opt) {
     value: value,
     index: index
   };
-};
+}
 
 function bisect(a, x, lo, hi) {
   while (lo < hi) {
@@ -67,7 +67,7 @@ function bisect(a, x, lo, hi) {
     else { hi = mid; }
   }
   return lo;
-};
+}
 
 function value(v) {
   return this.step * Math.floor(v / this.step + EPSILON);
@@ -93,7 +93,7 @@ bin.date = function(opt) {
       dmax = opt.max,
       maxb = opt.maxbins || 20,
       minb = opt.minbins || 4,
-      span = (+dmax) - (+dmin);
+      span = (+dmax) - (+dmin),
       unit = opt.unit ? units[opt.unit] : units.find(span, minb, maxb),
       bins = bin({
         min:     unit.min != null ? unit.min : unit.unit(dmin),

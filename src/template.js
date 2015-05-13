@@ -12,6 +12,7 @@ function template(text) {
   src = "var __t; return " + src + ";";
 
   try {
+    /* jshint evil: true */
     return (new Function("d", src)).bind(context);
   } catch (e) {
     e.source = src;
@@ -42,9 +43,9 @@ function source(text, variable) {
     index = offset + match.length;
 
     if (interpolate) {
-      src += "'\n+((__t=("
-        + template_var(interpolate, variable)
-        + "))==null?'':__t)+\n'";
+      src += "'\n+((__t=(" +
+        template_var(interpolate, variable) +
+        "))==null?'':__t)+\n'";
     }
 
     // Adobe VMs need the match returned to produce the correct offest.
@@ -56,7 +57,6 @@ function source(text, variable) {
 function template_var(text, variable) {
   var filters = text.split('|');
   var prop = filters.shift().trim();
-  var format = [];
   var stringCast = true;
   
   function strcall(fn) {
@@ -117,9 +117,9 @@ function template_var(text, variable) {
         break;
       case 'slice':
         a = util.number(args[0]);
-        strcall('.slice('+ a
-          + (args.length > 1 ? ',' + util.number(args[1]) : '')
-          + ')');
+        strcall('.slice('+ a +
+          (args.length > 1 ? ',' + util.number(args[1]) : '') +
+          ')');
         break;
       case 'truncate':
         a = util.number(args[0]);

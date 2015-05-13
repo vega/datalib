@@ -1,4 +1,3 @@
-var util = require('../util');
 var stats = require('../stats');
 
 var REM = "$!_rem_!#";

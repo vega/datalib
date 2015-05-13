@@ -7,13 +7,13 @@ module.exports = function(data, format) {
   var t = json(data, format), obj;
 
   if (format && format.feature) {
-    if (obj = t.objects[format.feature]) {
-      return topojson.feature(t, obj).features
+    if ((obj = t.objects[format.feature])) {
+      return topojson.feature(t, obj).features;
     } else {
       throw Error("Invalid TopoJSON object: "+format.feature);
     }
   } else if (format && format.mesh) {
-    if (obj = t.objects[format.mesh]) {
+    if ((obj = t.objects[format.mesh])) {
       return [topojson.mesh(t, t.objects[format.mesh])];
     } else {
       throw Error("Invalid TopoJSON object: " + format.mesh);

@@ -227,7 +227,7 @@ stats.rank = function(values, f) {
 // Compute the sample Pearson product-moment correlation of two arrays of numbers.
 stats.cor = function(values, a, b) {
   var fn = b;
-  b = fn ? values.map(b) : a,
+  b = fn ? values.map(b) : a;
   a = fn ? values.map(a) : values;
 
   var dot = stats.dot(a, b),
@@ -360,34 +360,33 @@ stats.entropy.mutual = function(values, a, b, counts) {
       z = counts ? values.map(counts) : b;
 
   var px = {},
-	    py = {},
-	    i, xx, yy, zz, s = 0, t, N = z.length, p, I = 0;
+      py = {},
+      i, s = 0, t, N = z.length, p, I = 0;
 
-	for (i=0; i<N; ++i) {
-	  px[x[i]] = 0;
-	  py[y[i]] = 0;
+  for (i=0; i<N; ++i) {
+    px[x[i]] = 0;
+    py[y[i]] = 0;
   }
 
-	for (i=0; i<N; ++i) {
-		px[x[i]] += z[i];
-		py[y[i]] += z[i];
-		s += z[i];
-	}
+  for (i=0; i<N; ++i) {
+    px[x[i]] += z[i];
+    py[y[i]] += z[i];
+    s += z[i];
+  }
 
-	t = 1 / (s * Math.LN2);
-	for (i=0; i<N; ++i) {
-		if (z[i] === 0) continue;
-		p = (s * z[i]) / (px[x[i]] * py[y[i]]);
-		I += z[i] * t * Math.log(p);
-	}
+  t = 1 / (s * Math.LN2);
+  for (i=0; i<N; ++i) {
+    if (z[i] === 0) continue;
+    p = (s * z[i]) / (px[x[i]] * py[y[i]]);
+    I += z[i] * t * Math.log(p);
+  }
 
-	return I;
+  return I;
 };
 
 // Compute a profile of summary statistics for a variable.
 stats.profile = function(values, f) {
-  var p = {},
-      mean = 0,
+  var mean = 0,
       valid = 0,
       nulls = 0,
       distinct = 0,
@@ -395,10 +394,10 @@ stats.profile = function(values, f) {
       max = null,
       M2 = 0,
       vals = [],
-      u = {}, delta, sd, i, v, x, half, h, h2;
+      u = {}, delta, sd, i, v, x;
 
   // compute summary stats
-  for (i=0, c=0; i<values.length; ++i) {
+  for (i=0; i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
 
     // update unique values

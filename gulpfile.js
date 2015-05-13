@@ -1,8 +1,9 @@
 var gulp = require('gulp'),
     browserify = require('browserify'),
-    buffer = require('vinyl-buffer'),
-    rename = require('gulp-rename'),
     source = require('vinyl-source-stream'),
+    buffer = require('vinyl-buffer'),
+    jshint = require('gulp-jshint'),
+    rename = require('gulp-rename'),
     uglify = require('gulp-uglify'),
     gutil = require('gulp-util'),
     mocha = require('gulp-spawn-mocha');
@@ -34,6 +35,12 @@ gulp.task('test', function() {
   return gulp.src(['test/**/*.js'], { read: false })
     .pipe(mocha())
     .on('error', gutil.log);
+});
+
+gulp.task('jshint', function() {  
+  return gulp.src('src/**/*.js')
+    .pipe(jshint())
+    .pipe(jshint.reporter('default'));
 });
 
 gulp.task('default', ['test', 'build']);

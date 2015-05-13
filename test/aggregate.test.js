@@ -55,6 +55,11 @@ describe('aggregate', function() {
       assert.deepEqual([table[0], table[3]], g[0].data);
       assert.deepEqual([table[1], table[2]], g[1].data);
     });
+
+    it('should handle null, undefined and NaN values', function() {
+      var data = [{a:null}, {a:undefined}, {a:NaN}, {a:NaN}, {a:1}];
+      assert.equal(4, groupby('a').execute(data).length);
+    });
   });
   
   describe('summarize', function() {
@@ -91,6 +96,16 @@ describe('aggregate', function() {
       var sum1 = run([{name:'a', ops:['sum']}]).sum_a;
       var sum2 = run([{name:'f', get:util.accessor('a'), ops:['sum']}]).sum_f;
       assert.equal(sum1, sum2);
+    });
+
+    it('should handle null arguments', function() {
+      var none = groupby().summarize().execute(table)[0];
+      var nulls = run(null);
+      var undef = run(undefined);
+      var array = run([]);
+      assert.deepEqual(none,  nulls);
+      assert.deepEqual(nulls, undef);
+      assert.deepEqual(undef, array);
     });
 
     it('should collect tuples', function() {
@@ -171,6 +186,17 @@ describe('aggregate', function() {
 
     it('should compute argmax', function() {
       assert.strictEqual(table[table.length-1], run({'a':'argmax'}).argmax_a);
+    });
+
+    it('should support multiple measure fields', function() {
+      var data = [
+        {a: 1, b: 5},
+        {a: 2, b: 6},
+        {a: 3, b: 7}
+      ];
+      var m = groupby().summarize({a:'median', b:'median'}).execute(data);
+      assert.equal(2, m[0].median_a);
+      assert.equal(6, m[0].median_b);
     });
   });
 

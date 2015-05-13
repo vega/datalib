@@ -40,15 +40,15 @@ proto.groupby = function(dims) {
 // Input: array of objects of the form
 // {name: string, ops: [string, ...]}
 proto.summarize = function(fields) {
-  var fields = summarize_args(fields),
-      aggr = (this._aggr = []),
-      m = [], f, i, j, op, as;
+  fields = summarize_args(fields);
+  var aggr = (this._aggr = []),
+      m, f, i, j, op, as;
 
   for (i=0; i<fields.length; ++i) {
-    for (j=0, f=fields[i]; j<f.ops.length; ++j) {
+    for (j=0, m=[], f=fields[i]; j<f.ops.length; ++j) {
       op = f.ops[j];
-      out = f.as && f.as[j] || op + (f.name==='*' ? '' : '_'+f.name);
-      m.push(Measures[op](out));
+      as = (f.as && f.as[j]) || (op + (f.name==='*' ? '' : '_'+f.name));
+      m.push(Measures[op](as));
     }
     aggr.push({
       name: f.name,
@@ -70,7 +70,7 @@ proto._assign = function(object, name, value) {
 proto.accessors = function(fields) {
   var aggr = this._aggr, i, n, f;
   for (i=0, n=aggr.length; i<n; ++i) {
-    if (f = fields[aggr[i].name]) {
+    if ((f = fields[aggr[i].name])) {
       aggr[i].measures.prototype.get = util.accessor(f);
     }
   }
@@ -79,6 +79,7 @@ proto.accessors = function(fields) {
 
 function summarize_args(fields) {
   if (util.isArray(fields)) { return fields; }
+  if (fields == null) { return []; }
   var a = [], name, ops;
   for (name in fields) {
     ops = util.array(fields[name]);
@@ -141,7 +142,7 @@ proto._ingest = util.identity;
 
 proto.add = function(x) {
   var cell = this._cell(x),
-      aggr = this._aggr;
+      aggr = this._aggr, i;
 
   cell.num += 1;
   if (cell.collect) cell.data.add(x);
@@ -153,7 +154,7 @@ proto.add = function(x) {
 
 proto.rem = function(x) {
   var cell = this._cell(x),
-      aggr = this._aggr;
+      aggr = this._aggr, i;
 
   cell.num -= 1;
   if (cell.collect) cell.data.rem(x);
@@ -195,8 +196,8 @@ proto.insert = function(input) {
 
 proto.remove = function(input) {
   if (!this._stream) {
-    throw "Aggregator not configured for streaming removes."
-      + " Call stream(true) prior to calling summarize."
+    throw "Aggregator not configured for streaming removes." +
+      " Call stream(true) prior to calling summarize.";
   }
   for (var i=0; i<input.length; ++i) {
     this.rem(input[i]);
