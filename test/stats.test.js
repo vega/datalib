@@ -39,17 +39,26 @@ describe('stats', function() {
   });
 
   describe('count', function() {
-    it('should count non-null values', function() {
+    it('should count all values', function() {
       assert.equal(stats.count([3, 1, 2]), 3);
-      assert.equal(stats.count([null, 1, 2, null]), 2);
+      assert.equal(stats.count([null, 1, 2, null]), 4);
+      assert.equal(stats.count([NaN, 1, 2]), 3);
+      assert.equal(stats.count([1, undefined, 2, undefined, 3]), 5);
+    });
+  });
+
+  describe('valid', function() {
+    it('should ignore null values', function() {
+      assert.equal(stats.count.valid([3, 1, 2]), 3);
+      assert.equal(stats.count.valid([null, 1, 2, null]), 2);
     });
 
-    it('should count NaN values', function() {
-      assert.equal(stats.count([NaN, 1, 2]), 3);
+    it('should ignore NaN values', function() {
+      assert.equal(stats.count.valid([NaN, 1, 2]), 2);
     });
 
     it('should ignore undefined values', function() {
-      assert.equal(stats.count([1, undefined, 2, undefined, 3]), 3);
+      assert.equal(stats.count.valid([1, undefined, 2, undefined, 3]), 3);
     });
   });
 
@@ -95,9 +104,9 @@ describe('stats', function() {
     });
 
     it('should handle non-numeric values', function() {
-      var e = stats.extent(['aa', 'eeeeeeeee', 'bbb', 'cccc', 'dddddd']);
-      assert.equal(e[0], 2);
-      assert.equal(e[1], 9);
+      var e = stats.extent(['aa', 'eeeee', 'bbb', 'cccc', 'dddddd']);
+      assert.equal(e[0], 'aa');
+      assert.equal(e[1], 'eeeee');
     });
 
     it('should ignore null values', function() {
@@ -119,7 +128,7 @@ describe('stats', function() {
     });
 
     it('should handle non-numeric values', function() {
-      var e = stats.extent.index(['aa', 'eeeeeeeee', 'bbb', 'cccc', 'dddddd']);
+      var e = stats.extent.index(['aa', 'eeeee', 'bbb', 'cccc', 'dddddd']);
       assert.equal(e[0], 0);
       assert.equal(e[1], 1);
     });
@@ -382,15 +391,26 @@ describe('stats', function() {
   });
 
   describe('profile', function() {
-    it('should compute iqr correctly', function() {
-      assert.deepEqual([1.00, 1.00], stats.profile([1]).iqr);
-      assert.deepEqual([1.25, 1.75], stats.profile([1,2]).iqr);
-      assert.deepEqual([1.50, 2.50], stats.profile([1,2,3]).iqr);
-      assert.deepEqual([1.75, 3.25], stats.profile([1,2,3,4]).iqr);
-      assert.deepEqual([2.00, 4.00], stats.profile([1,2,3,4,5]).iqr);
-      assert.deepEqual([2.25, 4.75], stats.profile([1,2,3,4,5,6]).iqr);
-      assert.deepEqual([2.50, 5.50], stats.profile([1,2,3,4,5,6,7]).iqr);
-      assert.deepEqual([2.75, 6.25], stats.profile([1,2,3,4,5,6,7,8]).iqr);
+    it('should compute q1 correctly', function() {
+      assert.equal(1.00, stats.profile([1]).q1);
+      assert.equal(1.25, stats.profile([1,2]).q1);
+      assert.equal(1.50, stats.profile([1,2,3]).q1);
+      assert.equal(1.75, stats.profile([1,2,3,4]).q1);
+      assert.equal(2.00, stats.profile([1,2,3,4,5]).q1);
+      assert.equal(2.25, stats.profile([1,2,3,4,5,6]).q1);
+      assert.equal(2.50, stats.profile([1,2,3,4,5,6,7]).q1);
+      assert.equal(2.75, stats.profile([1,2,3,4,5,6,7,8]).q1);
+    });
+
+    it('should compute q3 correctly', function() {
+      assert.equal(1.00, stats.profile([1]).q3);
+      assert.equal(1.75, stats.profile([1,2]).q3);
+      assert.equal(2.50, stats.profile([1,2,3]).q3);
+      assert.equal(3.25, stats.profile([1,2,3,4]).q3);
+      assert.equal(4.00, stats.profile([1,2,3,4,5]).q3);
+      assert.equal(4.75, stats.profile([1,2,3,4,5,6]).q3);
+      assert.equal(5.50, stats.profile([1,2,3,4,5,6,7]).q3);
+      assert.equal(6.25, stats.profile([1,2,3,4,5,6,7,8]).q3);
     });
 
     it('should return min, max length for strings', function(){

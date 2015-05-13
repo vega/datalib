@@ -4,8 +4,8 @@ var assert = require('chai').assert;
 var util = require('../src/util');
 var load = require('../src/import/load');
 
-var host = 'trifacta.github.io';
-var dir = '/vega/';
+var host = 'uwdata.github.io';
+var dir = '/datalib/';
 var base = 'http://' + host + dir;
 var uri = 'data/flare.json';
 var url = base + uri;

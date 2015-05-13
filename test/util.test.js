@@ -249,6 +249,18 @@ describe('util', function() {
     });
   });
 
+  describe('keystr', function() {
+    it("should construct valid key strings", function() {
+      assert.strictEqual('', util.keystr([]));
+      assert.strictEqual('a', util.keystr(['a']));
+      assert.strictEqual('1', util.keystr([1]));
+      assert.strictEqual('null', util.keystr([null]));
+      assert.strictEqual('undefined', util.keystr([undefined]));
+      assert.strictEqual('NaN', util.keystr([NaN]));
+      assert.strictEqual('a|2|c|true', util.keystr(['a',2,'c',true]));
+    });
+  });
+
   describe('field', function() {
     it('should treat \\. as . in field name', function() {
       assert.deepEqual(util.field('a\\.b\\.c'), ['a.b.c' ]);

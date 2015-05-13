@@ -1,70 +1,11 @@
 var Buffer = require('buffer').Buffer;
+var units = require('./date-units');
 var u = module.exports = {};
 
 // where are we?
 
-u.isNode = typeof process !== 'undefined'
-        && typeof process.stderr !== 'undefined';
-
-// type checking functions
-
-var toString = Object.prototype.toString;
-
-u.isObject = function(obj) {
-  return obj === Object(obj);
-};
-
-u.isFunction = function(obj) {
-  return toString.call(obj) == '[object Function]';
-};
-
-u.isString = function(obj) {
-  return toString.call(obj) == '[object String]';
-};
-
-u.isArray = Array.isArray || function(obj) {
-  return toString.call(obj) == '[object Array]';
-};
-
-u.isNumber = function(obj) {
-  return !isNaN(parseFloat(obj)) && isFinite(obj);
-};
-
-u.isBoolean = function(obj) {
-  return toString.call(obj) == '[object Boolean]';
-};
-
-u.isDate = function(obj) {
-  return toString.call(obj) == '[object Date]';
-};
-
-u.isNotNull = function(obj) {
-  return obj != null && (typeof obj !== 'number' ? true : !isNaN(obj));
-};
-
-u.isBuffer = (Buffer && Buffer.isBuffer) || u.false;
-
-// type coercion functions
-
-u.number = function(s) { return s == null ? null : +s; };
-
-u.boolean = function(s) { return s == null ? null : s==='false' ? false : !!s; };
-
-u.date = function(s) { return s == null ? null : Date.parse(s); }
-
-u.array = function(x) { return x != null ? (u.isArray(x) ? x : [x]) : []; };
-
-u.str = function(x) {
-  return u.isArray(x) ? "[" + x.map(u.str) + "]"
-    : u.isObject(x) ? JSON.stringify(x)
-    : u.isString(x) ? ("'"+util_escape_str(x)+"'") : x;
-};
-
-var escape_str_re = /(^|[^\\])'/g;
-
-function util_escape_str(x) {
-  return x.replace(escape_str_re, "$1\\'");
-}
+u.isNode = typeof process !== 'undefined' &&
+           typeof process.stderr !== 'undefined';
 
 // utility functions
 
@@ -110,8 +51,73 @@ u.toMap = function(list) {
 
 u.keystr = function(values) {
   // use to ensure consistent key generation across modules
-  return values.join("|");
+  var n = values.length;
+  if (!n) return "";
+  for (var s=String(values[0]), i=1; i<n; ++i) {
+    s += "|" + String(values[i]);
+  }
+  return s;
 };
+
+// type checking functions
+
+var toString = Object.prototype.toString;
+
+u.isObject = function(obj) {
+  return obj === Object(obj);
+};
+
+u.isFunction = function(obj) {
+  return toString.call(obj) === '[object Function]';
+};
+
+u.isString = function(obj) {
+  return typeof value === 'string' || toString.call(obj) === '[object String]';
+};
+
+u.isArray = Array.isArray || function(obj) {
+  return toString.call(obj) === '[object Array]';
+};
+
+u.isNumber = function(obj) {
+  return typeof obj === 'number' || toString.call(obj) === '[object Number]';
+};
+
+u.isBoolean = function(obj) {
+  return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
+};
+
+u.isDate = function(obj) {
+  return toString.call(obj) === '[object Date]';
+};
+
+u.isValid = function(obj) {
+  return obj != null && !Number.isNaN(obj);
+};
+
+u.isBuffer = (Buffer && Buffer.isBuffer) || u.false;
+
+// type coercion functions
+
+u.number = function(s) { return s == null ? null : +s; };
+
+u.boolean = function(s) { return s == null ? null : s==='false' ? false : !!s; };
+
+u.date = function(s) { return s == null ? null : Date.parse(s); };
+
+u.array = function(x) { return x != null ? (u.isArray(x) ? x : [x]) : []; };
+
+u.str = function(x) {
+  return u.isArray(x) ? "[" + x.map(u.str) + "]"
+    : u.isObject(x) ? JSON.stringify(x)
+    : u.isString(x) ? ("'"+util_escape_str(x)+"'") : x;
+};
+
+var escape_str_re = /(^|[^\\])'/g;
+
+function util_escape_str(x) {
+  return x.replace(escape_str_re, "$1\\'");
+}
 
 // data access functions
 
@@ -127,23 +133,56 @@ u.field = function(f) {
 
 u.accessor = function(f) {
   var s;
-  return (u.isFunction(f) || f==null)
-    ? f : u.isString(f) && (s=u.field(f)).length > 1
-    ? function(x) { return s.reduce(function(x,f) {
-          return x[f];
-        }, x);
-      }
-    : function(x) { return x[f]; };
+  return (u.isFunction(f) || f==null) ? f :
+    u.isString(f) && (s=u.field(f)).length > 1 ?
+    function(x) { return s.reduce(function(x,f) { return x[f]; }, x); } :
+    function(x) { return x[f]; };
 };
 
 u.mutator = function(f) {
   var s;
-  return u.isString(f) && (s=u.field(f)).length > 1
-    ? function(x, v) {
-        for (var i=0; i<s.length-1; ++i) x = x[s[i]];
-        x[s[i]] = v;
-      }
-    : function(x, v) { x[f] = v; };
+  return u.isString(f) && (s=u.field(f)).length > 1 ?
+    function(x, v) {
+      for (var i=0; i<s.length-1; ++i) x = x[s[i]];
+      x[s[i]] = v;
+    } :
+    function(x, v) { x[f] = v; };
+};
+
+u.year = function(f) {
+  var get = u.accessor(f);
+  var unit = units.year.unit;
+  return function year(d) { return unit(get(d)); };
+};
+
+u.month = function(f) {
+  var get = u.accessor(f);
+  var unit = units.monthOfYear.unit;
+  return function month(d) { return unit(get(d)); };
+};
+
+u.day = function(f) {
+  var get = u.accessor(f);
+  var unit = units.dayOfMonth.unit;
+  return function day(d) { return unit(get(d)); };
+};
+
+u.dayofweek = function(f) {
+  var get = u.accessor(f);
+  var unit = units.dayOfWeek.unit;
+  return function dayofweek(d) { return unit(get(d)); };
+};
+
+u.hour = function(f) {
+  var get = u.accessor(f);
+  var unit = units.hourOfDay.unit;
+  return function hour(d) { return unit(get(d)); };
+};
+
+u.minute = function(f) {
+  var get = u.accessor(f);
+  var unit = units.minuteOfHour.unit;
+  return function minute(d) { return unit(get(d)); };
 };
 
 
@@ -209,11 +248,11 @@ u.stablesort = function(array, sortBy, keyFn) {
 
 // ES6 compatibility per https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith#Polyfill
 // We could have used the polyfill code, but lets wait until ES6 becomes a standard first
-u.startsWith = String.prototype.startsWith
-  ? function(string, searchString) {
+u.startsWith = String.prototype.startsWith ?
+  function(string, searchString) {
     return string.startsWith(searchString);
-  }
-  : function(string, searchString) {
+  } :
+  function(string, searchString) {
     return string.lastIndexOf(searchString, 0) === 0;
   };
 
@@ -229,8 +268,8 @@ u.truncate = function(s, length, pos, word, ellipsis) {
     case "middle":
     case "center":
       var l1 = Math.ceil(l/2), l2 = Math.floor(l/2);
-      return (word ? truncateOnWord(s,l1) : s.slice(0,l1)) + ellipsis
-        + (word ? truncateOnWord(s,l2,1) : s.slice(len-l2));
+      return (word ? truncateOnWord(s,l1) : s.slice(0,l1)) +
+        ellipsis + (word ? truncateOnWord(s,l2,1) : s.slice(len-l2));
     default:
       return (word ? truncateOnWord(s,l) : s.slice(0,l)) + ellipsis;
   }

@@ -1,5 +1,3 @@
-var util = require('./util');
-
 var STEPS = [
   [31536e6, 5],  // 1-year
   [7776e6, 4],   // 3-month
@@ -21,6 +19,8 @@ var STEPS = [
   [5e3, 0],      // 5-second
   [1e3, 0]       // 1-second
 ];
+
+function isNumber(d) { return typeof d === 'number'; }
 
 var entries = [
   {
@@ -77,7 +77,7 @@ var entries = [
       return new Date(Date.UTC(~~(d / 12), d % 12, 1));
     },
     unit: function(d) {
-      if (util.isNumber(d)) d = new Date(d);
+      if (isNumber(d)) d = new Date(d);
       return 12 * d.getUTCFullYear() + d.getUTCMonth();
     }
   },
@@ -89,7 +89,7 @@ var entries = [
       return new Date(Date.UTC(d, 0, 1));
     },
     unit: function(d) {
-      return (util.isNumber(d) ? new Date(d) : d).getUTCFullYear();
+      return (isNumber(d) ? new Date(d) : d).getUTCFullYear();
     }
   }
 ];
@@ -104,7 +104,7 @@ var minuteOfHour = {
     return new Date(Date.UTC(1970, 0, 1, 0, d));
   },
   unit: function(d) {
-    return (util.isNumber(d) ? new Date(d) : d).getUTCMinutes();
+    return (isNumber(d) ? new Date(d) : d).getUTCMinutes();
   }
 };
 
@@ -118,7 +118,7 @@ var hourOfDay = {
     return new Date(Date.UTC(1970, 0, 1, d));
   },
   unit: function(d) {
-    return (util.isNumber(d) ? new Date(d) : d).getUTCHours();
+    return (isNumber(d) ? new Date(d) : d).getUTCHours();
   }
 };
 
@@ -132,7 +132,7 @@ var dayOfWeek = {
     return new Date(Date.UTC(1970, 0, 4 + d));
   },
   unit: function(d) {
-    return (util.isNumber(d) ? new Date(d) : d).getUTCDay();
+    return (isNumber(d) ? new Date(d) : d).getUTCDay();
   }
 };
 
@@ -146,7 +146,7 @@ var dayOfMonth = {
     return new Date(Date.UTC(1970, 0, d));
   },
   unit: function(d) {
-    return (util.isNumber(d) ? new Date(d) : d).getUTCDate();
+    return (isNumber(d) ? new Date(d) : d).getUTCDate();
   }
 };
 
@@ -160,7 +160,7 @@ var monthOfYear = {
     return new Date(Date.UTC(1970, d % 12, 1));
   },
   unit: function(d) {
-    return (util.isNumber(d) ? new Date(d) : d).getUTCMonth();
+    return (isNumber(d) ? new Date(d) : d).getUTCMonth();
   }
 };
 

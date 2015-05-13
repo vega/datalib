@@ -42,7 +42,7 @@ function sanitizeUrl(opt) {
       // IE doesn't populate all link properties when setting .href with a relative URL,
       // however .href will return an absolute URL which then can be used on itself
       // to populate these additional fields.
-      if (a.host == "") {
+      if (a.host === "") {
         a.href = a.href;
       }
       domain = a.hostname.toLowerCase();
@@ -64,10 +64,10 @@ function sanitizeUrl(opt) {
 }
 
 function load(opt, callback) {
-  var error = callback || function(e) { throw e; };
-  
+  var error = callback || function(e) { throw e; }, url;
+
   try {
-    var url = load.sanitizeUrl(opt); // enable override
+    url = load.sanitizeUrl(opt); // enable override
   } catch (err) {
     error(err);
     return;
@@ -89,18 +89,18 @@ function load(opt, callback) {
 
 function xhrHasResponse(request) {
   var type = request.responseType;
-  return type && type !== "text"
-      ? request.response // null on error
-      : request.responseText; // "" on error
+  return type && type !== "text" ?
+    request.response : // null on error
+    request.responseText; // "" on error
 }
 
 function xhr(url, callback) {
   var async = !!callback;
-  var request = new XMLHttpRequest;
+  var request = new XMLHttpRequest();
   // If IE does not support CORS, use XDomainRequest (copied from d3.xhr)
-  if (this.XDomainRequest
-      && !("withCredentials" in request)
-      && /^(http(s)?:)?\/\//.test(url)) request = new XDomainRequest;
+  if (this.XDomainRequest &&
+      !("withCredentials" in request) &&
+      /^(http(s)?:)?\/\//.test(url)) request = new XDomainRequest();
 
   function respond() {
     var status = request.status;
@@ -112,9 +112,13 @@ function xhr(url, callback) {
   }
 
   if (async) {
-    "onload" in request
-      ? request.onload = request.onerror = respond
-      : request.onreadystatechange = function() { request.readyState > 3 && respond(); };
+    if ("onload" in request) {
+      request.onload = request.onerror = respond;
+    } else {
+      request.onreadystatechange = function() {
+        if (request.readyState > 3) respond();
+      };
+    }
   }
   
   request.open("GET", url, async);
@@ -125,12 +129,12 @@ function xhr(url, callback) {
   }
 }
 
-function file(file, callback) {
+function file(filename, callback) {
   var fs = require('fs');
   if (!callback) {
-    return fs.readFileSync(file, 'utf8');
+    return fs.readFileSync(filename, 'utf8');
   }
-  require('fs').readFile(file, callback);
+  require('fs').readFile(filename, callback);
 }
 
 function http(url, callback) {
