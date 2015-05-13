@@ -28,8 +28,8 @@ proto.stream = function(v) {
 // {name: string, get: function}
 proto.groupby = function(dims) {
   this._dims = util.array(dims).map(function(d, i) {
-    d = util.isString(d) ? {name: d, get: util.accessor(d)}
-      : util.isFunction(d) ? {name: d.name || ("_" + i), get: d}
+    d = util.isString(d) ? {name: d, get: util.$(d)}
+      : util.isFunction(d) ? {name: util.name(d) || d.name || ("_" + i), get: d}
       : (d.name && util.isFunction(d.get)) ? d : null;
     if (d == null) throw "Invalid groupby argument: " + d;
     return d;
@@ -55,7 +55,7 @@ proto.summarize = function(fields) {
       measures: Measures.create(
         m,
         this._stream, // streaming remove flag
-        f.get || util.accessor(f.name), // input tuple getter
+        f.get || util.$(f.name), // input tuple getter
         this._assign) // output tuple setter
     });
   }
@@ -71,7 +71,7 @@ proto.accessors = function(fields) {
   var aggr = this._aggr, i, n, f;
   for (i=0, n=aggr.length; i<n; ++i) {
     if ((f = fields[aggr[i].name])) {
-      aggr[i].measures.prototype.get = util.accessor(f);
+      aggr[i].measures.prototype.get = util.$(f);
     }
   }
   return this;

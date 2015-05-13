@@ -9,11 +9,17 @@ u.isNode = typeof process !== 'undefined' &&
 
 // utility functions
 
+var FNAME = '_name';
+
+u.namedfunc = function(name, f) { return (f[FNAME] = name, f); };
+
+u.name = function(f) { return f[FNAME]; };
+
 u.identity = function(x) { return x; };
 
-u.true = function() { return true; };
+u.true = u.namedfunc('true', function() { return true; });
 
-u.false = function() { return false; };
+u.false = u.namedfunc('false', function() { return false; });
 
 u.duplicate = function(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -122,7 +128,7 @@ function util_escape_str(x) {
 // data access functions
 
 u.field = function(f) {
-  return f.split("\\.")
+  return String(f).split("\\.")
     .map(function(d) { return d.split("."); })
     .reduce(function(a, b) {
       if (a.length) { a[a.length-1] += "." + b.shift(); }
@@ -133,11 +139,14 @@ u.field = function(f) {
 
 u.accessor = function(f) {
   var s;
-  return (u.isFunction(f) || f==null) ? f :
-    u.isString(f) && (s=u.field(f)).length > 1 ?
-    function(x) { return s.reduce(function(x,f) { return x[f]; }, x); } :
-    function(x) { return x[f]; };
+  return f==null || u.isFunction(f) ? f :
+    u.namedfunc(f, (s = u.field(f)).length > 1 ?
+      function(x) { return s.reduce(function(x,f) { return x[f]; }, x); } :
+      function(x) { return x[f]; }
+    );
 };
+
+u.$ = u.accessor;
 
 u.mutator = function(f) {
   var s;
@@ -149,41 +158,21 @@ u.mutator = function(f) {
     function(x, v) { x[f] = v; };
 };
 
-u.year = function(f) {
-  var get = u.accessor(f);
-  var unit = units.year.unit;
-  return function year(d) { return unit(get(d)); };
+u.$func = function(op, val) {
+  return function(f) {
+    f = u.$(f);
+    var name = u.funcname(f);
+    name = op + (name ? "_"+name : "");
+    return u.namedfunc(name, function(d) { return val(f(d)); });
+  };
 };
 
-u.month = function(f) {
-  var get = u.accessor(f);
-  var unit = units.monthOfYear.unit;
-  return function month(d) { return unit(get(d)); };
-};
-
-u.day = function(f) {
-  var get = u.accessor(f);
-  var unit = units.dayOfMonth.unit;
-  return function day(d) { return unit(get(d)); };
-};
-
-u.dayofweek = function(f) {
-  var get = u.accessor(f);
-  var unit = units.dayOfWeek.unit;
-  return function dayofweek(d) { return unit(get(d)); };
-};
-
-u.hour = function(f) {
-  var get = u.accessor(f);
-  var unit = units.hourOfDay.unit;
-  return function hour(d) { return unit(get(d)); };
-};
-
-u.minute = function(f) {
-  var get = u.accessor(f);
-  var unit = units.minuteOfHour.unit;
-  return function minute(d) { return unit(get(d)); };
-};
+u.$year = u.$func("year", units.year.unit);
+u.$month = u.$func("month", units.monthOfYear.unit);
+u.$day = u.$func("day", units.dayOfMonth.unit);
+u.$dayofweek = u.$func("dayofweek", units.dayOfWeek.unit);
+u.$hour = u.$func("hour", units.hourOfDay.unit);
+u.$minute = u.$func("minute", units.minuteOfHour.unit);
 
 
 // comparison / sorting functions

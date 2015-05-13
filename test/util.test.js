@@ -280,6 +280,7 @@ describe('util', function() {
   describe('accessor', function() {
     it('should return null argument', function() {
       assert.isNull(util.accessor(null));
+      assert.isUndefined(util.accessor(undefined));
     });
 
     it('should return function argument', function() {

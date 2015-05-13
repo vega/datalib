@@ -1,79 +1,79 @@
 'use strict';
 
 var assert = require('chai').assert;
-var bin = require('../src/bin');
-var histogram = require('../src/histogram');
+var bins = require('../src/bins/bins');
+var histogram = require('../src/bins/histogram').histogram;
 var units = require('../src/date-units');
 var util = require('../src/util');
 var gen = require('../src/generate');
 
 describe('binning', function() {
 
-  describe('bin', function() {
+  describe('bins', function() {
     it('should bin integer values', function() {
-      var b = bin({min:0, max:10, minstep:1});
+      var b = bins({min:0, max:10, minstep:1});
       assert.equal(b.start, 0);
       assert.equal(b.stop, 10);
       assert.equal(b.step, 1);
 
-      b = bin({min:-1, max:10, minstep:1});
+      b = bins({min:-1, max:10, minstep:1});
       assert.equal(b.start, -1);
       assert.equal(b.stop, 10);
       assert.equal(b.step, 1);
     });
   
     it('should bin numeric values', function() {
-      var b = bin({min:1.354, max:98.432, maxbins: 11});
+      var b = bins({min:1.354, max:98.432, maxbins: 11});
       assert.equal(b.start, 0);
       assert.equal(b.stop, 100);
       assert.equal(b.step, 10);
 
-      b = bin({min:1.354, max:98.432, maxbins: 6});
+      b = bins({min:1.354, max:98.432, maxbins: 6});
       assert.equal(b.start, 0);
       assert.equal(b.stop, 100);
       assert.equal(b.step, 20);
 
-      b = bin({min:1.354, max:98.432, maxbins: 21, div:[5,2]});
+      b = bins({min:1.354, max:98.432, maxbins: 21, div:[5,2]});
       assert.equal(b.start, 0);
       assert.equal(b.stop, 100);
       assert.equal(b.step, 5);
     });
 
     it('should accept minimum step size', function() {
-      var b = bin({min:0, max:10, minstep: 1, maxbins: 101});
+      var b = bins({min:0, max:10, minstep: 1, maxbins: 101});
       assert.equal(b.start, 0);
       assert.equal(b.stop, 10);
       assert.equal(b.step, 1);
 
-      b = bin({min:0, max:10, maxbins: 110});
+      b = bins({min:0, max:10, maxbins: 110});
       assert.equal(b.start, 0);
       assert.equal(b.stop, 10);
       assert.equal(b.step, 0.1);
     });
   
     it('should accept fixed step size', function() {
-      var b = bin({min:0, max:9, step: 3});
+      var b = bins({min:0, max:9, step: 3});
       assert.equal(b.start, 0);
       assert.equal(b.stop, 9);
       assert.equal(b.step, 3);
     });
 
     it('should use given step options', function() {
-      var b = bin({min:0, max:20, steps: [4,10]});
+      var b = bins({min:0, max:20, steps: [4,10]});
       assert.equal(b.start, 0);
       assert.equal(b.stop, 20);
       assert.equal(b.step, 4);
     
-      b = bin({min:0, max:20, steps: [4,10], maxbins:3});
+      b = bins({min:0, max:20, steps: [4,10], maxbins:3});
       assert.equal(b.start, 0);
       assert.equal(b.stop, 20);
       assert.equal(b.step, 10);
     });
   });
 
-  describe('bin.date', function() {
+  describe('bins.date', function() {
     it('should bin across years', function() {
-      var b = bin.date({
+      var b = bins.date({
         min: Date.parse('1/1/2000'),
         max: Date.parse('1/1/2010')
       });
@@ -82,7 +82,7 @@ describe('binning', function() {
     });
 
     it('should accept explicit units', function() {
-      var b = bin.date({
+      var b = bins.date({
         min:  Date.parse('1/1/2000'),
         max:  Date.parse('1/1/2001'),
         unit: 'month'
@@ -90,7 +90,7 @@ describe('binning', function() {
       assert.equal(b.step, 1);
       assert.equal(b.unit.type, 'month');
 
-      b = bin.date({
+      b = bins.date({
         min:  Date.parse('1/1/2000'),
         max:  Date.parse('1/1/2010'),
         unit: 'month'

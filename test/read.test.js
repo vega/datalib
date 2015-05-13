@@ -3,6 +3,7 @@
 var assert = require('chai').assert;
 var util = require('../src/util');
 var read = require('../src/import/read');
+var type = require('../src/import/type');
 
 var fs = require('fs');
 var topojson = require('topojson');
@@ -43,23 +44,23 @@ describe('read', function() {
 
   describe('type inference', function() {
     it('should infer booleans', function() {
-      assert.equal("boolean", read.type(["true", "false", NaN, null]));
-      assert.equal("boolean", read.type([true, false, null]));
+      assert.equal("boolean", type.infer(["true", "false", NaN, null]));
+      assert.equal("boolean", type.infer([true, false, null]));
     });
     it('should infer integers', function() {
-      assert.equal("integer", read.type(["0", "1", null, "3", NaN, undefined, "-5"]));
-      assert.equal("integer", read.type([1, 2, 3]));
+      assert.equal("integer", type.infer(["0", "1", null, "3", NaN, undefined, "-5"]));
+      assert.equal("integer", type.infer([1, 2, 3]));
     });
     it('should infer numbers', function() {
-      assert.equal("number", read.type(["0", "1", null, "3.1415", NaN, "Infinity", "1e-5"]));
-      assert.equal("number", read.type([1, 2.2, 3]));
+      assert.equal("number", type.infer(["0", "1", null, "3.1415", NaN, "Infinity", "1e-5"]));
+      assert.equal("number", type.infer([1, 2.2, 3]));
     });
     it('should infer dates', function() {
-      assert.equal("date", read.type(["1/1/2001", null, NaN, "Jan 5, 2001"]));
-      assert.equal("date", read.type([new Date("1/1/2001"), null, new Date("Jan 5, 2001")]));
+      assert.equal("date", type.infer(["1/1/2001", null, NaN, "Jan 5, 2001"]));
+      assert.equal("date", type.infer([new Date("1/1/2001"), null, new Date("Jan 5, 2001")]));
     });
     it('should infer strings when all else fails', function() {
-      assert.equal("string", read.type(["hello", "1", "true", null]));
+      assert.equal("string", type.infer(["hello", "1", "true", null]));
     });
     it('should handle function accessors', function() {
       var data = [
@@ -67,12 +68,12 @@ describe('read', function() {
         {a: "2", b: "false"},
         {a: "3", b: null}
       ];
-      assert.equal("integer", read.type(data, util.accessor("a")));
-      assert.equal("boolean", read.type(data, util.accessor("b")));
+      assert.equal("integer", type.infer(data, util.accessor("a")));
+      assert.equal("boolean", type.infer(data, util.accessor("b")));
     });
     it('should infer types for all fields', function() {
-      assert.deepEqual(parsed.types, read.types(data));
-      assert.deepEqual(parsed.types, read.types(strings));
+      assert.deepEqual(parsed.types, type.inferAll(data));
+      assert.deepEqual(parsed.types, type.inferAll(strings));
     });
   });
 

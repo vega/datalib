@@ -1,8 +1,8 @@
-var util = require('./util');
-var units = require('./date-units');
+var util = require('../util');
+var units = require('../date-units');
 var EPSILON = 1e-15;
 
-function bin(opt) {
+function bins(opt) {
   opt = opt || {};
 
   // determine range
@@ -85,7 +85,7 @@ function date_index(v) {
   return index.call(this, this.unit.unit(v));
 }
 
-bin.date = function(opt) {
+bins.date = function(opt) {
   opt = opt || {};
 
   // find time step, then bin
@@ -95,7 +95,7 @@ bin.date = function(opt) {
       minb = opt.minbins || 4,
       span = (+dmax) - (+dmin),
       unit = opt.unit ? units[opt.unit] : units.find(span, minb, maxb),
-      bins = bin({
+      spec = bins({
         min:     unit.min != null ? unit.min : unit.unit(dmin),
         max:     unit.max != null ? unit.max : unit.unit(dmax),
         maxbins: maxb,
@@ -103,10 +103,10 @@ bin.date = function(opt) {
         steps:   unit.step
       });
 
-  bins.unit = unit;
-  bins.index = date_index;
-  if (!opt.raw) bins.value = date_value;
-  return bins;
+  spec.unit = unit;
+  spec.index = date_index;
+  if (!opt.raw) spec.value = date_value;
+  return spec;
 };
 
-module.exports = bin;
+module.exports = bins;
