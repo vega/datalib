@@ -86,6 +86,15 @@ stats.quantile = function(values, f, p) {
   return e ? v + e * (f(values[h]) - v) : v;
 };
 
+// Compute the sum of an array of numbers.
+stats.sum = function(values, f) {
+  for (var sum=0, i=0, n=values.length, v; i<n; ++i) {
+    v = f ? f(values[i]) : values[i];
+    if (util.isValid(v)) sum += v;
+  }
+  return sum;
+};
+
 // Compute the mean (average) of an array of numbers.
 stats.mean = function(values, f) {
   var mean = 0, delta, i, n, c, v;

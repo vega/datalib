@@ -7,7 +7,7 @@ var types = {
   }),
   "nulls": measure({
     name: "nulls",
-    set:  "cell.num - this.valid"
+    set:  "this.nulls"
   }),
   "valid": measure({
     name: "valid",
@@ -136,9 +136,9 @@ function resolve(agg, stream) {
 
 function create(agg, stream, accessor, mutator) {
   var all = resolve(agg, stream),
-      ctr = "this.cell = cell; this.tuple = t; this.valid = 0;",
-      add = "if (!this.isValid(v)) return; this.valid++;",
-      rem = "if (!this.isValid(v)) return; this.valid--;",
+      ctr = "this.cell = cell; this.tuple = t; this.valid = 0; this.nulls = 0;",
+      add = "if (v==null) this.nulls++; if (!this.isValid(v)) return; this.valid++;",
+      rem = "if (v==null) this.nulls--; if (!this.isValid(v)) return; this.valid--;",
       set = "var t = this.tuple; var cell = this.cell;";
 
   all.forEach(function(a) {

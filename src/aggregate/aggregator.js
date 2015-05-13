@@ -17,9 +17,10 @@ var proto = Aggregator.prototype;
 
 // Parameters
 
-proto.streaming = function(v) {
+proto.stream = function(v) {
   if (v == null) return this._stream;
-  this._stream = Boolean(v);
+  this._stream = !!v;
+  this._aggr = [];
   return this;
 };
 
@@ -193,6 +194,10 @@ proto.insert = function(input) {
 };
 
 proto.remove = function(input) {
+  if (!this._stream) {
+    throw "Aggregator not configured for streaming removes."
+      + " Call stream(true) prior to calling summarize."
+  }
   for (var i=0; i<input.length; ++i) {
     this.rem(input[i]);
   }
