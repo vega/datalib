@@ -7,6 +7,53 @@ var u = module.exports = {};
 u.isNode = typeof process !== 'undefined'
         && typeof process.stderr !== 'undefined';
 
+// utility functions
+
+u.identity = function(x) { return x; };
+
+u.true = function() { return true; };
+
+u.false = function() { return false; };
+
+u.duplicate = function(obj) {
+  return JSON.parse(JSON.stringify(obj));
+};
+
+u.equal = function(a, b) {
+  return JSON.stringify(a) === JSON.stringify(b);
+};
+
+u.extend = function(obj) {
+  for (var x, name, i=1, len=arguments.length; i<len; ++i) {
+    x = arguments[i];
+    for (name in x) { obj[name] = x[name]; }
+  }
+  return obj;
+};
+
+u.keys = function(x) {
+  var keys = [], k;
+  for (k in x) keys.push(k);
+  return keys;
+};
+
+u.vals = function(x) {
+  var vals = [], k;
+  for (k in x) vals.push(x[k]);
+  return vals;
+};
+
+u.toMap = function(list) {
+  return list.reduce(function(obj, x) {
+    return (obj[x] = 1, obj);
+  }, {});
+};
+
+u.keystr = function(values) {
+  // use to ensure consistent key generation across modules
+  return values.join("|");
+};
+
 // type checking functions
 
 var toString = Object.prototype.toString;
@@ -66,53 +113,6 @@ var escape_str_re = /(^|[^\\])'/g;
 function util_escape_str(x) {
   return x.replace(escape_str_re, "$1\\'");
 }
-
-// utility functions
-
-u.identity = function(x) { return x; };
-
-u.true = function() { return true; };
-
-u.false = function() { return false; };
-
-u.duplicate = function(obj) {
-  return JSON.parse(JSON.stringify(obj));
-};
-
-u.equal = function(a, b) {
-  return JSON.stringify(a) === JSON.stringify(b);
-};
-
-u.extend = function(obj) {
-  for (var x, name, i=1, len=arguments.length; i<len; ++i) {
-    x = arguments[i];
-    for (name in x) { obj[name] = x[name]; }
-  }
-  return obj;
-};
-
-u.keys = function(x) {
-  var keys = [], k;
-  for (k in x) keys.push(k);
-  return keys;
-};
-
-u.vals = function(x) {
-  var vals = [], k;
-  for (k in x) vals.push(x[k]);
-  return vals;
-};
-
-u.toMap = function(list) {
-  return list.reduce(function(obj, x) {
-    return (obj[x] = 1, obj);
-  }, {});
-};
-
-u.keystr = function(values) {
-  // use to ensure consistent key generation across modules
-  return values.join("|");
-};
 
 // data access functions
 
