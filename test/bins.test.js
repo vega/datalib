@@ -2,6 +2,7 @@
 
 var assert = require('chai').assert;
 var bins = require('../src/bins/bins');
+var $bin = require('../src/bins/histogram').$bin;
 var histogram = require('../src/bins/histogram').histogram;
 var units = require('../src/date-units');
 var util = require('../src/util');
@@ -97,6 +98,71 @@ describe('binning', function() {
       });
       assert.equal(b.step, 6);
       assert.equal(b.unit.type, 'month');
+    });
+  });
+
+  describe('$bin', function() {
+    var num = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    var str = ['a', 'b', 'c'];
+    var mon  = [Date.UTC(2000, 0, 1), Date.UTC(2001, 0, 1)];
+    var year = [Date.UTC(2000, 0, 1), Date.UTC(2010, 0, 1)];
+
+    it('should bin numeric values', function() {
+      var b = $bin(num);
+      assert.equal(1, b(1.00));
+      assert.equal(1, b(1.75));
+      assert.equal(2, b(2.01));
+      assert.equal(3, b(3.14));
+
+      b = $bin(num, {maxbins:5});
+      assert.equal(0, b(1.00));
+      assert.equal(0, b(1.75));
+      assert.equal(2, b(2.01));
+      assert.equal(2, b(3.14));
+    });
+
+    it('should bin date values', function() {
+      function test(b) {
+        assert.equal(year[0], +b(year[0]));
+        assert.equal(year[1], +b(year[1]));
+        assert.equal(Date.UTC(2005, 0, 1), +b(Date.UTC(2005, 5, 15)));
+      }
+      test($bin(year, {type:'date'}));
+      test($bin(year.map(function(d) { return new Date(d); })));
+      
+      var b = $bin(mon, {type:'date', unit:'month'});
+      assert.equal(mon[0], +b(mon[0]));
+      assert.equal(mon[1], +b(mon[1]));
+      assert.equal(Date.UTC(2000, 4, 1), +b(Date.UTC(2000, 4, 15)));
+    });
+
+    it('should bin string values', function() {
+      var b = $bin(str);
+      for (var i=0; i<str.length; ++i) {
+        assert.equal(str[i], b(str[i]));
+      }
+      var o = str.map(function(x) { return {a:x}; });
+      b = $bin(str, 'a');
+      for (var i=0; i<o.length; ++i) {
+        assert.equal(o[i].a, b(o[i]));
+      }
+      assert.equal('foo', b({a:'foo'}));
+    });
+    
+    it('should bin object values', function() {
+      var o = num.map(function(x) { return {a:x}; });
+      function test(b) {
+        for (var i=0; i<o.length; ++i) {
+          assert.equal(o[i].a, b(o[i]));
+        }
+        assert.equal(1, b({a:1.00}));
+        assert.equal(1, b({a:1.75}));
+        assert.equal(2, b({a:2.01}));
+        assert.equal(3, b({a:3.14}));
+      }
+      test($bin(o, 'a'));
+      test($bin(o, util.$('a')));
+      test($bin(o, 'a', {minstep:1}));
     });
   });
 
