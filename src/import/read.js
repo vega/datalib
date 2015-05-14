@@ -3,7 +3,7 @@ var type = require('./type');
 var formats = require('./formats');
 
 function read(data, format) {
-  var type = (format && format.type) || "json";
+  var type = (format && format.type) || 'json';
   data = formats[type](data, format);
   if (format && format.parse) parse(data, format.parse);
   return data;

@@ -19,40 +19,42 @@ function printSummary() {
   var profiles = this;
   var str = [];
   profiles.forEach(function(p) {
-    str.push("----- Field: '" + p.field + "' -----");
+    str.push('----- Field: \'' + p.field + '\' -----');
     if (typeof p.min === 'string' || p.distinct < 10) {
       str.push(printCategoricalProfile(p));
     } else {
       str.push(printQuantitativeProfile(p));
     }
-    str.push("");
+    str.push('');
   });
-  return str.join("\n");
+  return str.join('\n');
 }
 
 function printQuantitativeProfile(p) {
   return [
-    "distinct: " + p.distinct,
-    "nulls:    " + p.nulls,
-    "min:      " + p.min,
-    "max:      " + p.max,
-    "median:   " + p.median,
-    "mean:     " + p.mean,
-    "stdev:    " + p.stdev,
-    "modeskew: " + p.modeskew
-  ].join("\n");
+    'valid:    ' + p.valid,
+    'missing:  ' + p.missing,
+    'distinct: ' + p.distinct,
+    'min:      ' + p.min,
+    'max:      ' + p.max,
+    'median:   ' + p.median,
+    'mean:     ' + p.mean,
+    'stdev:    ' + p.stdev,
+    'modeskew: ' + p.modeskew
+  ].join('\n');
 }
 
 function printCategoricalProfile(p) {
   var list = [
-    "distinct: " + p.distinct,
-    "nulls:    " + p.nulls,
-    "top values: "
+    'valid:    ' + p.valid,
+    'missing:  ' + p.missing,
+    'distinct: ' + p.distinct,
+    'top values: '
   ];
   var u = p.unique;
   var top = util.keys(u)
     .sort(function(a,b) { return u[b] - u[a]; })
     .slice(0, 6)
-    .map(function(v) { return " '" + v + "' (" + u[v] + ")"; });
-  return list.concat(top).join("\n");
+    .map(function(v) { return ' \'' + v + '\' (' + u[v] + ')'; });
+  return list.concat(top).join('\n');
 }

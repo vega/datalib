@@ -1,125 +1,125 @@
 var util = require('../util');
 
 var types = {
-  "count": measure({
-    name: "count",
-    set:  "cell.num"
+  'count': measure({
+    name: 'count',
+    set:  'cell.num'
   }),
-  "missing": measure({
-    name: "missing",
-    set:  "this.missing"
+  'missing': measure({
+    name: 'missing',
+    set:  'this.missing'
   }),
-  "valid": measure({
-    name: "valid",
-    set:  "this.valid"
+  'valid': measure({
+    name: 'valid',
+    set:  'this.valid'
   }),
-  "data": measure({
-    name: "data",
-    init: "cell.collect = true;",
-    set:  "cell.data.values()", idx: -1
+  'data': measure({
+    name: 'data',
+    init: 'cell.collect = true;',
+    set:  'cell.data.values()', idx: -1
   }),
-  "sum": measure({
-    name: "sum",
-    init: "this.sum = 0;",
-    add:  "this.sum += v;",
-    rem:  "this.sum -= v;",
-    set:  "this.sum"
+  'sum': measure({
+    name: 'sum',
+    init: 'this.sum = 0;',
+    add:  'this.sum += v;',
+    rem:  'this.sum -= v;',
+    set:  'this.sum'
   }),
-  "mean": measure({
-    name: "mean",
-    init: "this.mean = 0;",
-    add:  "var d = v - this.mean; this.mean += d / this.valid;",
-    rem:  "var d = v - this.mean; this.mean -= d / this.valid;",
-    set:  "this.mean"
+  'mean': measure({
+    name: 'mean',
+    init: 'this.mean = 0;',
+    add:  'var d = v - this.mean; this.mean += d / this.valid;',
+    rem:  'var d = v - this.mean; this.mean -= d / this.valid;',
+    set:  'this.mean'
   }),
-  "avg": measure({
-    name: "avg",
-    set:  "this.mean",
-    req:  ["mean"], idx: 1
+  'avg': measure({
+    name: 'avg',
+    set:  'this.mean',
+    req:  ['mean'], idx: 1
   }),
-  "var": measure({
-    name: "var",
-    init: "this.dev = 0;",
-    add:  "this.dev += d * (v - this.mean);",
-    rem:  "this.dev -= d * (v - this.mean);",
-    set:  "this.dev / (this.valid-1)",
-    req:  ["mean"], idx: 1
+  'var': measure({
+    name: 'var',
+    init: 'this.dev = 0;',
+    add:  'this.dev += d * (v - this.mean);',
+    rem:  'this.dev -= d * (v - this.mean);',
+    set:  'this.dev / (this.valid-1)',
+    req:  ['mean'], idx: 1
   }),
-  "varp": measure({
-    name: "varp",
-    set:  "this.dev / this.valid",
-    req:  ["var"], idx: 2
+  'varp': measure({
+    name: 'varp',
+    set:  'this.dev / this.valid',
+    req:  ['var'], idx: 2
   }),
-  "stdev": measure({
-    name: "stdev",
-    set:  "Math.sqrt(this.dev / (this.valid-1))",
-    req:  ["var"], idx: 2
+  'stdev': measure({
+    name: 'stdev',
+    set:  'Math.sqrt(this.dev / (this.valid-1))',
+    req:  ['var'], idx: 2
   }),
-  "stdevp": measure({
-    name: "stdevp",
-    set:  "Math.sqrt(this.dev / this.valid)",
-    req:  ["var"], idx: 2
+  'stdevp': measure({
+    name: 'stdevp',
+    set:  'Math.sqrt(this.dev / this.valid)',
+    req:  ['var'], idx: 2
   }),
-  "median": measure({
-    name: "median",
-    set:  "cell.data.q2(this.get)",
-    req:  ["data"], idx: 3
+  'median': measure({
+    name: 'median',
+    set:  'cell.data.q2(this.get)',
+    req:  ['data'], idx: 3
   }),
-  "q1": measure({
-    name: "q1",
-    set:  "cell.data.q1(this.get)",
-    req:  ["data"], idx: 3
+  'q1': measure({
+    name: 'q1',
+    set:  'cell.data.q1(this.get)',
+    req:  ['data'], idx: 3
   }),
-  "q3": measure({
-    name: "q3",
-    set:  "cell.data.q3(this.get)",
-    req:  ["data"], idx: 3
+  'q3': measure({
+    name: 'q3',
+    set:  'cell.data.q3(this.get)',
+    req:  ['data'], idx: 3
   }),
-  "distinct": measure({
-    name: "distinct",
-    set:  "this.distinct(cell.data.values(), this.get)",
-    req:  ["data"], idx: 3
+  'distinct': measure({
+    name: 'distinct',
+    set:  'this.distinct(cell.data.values(), this.get)',
+    req:  ['data'], idx: 3
   }),
-  "argmin": measure({
-    name: "argmin",
-    add:  "if (v < this.min) this.argmin = t;",
-    rem:  "this.argmin = null;",
-    set:  "this.argmin || cell.data.min(this.get)",
-    req:  ["min"], str: ["data"], idx: 3
+  'argmin': measure({
+    name: 'argmin',
+    add:  'if (v < this.min) this.argmin = t;',
+    rem:  'this.argmin = null;',
+    set:  'this.argmin || cell.data.min(this.get)',
+    req:  ['min'], str: ['data'], idx: 3
   }),
-  "argmax": measure({
-    name: "argmax",
-    add:  "if (v > this.max) this.argmax = t;",
-    rem:  "this.argmax = null;",
-    set:  "this.argmax || cell.data.max(this.get)",
-    req:  ["max"], str: ["data"], idx: 3
+  'argmax': measure({
+    name: 'argmax',
+    add:  'if (v > this.max) this.argmax = t;',
+    rem:  'this.argmax = null;',
+    set:  'this.argmax || cell.data.max(this.get)',
+    req:  ['max'], str: ['data'], idx: 3
   }),
-  "min": measure({
-    name: "min",
-    init: "this.min = +Infinity;",
-    add:  "if (v < this.min) this.min = v;",
-    rem:  "this.min = NaN;",
-    set:  "this.min = (isNaN(this.min) ? this.get(cell.data.min(this.get)) : this.min)",
-    str:  ["data"], idx: 4
+  'min': measure({
+    name: 'min',
+    init: 'this.min = +Infinity;',
+    add:  'if (v < this.min) this.min = v;',
+    rem:  'this.min = NaN;',
+    set:  'this.min = (isNaN(this.min) ? this.get(cell.data.min(this.get)) : this.min)',
+    str:  ['data'], idx: 4
   }),
-  "max": measure({
-    name: "max",
-    init: "this.max = -Infinity;",
-    add:  "if (v > this.max) this.max = v;",
-    rem:  "this.max = null;",
-    set:  "this.max = (isNaN(this.max) ? this.get(cell.data.max(this.get)) : this.max)",
-    str:  ["data"], idx: 4
+  'max': measure({
+    name: 'max',
+    init: 'this.max = -Infinity;',
+    add:  'if (v > this.max) this.max = v;',
+    rem:  'this.max = null;',
+    set:  'this.max = (isNaN(this.max) ? this.get(cell.data.max(this.get)) : this.max)',
+    str:  ['data'], idx: 4
   }),
-  "modeskew": measure({
-    name: "modeskew",
-    set:  "this.dev===0 ? 0 : (this.mean - cell.data.q2(this.get)) / Math.sqrt(this.dev/(this.valid-1))",
-    req:  ["mean", "stdev", "median"], idx: 5
+  'modeskew': measure({
+    name: 'modeskew',
+    set:  'this.dev===0 ? 0 : (this.mean - cell.data.q2(this.get)) / Math.sqrt(this.dev/(this.valid-1))',
+    req:  ['mean', 'stdev', 'median'], idx: 5
   })
 };
 
 function measure(base) {
   return function(out) {
-    var m = util.extend({init:"", add:"", rem:"", idx:0}, base);
+    var m = util.extend({init:'', add:'', rem:'', idx:0}, base);
     m.out = out || base.name;
     return m;
   };
@@ -141,10 +141,10 @@ function resolve(agg, stream) {
 
 function create(agg, stream, accessor, mutator) {
   var all = resolve(agg, stream),
-      ctr = "this.cell = cell; this.tuple = t; this.valid = 0; this.missing = 0;",
-      add = "if (v==null) this.missing++; if (!this.isValid(v)) return; this.valid++;",
-      rem = "if (v==null) this.missing--; if (!this.isValid(v)) return; this.valid--;",
-      set = "var t = this.tuple; var cell = this.cell;";
+      ctr = 'this.cell = cell; this.tuple = t; this.valid = 0; this.missing = 0;',
+      add = 'if (v==null) this.missing++; if (!this.isValid(v)) return; this.valid++;',
+      rem = 'if (v==null) this.missing--; if (!this.isValid(v)) return; this.valid--;',
+      set = 'var t = this.tuple; var cell = this.cell;';
 
   all.forEach(function(a) {
     if (a.idx < 0) {
@@ -160,15 +160,15 @@ function create(agg, stream, accessor, mutator) {
   agg.slice()
     .sort(function(a, b) { return a.idx - b.idx; })
     .forEach(function(a) {
-      set += "this.assign(t,'"+a.out+"',"+a.set+");";
+      set += 'this.assign(t,\''+a.out+'\','+a.set+');';
     });
-  set += "return t;";
+  set += 'return t;';
 
   /* jshint evil: true */
-  ctr = Function("cell", "t", ctr);
+  ctr = Function('cell', 't', ctr);
   ctr.prototype.assign = mutator;
-  ctr.prototype.add = Function("t", "var v = this.get(t);" + add);
-  ctr.prototype.rem = Function("t", "var v = this.get(t);" + rem);
+  ctr.prototype.add = Function('t', 'var v = this.get(t);' + add);
+  ctr.prototype.rem = Function('t', 'var v = this.get(t);' + rem);
   ctr.prototype.set = Function(set);
   ctr.prototype.get = accessor;
   ctr.prototype.mod = mod;

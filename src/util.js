@@ -126,7 +126,7 @@ u.str = function(x) {
 var escape_str_re = /(^|[^\\])'/g;
 
 function util_escape_str(x) {
-  return x.replace(escape_str_re, "$1\\'");
+  return x.replace(escape_str_re, '$1\\\'');
 }
 
 // data access functions

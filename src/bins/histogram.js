@@ -15,7 +15,7 @@ function $bin(values, f, opt) {
   f = opt.accessor || util.identity;
   var b = spec(opt);
   return !b ? (f || util.identity) :
-    util.$func("bin", b.unit.unit ?
+    util.$func('bin', b.unit.unit ?
       function(x) { return b.value(b.unit.unit(x)); } :
       function(x) { return b.value(x); }
     )(f);
@@ -82,7 +82,7 @@ function numerical(values, f, b) {
 function categorical(values, f, sort) {
   var u = stats.unique(values, f), c = u.counts;
   return u.map(function(k) { return {value: k, count: c[k]}; })
-    .sort(util.comparator(sort ? "-count" : "+value"));
+    .sort(util.comparator(sort ? '-count' : '+value'));
 }
 
 module.exports = {

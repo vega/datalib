@@ -7,7 +7,7 @@ module.exports = util
   .reduce(function(out, type) {
     out[type] = function(opt, format, callback) {
       // process arguments
-      if (util.isString(opt)) opt = {url: opt};
+      if (util.isString(opt)) { opt = {url: opt}; }
       if (arguments.length === 2 && util.isFunction(format)) {
         callback = format;
         format = undefined;

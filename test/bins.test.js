@@ -149,7 +149,7 @@ describe('binning', function() {
       assert.equal('foo', b({a:'foo'}));
     });
     
-    it('should bin object values', function() {
+    it('should bin object properties', function() {
       var o = num.map(function(x) { return {a:x}; });
       function test(b) {
         for (var i=0; i<o.length; ++i) {
@@ -170,22 +170,22 @@ describe('binning', function() {
     it('should bin numeric values', function() {
       var numbers = [1,2,3,4,5,6,7,1,2,3,4,5,1,2,3];
       var h = histogram(numbers, {maxbins: 10});
-      assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor("value")));
-      assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor("count")));
+      assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor('value')));
+      assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor('count')));
     });
 
     it('should ignore null values among numbers', function() {
       var numbers = [null,1,2,3,NaN,4,5,6,undefined,7,1,2,3,4,5,1,null,2,3];
       var h = histogram(numbers, {maxbins: 10});
-      assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor("value")));
-      assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor("count")));
+      assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor('value')));
+      assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor('count')));
     });
 
     it('should bin integer values', function() {
       var numbers = [1,2,3,4,5,6,7,1,2,3,4,5,1,2,3];
       var h = histogram(numbers, {type: 'integer', maxbins: 20});
-      assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor("value")));
-      assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor("count")));
+      assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor('value')));
+      assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor('count')));
     });
 
     it('should bin date values', function() {
@@ -198,9 +198,9 @@ describe('binning', function() {
       assert(h.bins.unit.type, 'year');
       assert.deepEqual(
         gen.range(1979, 1986).map(units.year.date),
-        h.map(util.accessor("value"))
+        h.map(util.accessor('value'))
       );
-      assert.deepEqual([1,0,0,1,0,0,1], h.map(util.accessor("count")));
+      assert.deepEqual([1,0,0,1,0,0,1], h.map(util.accessor('count')));
     });
 
     it('should ignore null values among dates', function() {
@@ -216,16 +216,16 @@ describe('binning', function() {
       assert(h.bins.unit.type, 'year');
       assert.deepEqual(
         gen.range(1979, 1986).map(units.year.date),
-        h.map(util.accessor("value"))
+        h.map(util.accessor('value'))
       );
-      assert.deepEqual([1,0,0,1,0,0,1], h.map(util.accessor("count")));
+      assert.deepEqual([1,0,0,1,0,0,1], h.map(util.accessor('count')));
     });
 
     it('should bin string values', function() {
-      var strings = "aaaaaabbbbbccccccccdddddeeeeeeefffff".split('');
+      var strings = 'aaaaaabbbbbccccccccdddddeeeeeeefffff'.split('');
       var h = histogram(strings);
-      assert.deepEqual(['a','b','c','d','e','f'], h.map(util.accessor("value")));
-      assert.deepEqual([6,5,8,5,7,5], h.map(util.accessor("count")));
+      assert.deepEqual(['a','b','c','d','e','f'], h.map(util.accessor('value')));
+      assert.deepEqual([6,5,8,5,7,5], h.map(util.accessor('count')));
     });
   });
 

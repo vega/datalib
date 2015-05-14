@@ -29,9 +29,9 @@ proto.stream = function(v) {
 proto.groupby = function(dims) {
   this._dims = util.array(dims).map(function(d, i) {
     d = util.isString(d) ? {name: d, get: util.$(d)}
-      : util.isFunction(d) ? {name: util.name(d) || d.name || ("_" + i), get: d}
+      : util.isFunction(d) ? {name: util.name(d) || d.name || ('_' + i), get: d}
       : (d.name && util.isFunction(d.get)) ? d : null;
-    if (d == null) throw "Invalid groupby argument: " + d;
+    if (d == null) throw 'Invalid groupby argument: ' + d;
     return d;
   });
   return this;
@@ -196,8 +196,8 @@ proto.insert = function(input) {
 
 proto.remove = function(input) {
   if (!this._stream) {
-    throw "Aggregator not configured for streaming removes." +
-      " Call stream(true) prior to calling summarize.";
+    throw 'Aggregator not configured for streaming removes.' +
+      ' Call stream(true) prior to calling summarize.';
   }
   for (var i=0; i<input.length; ++i) {
     this.rem(input[i]);

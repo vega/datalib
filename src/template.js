@@ -8,12 +8,12 @@ var context = {
 };
 
 function template(text) {
-  var src = source(text, "d");
-  src = "var __t; return " + src + ";";
+  var src = source(text, 'd');
+  src = 'var __t; return ' + src + ';';
 
   try {
     /* jshint evil: true */
-    return (new Function("d", src)).bind(context);
+    return (new Function('d', src)).bind(context);
   } catch (e) {
     e.source = src;
     throw e;
@@ -30,9 +30,9 @@ template.clearFormatCache = function() {
 };
 
 function source(text, variable) {
-  variable = variable || "obj";
+  variable = variable || 'obj';
   var index = 0;
-  var src = "'";
+  var src = '\'';
   var regex = template_re;
 
   // Compile the template source, escaping string literals appropriately.
@@ -43,15 +43,15 @@ function source(text, variable) {
     index = offset + match.length;
 
     if (interpolate) {
-      src += "'\n+((__t=(" +
+      src += '\'\n+((__t=(' +
         template_var(interpolate, variable) +
-        "))==null?'':__t)+\n'";
+        '))==null?\'\':__t)+\n\'';
     }
 
     // Adobe VMs need the match returned to produce the correct offest.
     return match;
   });
-  return src + "'";
+  return src + '\'';
 }
 
 function template_var(text, variable) {
@@ -60,18 +60,18 @@ function template_var(text, variable) {
   var stringCast = true;
   
   function strcall(fn) {
-    fn = fn || "";
+    fn = fn || '';
     if (stringCast) {
       stringCast = false;
-      src = "String(" + src + ")" + fn;
+      src = 'String(' + src + ')' + fn;
     } else {
       src += fn;
     }
     return src;
   }
   
-  var src = util.field(prop).map(util.str).join("][");
-  src = variable + "[" + src + "]";
+  var src = util.field(prop).map(util.str).join('][');
+  src = variable + '[' + src + ']';
   
   for (var i=0; i<filters.length; ++i) {
     var f = filters[i], args = null, pidx, a, b;
@@ -124,8 +124,8 @@ function template_var(text, variable) {
       case 'truncate':
         a = util.number(args[0]);
         b = args[1];
-        b = (b!=="left" && b!=="middle" && b!=="center") ? "right" : b;
-        src = 'this.truncate(' + strcall() + ',' + a + ',"' + b + '")';
+        b = (b!=='left' && b!=='middle' && b!=='center') ? 'right' : b;
+        src = 'this.truncate(' + strcall() + ',' + a + ',\'' + b + '\')';
         break;
       case 'number':
         a = template_format(args[0], d3.format);
@@ -138,7 +138,7 @@ function template_var(text, variable) {
         src = 'this.formats['+a+']('+src+')';
         break;
       default:
-        throw Error("Unrecognized template filter: " + f);
+        throw Error('Unrecognized template filter: ' + f);
     }
   }
 
@@ -150,7 +150,7 @@ var template_re = /\{\{(.+?)\}\}|$/g;
 // Certain characters need to be escaped so that they can be put into a
 // string literal.
 var template_escapes = {
-  "'":      "'",
+  '\'':     '\'',
   '\\':     '\\',
   '\r':     'r',
   '\n':     'n',
@@ -165,11 +165,11 @@ function template_escapeChar(match) {
 }
 
 function template_format(pattern, fmt) {
-  if ((pattern[0] === "'" && pattern[pattern.length-1] === "'") ||
-      (pattern[0] !== '"' && pattern[pattern.length-1] === '"')) {
+  if ((pattern[0] === '\'' && pattern[pattern.length-1] === '\'') ||
+      (pattern[0] === '"'  && pattern[pattern.length-1] === '"')) {
     pattern = pattern.slice(1, -1);
   } else {
-    throw Error("Format pattern must be quoted: " + pattern);
+    throw Error('Format pattern must be quoted: ' + pattern);
   }
   if (!context.format_map[pattern]) {
     var f = fmt(pattern);

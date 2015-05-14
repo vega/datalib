@@ -24,9 +24,9 @@ function isNumber(d) { return typeof d === 'number'; }
 
 var entries = [
   {
-    type: "second",
+    type: 'second',
     minstep: 1,
-    format: "%Y %b %-d %H:%M:%S.%L",
+    format: '%Y %b %-d %H:%M:%S.%L',
     date: function(d) {
       return new Date(d * 1e3);
     },
@@ -35,9 +35,9 @@ var entries = [
     }
   },
   {
-    type: "minute",
+    type: 'minute',
     minstep: 1,
-    format: "%Y %b %-d %H:%M",
+    format: '%Y %b %-d %H:%M',
     date: function(d) {
       return new Date(d * 6e4);
     },
@@ -46,9 +46,9 @@ var entries = [
     }
   },
   {
-    type: "hour",
+    type: 'hour',
     minstep: 1,
-    format: "%Y %b %-d %H:00",
+    format: '%Y %b %-d %H:00',
     date: function(d) {
       return new Date(d * 36e5);
     },
@@ -57,10 +57,10 @@ var entries = [
     }
   },
   {
-    type: "day",
+    type: 'day',
     minstep: 1,
     step: [1, 7],
-    format: "%Y %b %-d",
+    format: '%Y %b %-d',
     date: function(d) {
       return new Date(d * 864e5);
     },
@@ -69,10 +69,10 @@ var entries = [
     }
   },
   {
-    type: "month",
+    type: 'month',
     minstep: 1,
     step: [1, 3, 6],
-    format: "%b %Y",
+    format: '%b %Y',
     date: function(d) {
       return new Date(Date.UTC(~~(d / 12), d % 12, 1));
     },
@@ -82,9 +82,9 @@ var entries = [
     }
   },
   {
-    type: "year",
+    type: 'year',
     minstep: 1,
-    format: "%Y",
+    format: '%Y',
     date: function(d) {
       return new Date(Date.UTC(d, 0, 1));
     },
@@ -95,11 +95,11 @@ var entries = [
 ];
 
 var minuteOfHour = {
-  type: "minuteOfHour",
+  type: 'minuteOfHour',
   min: 0,
   max: 59,
   minstep: 1,
-  format: "%M",
+  format: '%M',
   date: function(d) {
     return new Date(Date.UTC(1970, 0, 1, 0, d));
   },
@@ -109,11 +109,11 @@ var minuteOfHour = {
 };
 
 var hourOfDay = {
-  type: "hourOfDay",
+  type: 'hourOfDay',
   min: 0,
   max: 23,
   minstep: 1,
-  format: "%H",
+  format: '%H',
   date: function(d) {
     return new Date(Date.UTC(1970, 0, 1, d));
   },
@@ -123,11 +123,11 @@ var hourOfDay = {
 };
 
 var dayOfWeek = {
-  type: "dayOfWeek",
+  type: 'dayOfWeek',
   min: 0,
   max: 6,
   step: [1],
-  format: "%a",
+  format: '%a',
   date: function(d) {
     return new Date(Date.UTC(1970, 0, 4 + d));
   },
@@ -137,11 +137,11 @@ var dayOfWeek = {
 };
 
 var dayOfMonth = {
-  type: "dayOfMonth",
+  type: 'dayOfMonth',
   min: 1,
   max: 31,
   step: [1],
-  format: "%-d",
+  format: '%-d',
   date: function(d) {
     return new Date(Date.UTC(1970, 0, d));
   },
@@ -151,11 +151,11 @@ var dayOfMonth = {
 };
 
 var monthOfYear = {
-  type: "monthOfYear",
+  type: 'monthOfYear',
   min: 0,
   max: 11,
   step: [1],
-  format: "%b",
+  format: '%b',
   date: function(d) {
     return new Date(Date.UTC(1970, d % 12, 1));
   },
@@ -165,18 +165,18 @@ var monthOfYear = {
 };
 
 var units = {
-  "second":       entries[0],
-  "minute":       entries[1],
-  "hour":         entries[2],
-  "day":          entries[3],
-  "month":        entries[4],
-  "year":         entries[5],
-  "minuteOfHour": minuteOfHour,
-  "hourOfDay":    hourOfDay,
-  "dayOfWeek":    dayOfWeek,
-  "dayOfMonth":   dayOfMonth,
-  "monthOfYear":  monthOfYear,
-  "timesteps":    entries
+  'second':       entries[0],
+  'minute':       entries[1],
+  'hour':         entries[2],
+  'day':          entries[3],
+  'month':        entries[4],
+  'year':         entries[5],
+  'minuteOfHour': minuteOfHour,
+  'hourOfDay':    hourOfDay,
+  'dayOfWeek':    dayOfWeek,
+  'dayOfMonth':   dayOfMonth,
+  'monthOfYear':  monthOfYear,
+  'timesteps':    entries
 };
 
 units.find = function(span, minb, maxb) {

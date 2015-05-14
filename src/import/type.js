@@ -9,7 +9,7 @@ var PARSERS = {
 };
 
 var TESTS = {
-  boolean: function(x) { return x==="true" || x==="false" || util.isBoolean(x); },
+  boolean: function(x) { return x==='true' || x==='false' || util.isBoolean(x); },
   integer: function(x) { return TESTS.number(x) && (x=+x) === ~~x; },
   number: function(x) { return !isNaN(+x) && !util.isDate(x); },
   date: function(x) { return !isNaN(Date.parse(x)); }

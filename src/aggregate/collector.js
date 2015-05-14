@@ -1,6 +1,6 @@
 var stats = require('../stats');
 
-var REM = "$!_rem_!#";
+var REM = '$!_rem_!#';
 
 function Collector() {
   this._add = [];

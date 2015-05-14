@@ -42,7 +42,7 @@ function sanitizeUrl(opt) {
       // IE doesn't populate all link properties when setting .href with a relative URL,
       // however .href will return an absolute URL which then can be used on itself
       // to populate these additional fields.
-      if (a.host === "") {
+      if (a.host === '') {
         a.href = a.href;
       }
       domain = a.hostname.toLowerCase();
@@ -50,7 +50,7 @@ function sanitizeUrl(opt) {
     }
 
     if (origin !== domain) {
-      var whiteListed = opt.domainWhiteList.some(function (d) {
+      var whiteListed = opt.domainWhiteList.some(function(d) {
         var idx = domain.length - d.length;
         return d === domain ||
           (idx > 1 && domain[idx-1] === '.' && domain.lastIndexOf(d) === idx);
@@ -81,6 +81,9 @@ function load(opt, callback) {
   } else if (util.startsWith(url, fileProtocol)) {
     // in node.js, if url starts with 'file://', strip it and load from file
     return file(url.slice(fileProtocol.length), callback);
+  } else if (url.indexOf('://') < 0) { // TODO better protocol check?
+    // if node.js, if no protocol assume file
+    return file(url, callback);
   } else {
     // for regular URLs in node.js
     return http(url, callback);
@@ -89,9 +92,9 @@ function load(opt, callback) {
 
 function xhrHasResponse(request) {
   var type = request.responseType;
-  return type && type !== "text" ?
+  return type && type !== 'text' ?
     request.response : // null on error
-    request.responseText; // "" on error
+    request.responseText; // '' on error
 }
 
 function xhr(url, callback) {
@@ -99,7 +102,7 @@ function xhr(url, callback) {
   var request = new XMLHttpRequest();
   // If IE does not support CORS, use XDomainRequest (copied from d3.xhr)
   if (this.XDomainRequest &&
-      !("withCredentials" in request) &&
+      !('withCredentials' in request) &&
       /^(http(s)?:)?\/\//.test(url)) request = new XDomainRequest();
 
   function respond() {
@@ -112,7 +115,7 @@ function xhr(url, callback) {
   }
 
   if (async) {
-    if ("onload" in request) {
+    if ('onload' in request) {
       request.onload = request.onerror = respond;
     } else {
       request.onreadystatechange = function() {
@@ -121,7 +124,7 @@ function xhr(url, callback) {
     }
   }
   
-  request.open("GET", url, async);
+  request.open('GET', url, async);
   request.send();
   
   if (!async && xhrHasResponse(request)) {

@@ -12,12 +12,12 @@ var csv = read(text, {type: 'csv', parse: 'auto'});
 describe('readers', function() {
 
   it('should read synchronously', function() {
-    var data = readers.csv("file://" + file);
+    var data = readers.csv('file://' + file);
     assert.deepEqual(csv, data);
   });
 
   it('should read asynchronously', function(done) {
-    readers.csv("file://" + file, function(error, data) {
+    readers.csv('file://' + file, function(error, data) {
       assert.deepEqual(csv, data);
       done();
     });
@@ -25,19 +25,19 @@ describe('readers', function() {
 
   it('should read using options hash', function() {
     var data = readers.csv({
-      url: "//" + file,
-      defaultProtocol: "file"
+      url: '//' + file,
+      defaultProtocol: 'file'
     });
     assert.deepEqual(csv, data);
   });
   
   it('should read synchronously using format argument', function() {
-    var data = readers.csv("file://" + file, {type: 'csv', parse: 'auto'});
+    var data = readers.csv('file://' + file, {type: 'csv', parse: 'auto'});
     assert.deepEqual(csv, data);
   });
   
   it('should read asynchronously using format argument', function(done) {
-    readers.csv("file://" + file, {type: 'csv', parse: 'auto'}, function(error, data) {
+    readers.csv('file://' + file, {type: 'csv', parse: 'auto'}, function(error, data) {
       assert.deepEqual(csv, data);
       done();
     });

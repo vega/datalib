@@ -27,7 +27,7 @@ describe('load', function() {
   });
 
   it('should load from file url', function(done) {
-    load({url: "file://" + file}, function(error, data) {
+    load({url: 'file://' + file}, function(error, data) {
       assert.equal(text, data);
       done();
     });
@@ -64,7 +64,7 @@ describe('load', function() {
   });
 
   it('should load from relative protocol file url', function(done) {
-    load({url: "//"+file, defaultProtocol: 'file'},
+    load({url: '//'+file, defaultProtocol: 'file'},
       function(error, data) {
         assert.equal(text, data);
         done();

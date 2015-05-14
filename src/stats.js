@@ -186,7 +186,7 @@ stats.dot = function(values, a, b) {
   var sum = 0, i, v;
   if (!b) {
     if (values.length !== a.length) {
-      throw Error("Array lengths must match.");
+      throw Error('Array lengths must match.');
     }
     for (i=0; i<values.length; ++i) {
       v = values[i] * a[i];
@@ -210,7 +210,7 @@ stats.rank = function(values, f) {
   var a = values.map(function(v, i) {
       return {idx: i, val: f(v)};
     })
-    .sort(util.comparator("val"));
+    .sort(util.comparator('val'));
 
   var n = values.length,
       r = Array(n),
