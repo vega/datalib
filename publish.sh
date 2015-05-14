@@ -11,7 +11,7 @@ git checkout head
 
 # add the compiled files, commit and tag!
 git add datalib* -f
-git commit -m "release $version $gitsha"
+git commit -m "Release $version $gitsha"
 git tag -am "Release v$version." "v$version"
 
 # now swap back to the clean master and push the new tag

@@ -11,12 +11,13 @@ For documentation, see the datalib [API Reference](../../wiki/API-Reference).
 Datalib provides a set of utilities for working with data. These include:
 
 - Loading and parsing data files (e.g., JSON, TopoJSON, CSV, TSV)
-- Summary statistics (e.g., mean, stdev, median, mode skewness, etc)
-- Data-driven string templates, including a set of expressive filters
+- Summary statistics (e.g., mean, stdev, median, histograms, etc)
+- Group-by aggregation queries, including streaming data support
+- Data-driven string templates with expressive formatting filters
 - Utilities for working with JavaScript objects and arrays
 
 Datalib can be used both server-side and client-side. For use in node.js,
-simply `npm install datalib` or include datalib as a dependency in your package.json file. For use on the client, datalib is bundled into a single minified JS file using browserify (see below for details).
+simply `npm install datalib` or include datalib as a dependency in your package.json file. For use on the client, install datalib via `bower install datalib` or include datalib.min.js on your web page. The minified JS file is built using browserify (see below for details).
 
 ### Example
 
@@ -33,13 +34,17 @@ var data = dl.csv('http://uwdata.github.io/datalib/data/stocks.csv');
 console.log(dl.summary(data).toString());
 
 // Compute correlation measures between price and date.
-var price = dl.accessor('price');
-var date = dl.accessor('date');
 console.log(
-  dl.cor(data, price, date),      // Pearson product-moment correlation
-  dl.cor.rank(data, price, date), // Spearman rank correlation
-  dl.cor.dist(data, price, date)  // Distance correlation
+  dl.cor(data, 'price', 'date'),      // Pearson product-moment correlation
+  dl.cor.rank(data, 'price', 'date'), // Spearman rank correlation
+  dl.cor.dist(data, 'price', 'date')  // Distance correlation
 );
+
+// Compute average and std. deviation by ticker symbol
+var rollup = dl.groupby('symbol')
+  .summarize({'price': ['avg', 'stdev']})
+  .execute(data);
+console.log(JSON.stringify(rollup, null, 2));
 ```
 
 ## Build Process
