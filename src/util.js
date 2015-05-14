@@ -9,11 +9,11 @@ u.isNode = typeof process !== 'undefined' &&
 
 // utility functions
 
-var FNAME = '_name';
+var FNAME = '__name__';
 
 u.namedfunc = function(name, f) { return (f[FNAME] = name, f); };
 
-u.name = function(f) { return f[FNAME]; };
+u.name = function(f) { return f==null ? null : f[FNAME]; };
 
 u.identity = function(x) { return x; };
 
@@ -37,6 +37,10 @@ u.extend = function(obj) {
   return obj;
 };
 
+u.length = function(x) {
+  return x.length !== null ? x.length : 0;
+};
+
 u.keys = function(x) {
   var keys = [], k;
   for (k in x) keys.push(k);
@@ -58,9 +62,9 @@ u.toMap = function(list) {
 u.keystr = function(values) {
   // use to ensure consistent key generation across modules
   var n = values.length;
-  if (!n) return "";
+  if (!n) return '';
   for (var s=String(values[0]), i=1; i<n; ++i) {
-    s += "|" + String(values[i]);
+    s += '|' + String(values[i]);
   }
   return s;
 };
@@ -114,9 +118,9 @@ u.date = function(s) { return s == null ? null : Date.parse(s); };
 u.array = function(x) { return x != null ? (u.isArray(x) ? x : [x]) : []; };
 
 u.str = function(x) {
-  return u.isArray(x) ? "[" + x.map(u.str) + "]"
+  return u.isArray(x) ? '[' + x.map(u.str) + ']'
     : u.isObject(x) ? JSON.stringify(x)
-    : u.isString(x) ? ("'"+util_escape_str(x)+"'") : x;
+    : u.isString(x) ? ('\''+util_escape_str(x)+'\'') : x;
 };
 
 var escape_str_re = /(^|[^\\])'/g;
@@ -128,10 +132,10 @@ function util_escape_str(x) {
 // data access functions
 
 u.field = function(f) {
-  return String(f).split("\\.")
-    .map(function(d) { return d.split("."); })
+  return String(f).split('\\.')
+    .map(function(d) { return d.split('.'); })
     .reduce(function(a, b) {
-      if (a.length) { a[a.length-1] += "." + b.shift(); }
+      if (a.length) { a[a.length-1] += '.' + b.shift(); }
       a.push.apply(a, b);
       return a;
     }, []);
@@ -158,21 +162,21 @@ u.mutator = function(f) {
     function(x, v) { x[f] = v; };
 };
 
-u.$func = function(op, val) {
+u.$func = function(name, op) {
   return function(f) {
-    f = u.$(f);
-    var name = u.funcname(f);
-    name = op + (name ? "_"+name : "");
-    return u.namedfunc(name, function(d) { return val(f(d)); });
+    f = u.$(f) || u.identity;
+    var n = name + (u.name(f) ? '_'+u.name(f) : '');
+    return u.namedfunc(n, function(d) { return op(f(d)); });
   };
 };
 
-u.$year = u.$func("year", units.year.unit);
-u.$month = u.$func("month", units.monthOfYear.unit);
-u.$day = u.$func("day", units.dayOfMonth.unit);
-u.$dayofweek = u.$func("dayofweek", units.dayOfWeek.unit);
-u.$hour = u.$func("hour", units.hourOfDay.unit);
-u.$minute = u.$func("minute", units.minuteOfHour.unit);
+u.$length = u.$func('length', u.length);
+u.$year   = u.$func('year', units.year.unit);
+u.$month  = u.$func('month', units.monthOfYear.unit);
+u.$date   = u.$func('date', units.dayOfMonth.unit);
+u.$day    = u.$func('day', units.dayOfWeek.unit);
+u.$hour   = u.$func('hour', units.hourOfDay.unit);
+u.$minute = u.$func('minute', units.minuteOfHour.unit);
 
 
 // comparison / sorting functions
@@ -182,8 +186,8 @@ u.comparator = function(sort) {
   if (sort === undefined) sort = [];
   sort = u.array(sort).map(function(f) {
     var s = 1;
-    if      (f[0] === "-") { s = -1; f = f.slice(1); }
-    else if (f[0] === "+") { s = +1; f = f.slice(1); }
+    if      (f[0] === '-') { s = -1; f = f.slice(1); }
+    else if (f[0] === '+') { s = +1; f = f.slice(1); }
     sign.push(s);
     return u.accessor(f);
   });
@@ -248,14 +252,14 @@ u.startsWith = String.prototype.startsWith ?
 u.truncate = function(s, length, pos, word, ellipsis) {
   var len = s.length;
   if (len <= length) return s;
-  ellipsis = ellipsis !== undefined ? String(ellipsis) : "…";
+  ellipsis = ellipsis !== undefined ? String(ellipsis) : '…';
   var l = Math.max(0, length - ellipsis.length);
 
   switch (pos) {
-    case "left":
+    case 'left':
       return ellipsis + (word ? truncateOnWord(s,l,1) : s.slice(len-l));
-    case "middle":
-    case "center":
+    case 'middle':
+    case 'center':
       var l1 = Math.ceil(l/2), l2 = Math.floor(l/2);
       return (word ? truncateOnWord(s,l1) : s.slice(0,l1)) +
         ellipsis + (word ? truncateOnWord(s,l2,1) : s.slice(len-l2));
@@ -273,7 +277,7 @@ function truncateOnWord(s, len, rev) {
   } else {
     s = tok.filter(function(w) { cnt += w.length; return cnt <= len; });
   }
-  return s.length ? s.join("").trim() : tok[0].slice(0, len);
+  return s.length ? s.join('').trim() : tok[0].slice(0, len);
 }
 
 var truncate_word_re = /([\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u2028\u2029\u3000\uFEFF])/;

@@ -7,6 +7,7 @@ var stats = {};
 // The array includes an additional 'counts' property,
 // which is a hash from unique values to occurrence counts.
 stats.unique = function(values, f, results) {
+  f = util.$(f);
   results = results || [];
   var u = {}, v, i, n;
   for (i=0, n=values.length; i<n; ++i) {
@@ -29,6 +30,7 @@ stats.count = function(values) {
 
 // Count the number of non-null, non-undefined, non-NaN values.
 stats.count.valid = function(values, f) {
+  f = util.$(f);
   var v, i, n, valid = 0;
   for (i=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
@@ -38,7 +40,8 @@ stats.count.valid = function(values, f) {
 };
 
 // Count the number of null or undefined values.
-stats.count.nulls = function(values, f) {
+stats.count.missing = function(values, f) {
+  f = util.$(f);
   var v, i, n, count = 0;
   for (i=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
@@ -50,6 +53,7 @@ stats.count.nulls = function(values, f) {
 // Count the number of distinct values.
 // Null, undefined and NaN are each considered distinct values.
 stats.count.distinct = function(values, f) {
+  f = util.$(f);
   var u = {}, v, i, n, count = 0;
   for (i=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
@@ -62,14 +66,14 @@ stats.count.distinct = function(values, f) {
 
 // Compute the median of an array of numbers.
 stats.median = function(values, f) {
-  if (f) values = values.map(f);
+  if (f) values = values.map(util.$(f));
   values = values.filter(util.isValid).sort(util.cmp);
   return stats.quantile(values, 0.5);
 };
 
 // Computes the quartile boundaries of an array of numbers.
 stats.quartile = function(values, f) {
-  if (f) values = values.map(f);
+  if (f) values = values.map(util.$(f));
   values = values.filter(util.isValid).sort(util.cmp);
   var q = stats.quantile;
   return [q(values, 0.25), q(values, 0.50), q(values, 0.75)];
@@ -79,6 +83,7 @@ stats.quartile = function(values, f) {
 // Adapted from the D3.js implementation.
 stats.quantile = function(values, f, p) {
   if (p === undefined) { p = f; f = util.identity; }
+  f = util.$(f);
   var H = (values.length - 1) * p + 1,
       h = Math.floor(H),
       v = +f(values[h - 1]),
@@ -88,6 +93,7 @@ stats.quantile = function(values, f, p) {
 
 // Compute the sum of an array of numbers.
 stats.sum = function(values, f) {
+  f = util.$(f);
   for (var sum=0, i=0, n=values.length, v; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
     if (util.isValid(v)) sum += v;
@@ -97,6 +103,7 @@ stats.sum = function(values, f) {
 
 // Compute the mean (average) of an array of numbers.
 stats.mean = function(values, f) {
+  f = util.$(f);
   var mean = 0, delta, i, n, c, v;
   for (i=0, c=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
@@ -110,6 +117,7 @@ stats.mean = function(values, f) {
 
 // Compute the sample variance of an array of numbers.
 stats.variance = function(values, f) {
+  f = util.$(f);
   if (!util.isArray(values) || values.length===0) return 0;
   var mean = 0, M2 = 0, delta, i, c, v;
   for (i=0, c=0; i<values.length; ++i) {
@@ -139,6 +147,7 @@ stats.modeskew = function(values, f) {
 
 // Find the minimum and maximum of an array of values.
 stats.extent = function(values, f) {
+  f = util.$(f);
   var a, b, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
@@ -156,6 +165,7 @@ stats.extent = function(values, f) {
 
 // Find the integer indices of the minimum and maximum values.
 stats.extent.index = function(values, f) {
+  f = util.$(f);
   var a, b, x, y, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
@@ -183,6 +193,8 @@ stats.dot = function(values, a, b) {
       if (!Number.isNaN(v)) sum += v;
     }
   } else {
+    a = util.$(a);
+    b = util.$(b);
     for (i=0; i<values.length; ++i) {
       v = a(values[i]) * b(values[i]);
       if (!Number.isNaN(v)) sum += v;
@@ -194,8 +206,9 @@ stats.dot = function(values, a, b) {
 // Compute ascending rank scores for an array of values.
 // Ties are assigned their collective mean rank.
 stats.rank = function(values, f) {
+  f = util.$(f) || util.identity;
   var a = values.map(function(v, i) {
-      return {idx: i, val: (f ? f(v) : v)};
+      return {idx: i, val: f(v)};
     })
     .sort(util.comparator("val"));
 
@@ -227,8 +240,8 @@ stats.rank = function(values, f) {
 // Compute the sample Pearson product-moment correlation of two arrays of numbers.
 stats.cor = function(values, a, b) {
   var fn = b;
-  b = fn ? values.map(b) : a;
-  a = fn ? values.map(a) : values;
+  b = fn ? values.map(util.$(b)) : a;
+  a = fn ? values.map(util.$(a)) : values;
 
   var dot = stats.dot(a, b),
       mua = stats.mean(a),
@@ -242,8 +255,8 @@ stats.cor = function(values, a, b) {
 
 // Compute the Spearman rank correlation of two arrays of values.
 stats.cor.rank = function(values, a, b) {
-  var ra = b ? stats.rank(values, a) : stats.rank(values),
-      rb = b ? stats.rank(values, b) : stats.rank(a),
+  var ra = b ? stats.rank(values, util.$(a)) : stats.rank(values),
+      rb = b ? stats.rank(values, util.$(b)) : stats.rank(a),
       n = values.length, i, s, d;
 
   for (i=0, s=0; i<n; ++i) {
@@ -257,8 +270,8 @@ stats.cor.rank = function(values, a, b) {
 // Compute the distance correlation of two arrays of numbers.
 // http://en.wikipedia.org/wiki/Distance_correlation
 stats.cor.dist = function(values, a, b) {
-  var X = b ? values.map(a) : values,
-      Y = b ? values.map(b) : a;
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a;
 
   var A = stats.dist.mat(X),
       B = stats.dist.mat(Y),
@@ -277,13 +290,16 @@ stats.cor.dist = function(values, a, b) {
 // Compute the vector distance between two arrays of numbers.
 // Default is Euclidean (exp=2) distance, configurable via exp argument.
 stats.dist = function(values, a, b, exp) {
-  var f = util.isFunction(b),
+  var f = util.isFunction(b) || util.isString(b),
       X = values,
       Y = f ? values : a,
       e = f ? exp : b,
       n = values.length, s = 0, d, i;
-
-  if (e === 2 || e === undefined) {
+  if (f) {
+    a = util.$(a);
+    b = util.$(b);
+  }
+  if (e === 2 || e == null) {
     for (i=0; i<n; ++i) {
       d = f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]);
       s += d*d;
@@ -291,8 +307,8 @@ stats.dist = function(values, a, b, exp) {
     return Math.sqrt(s);
   } else {
     for (i=0; i<n; ++i) {
-      d = Math.abs(f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]));
-      s += Math.pow(d, e);
+      d = f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]);
+      s += Math.pow(Math.abs(d), e);
     }
     return Math.pow(s, 1/e);
   }
@@ -334,6 +350,7 @@ stats.dist.mat = function(X) {
 
 // Compute the Shannon entropy (log base 2) of an array of counts.
 stats.entropy = function(counts, f) {
+  f = util.$(f);
   var i, p, s = 0, H = 0, N = counts.length;
   for (i=0; i<N; ++i) {
     s += (f ? f(counts[i]) : counts[i]);
@@ -346,22 +363,18 @@ stats.entropy = function(counts, f) {
   return -H;
 };
 
-// Compute the normalized Shannon entropy (log base 2) of an array of counts.
-stats.entropy.normalized = function(counts, f) {
-  var H = stats.entropy(counts, f);
-  return H===0 ? 0 : H * Math.LN2 / Math.log(counts.length);
-};
-
 // Compute the mutual information between two discrete variables.
+// Returns an array of the form [MI, MI_distance] 
+// MI_distance is defined as 1 - I(a,b) / H(a,b).
 // http://en.wikipedia.org/wiki/Mutual_information
-stats.entropy.mutual = function(values, a, b, counts) {
-  var x = counts ? values.map(a) : values,
-      y = counts ? values.map(b) : a,
-      z = counts ? values.map(counts) : b;
+stats.mutual = function(values, a, b, counts) {
+  var x = counts ? values.map(util.$(a)) : values,
+      y = counts ? values.map(util.$(b)) : a,
+      z = counts ? values.map(util.$(counts)) : b;
 
   var px = {},
       py = {},
-      i, s = 0, t, N = z.length, p, I = 0;
+      i, s = 0, t, N = z.length, p, I = 0, H = 0;
 
   for (i=0; i<N; ++i) {
     px[x[i]] = 0;
@@ -379,16 +392,28 @@ stats.entropy.mutual = function(values, a, b, counts) {
     if (z[i] === 0) continue;
     p = (s * z[i]) / (px[x[i]] * py[y[i]]);
     I += z[i] * t * Math.log(p);
+    H += z[i] * t * Math.log(z[i]/s);
   }
 
-  return I;
+  return [I, 1 + I/H];
+};
+
+// Compute the mutual information between two discrete variables.
+stats.mutual.info = function(values, a, b, counts) {
+  return stats.mutual(values, a, b, counts)[0];
+};
+
+// Compute the mutual information distance between two discrete variables.
+// MI_distance is defined as 1 - I(a,b) / H(a,b).
+stats.mutual.dist = function(values, a, b, counts) {
+  return stats.mutual(values, a, b, counts)[1];
 };
 
 // Compute a profile of summary statistics for a variable.
 stats.profile = function(values, f) {
   var mean = 0,
       valid = 0,
-      nulls = 0,
+      missing = 0,
       distinct = 0,
       min = null,
       max = null,
@@ -404,7 +429,7 @@ stats.profile = function(values, f) {
     u[v] = (v in u) ? u[v] + 1 : (distinct += 1, 1);
 
     if (v == null) {
-      ++nulls;
+      ++missing;
     } else if (util.isValid(v)) {
       // update stats
       x = (typeof v === 'string') ? v.length : v;
@@ -426,7 +451,7 @@ stats.profile = function(values, f) {
     unique:   u,
     count:    values.length,
     valid:    valid,
-    nulls:    nulls,
+    missing:  missing,
     distinct: distinct,
     min:      min,
     max:      max,

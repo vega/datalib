@@ -77,18 +77,18 @@ describe('stats', function() {
     });
   });
 
-  describe('count.nulls', function() {
+  describe('count.missing', function() {
     it('should count null values', function() {
-      assert.equal(stats.count.nulls([3, 1, 2]), 0);
-      assert.equal(stats.count.nulls([null, 0, 1, 2, null]), 2);
+      assert.equal(stats.count.missing([3, 1, 2]), 0);
+      assert.equal(stats.count.missing([null, 0, 1, 2, null]), 2);
     });
 
     it('should ignore NaN values', function() {
-      assert.equal(stats.count.nulls([NaN, 1, 2]), 0);
+      assert.equal(stats.count.missing([NaN, 1, 2]), 0);
     });
 
     it('should count undefined values', function() {
-      assert.equal(stats.count.nulls([1, undefined, 2, undefined, 3]), 2);
+      assert.equal(stats.count.missing([1, undefined, 2, undefined, 3]), 2);
     });
   });
 
@@ -361,15 +361,9 @@ describe('stats', function() {
     it('should handle zero vectors', function() {
       assert.equal(0, stats.entropy([0,0,0,0]));
     });
-
-    it('should calculate normalized entropy', function() {
-      assert.equal(1, stats.entropy.normalized(even));
-      assert.equal(0, stats.entropy.normalized(skew));
-      assert.equal(0, stats.entropy.normalized([0,0,0,0]));
-    });
   });
 
-  describe('entropy.mutual', function() {
+  describe('mutual', function() {
     var table = [
       {a:'a', b:1, c:1, d:1},
       {a:'a', b:2, c:0, d:1},
@@ -378,15 +372,24 @@ describe('stats', function() {
     ];
 
     it('should accept object array and accessors', function() {
-      assert.equal(1, stats.entropy.mutual(table, a, b, c));
-      assert.equal(0, stats.entropy.mutual(table, a, b, d));
+      assert.deepEqual([1, 0], stats.mutual(table, a, b, c));
+      assert.deepEqual([0, 1], stats.mutual(table, a, b, d));
     });
 
     it('should handle zero vectors', function() {
       var u = table.map(a), v = table.map(b),
           x = table.map(c), y = table.map(d);
-      assert.equal(1, stats.entropy.mutual(u, v, x));
-      assert.equal(0, stats.entropy.mutual(u, v, y));
+      assert.deepEqual([1, 0], stats.mutual(u, v, x));
+      assert.deepEqual([0, 1], stats.mutual(u, v, y));
+    });
+
+    it('should support info/dist sub-methods', function() {
+      var m = stats.mutual(table, a, b, c);
+      assert.equal(m[0], stats.mutual.info(table, a, b, c));
+      assert.equal(m[1], stats.mutual.dist(table, a, b, c));
+      m = stats.mutual(table, a, b, d);
+      assert.equal(m[0], stats.mutual.info(table, a, b, d));
+      assert.equal(m[1], stats.mutual.dist(table, a, b, d));
     });
   });
 
@@ -412,8 +415,30 @@ describe('stats', function() {
       assert.equal(5.50, stats.profile([1,2,3,4,5,6,7]).q3);
       assert.equal(6.25, stats.profile([1,2,3,4,5,6,7,8]).q3);
     });
+    
+    it('should match stand-alone statistics', function() {
+      var v = [1, 1, 3, 4, 20, null, undefined, NaN];
+      var p = stats.profile(v);
+      assert.equal(8, p.count);
+      assert.equal(5, p.valid);
+      assert.equal(2, p.missing);
+      assert.equal(7, p.distinct);
+      assert.equal(stats.count(v), p.count);
+      assert.equal(stats.count.valid(v), p.valid);
+      assert.equal(stats.count.missing(v), p.missing);
+      assert.equal(stats.count.distinct(v), p.distinct);
+      assert.equal(stats.extent(v)[0], p.min);
+      assert.equal(stats.extent(v)[1], p.max);
+      assert.equal(stats.mean(v), p.mean);
+      assert.equal(stats.stdev(v), p.stdev);
+      assert.equal(stats.median(v), p.median);
+      assert.equal(stats.quartile(v)[0], p.q1);
+      assert.equal(stats.quartile(v)[2], p.q3);
+      assert.equal(stats.modeskew(v), p.modeskew);
+      assert.deepEqual(stats.unique(v).counts, p.unique);
+    });
 
-    it('should return min, max length for strings', function(){
+    it('should return length statistics for strings', function(){
       var p = stats.profile(['aa', 'eeeeeeeee', 'bbb', 'cccc', 'dddddd']);
       assert.equal(p.min, 2);
       assert.equal(p.max, 9);

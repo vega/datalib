@@ -17,11 +17,11 @@ describe('util', function() {
     });
 
     it('isBuffer should recognize Buffers', function() {
-      var b = new Buffer('[{"a":1, "b":2}]');
+      var b = new Buffer("[{'a':1, 'b':2}]");
       assert.isTrue(util.isBuffer(b));
       assert.isFalse(util.isBuffer(null));
       assert.isFalse(util.isBuffer(0));
-      assert.isFalse(util.isBuffer("string"));
+      assert.isFalse(util.isBuffer('string'));
       assert.isFalse(util.isBuffer({}));
     });
   });
@@ -131,19 +131,19 @@ describe('util', function() {
   
   describe('boolean', function() {
     it('should convert string "true" to true', function() {
-      assert.strictEqual(util.boolean("true"), true);
+      assert.strictEqual(util.boolean('true'), true);
     });
     
     it('should convert string "false" to false', function() {
-      assert.strictEqual(util.boolean("false"), false);
+      assert.strictEqual(util.boolean('false'), false);
     });
     
     it('should convert string "1" to true', function() {
-      assert.strictEqual(util.boolean("1"), true);
+      assert.strictEqual(util.boolean('1'), true);
     });
     
     it('should convert string "0" to true', function() {
-      assert.strictEqual(util.boolean("0"), true);
+      assert.strictEqual(util.boolean('0'), true);
     });
     
     it('should convert number 1 to true', function() {
@@ -204,31 +204,31 @@ describe('util', function() {
     });
   });
 
-  describe("keys", function() {
-    it("should enumerate every defined key", function() {
-      assert.deepEqual(util.keys({a: 1, b: 1}), ["a", "b"]);
+  describe('keys', function() {
+    it('should enumerate every defined key', function() {
+      assert.deepEqual(util.keys({a: 1, b: 1}), ['a', 'b']);
     });
 
-    it("should include keys defined on prototypes", function() {
+    it('should include keys defined on prototypes', function() {
       function Abc() {
         this.a = 1;
         this.b = 2;
       }
       Abc.prototype.c = 3;
-      assert.deepEqual(util.keys(new Abc()), ["a", "b", "c"]);
+      assert.deepEqual(util.keys(new Abc()), ['a', 'b', 'c']);
     });
 
-    it("should include keys with null or undefined values", function() {
-      assert.deepEqual(util.keys({a: undefined, b: null, c: NaN}), ["a", "b", "c"]);
+    it('should include keys with null or undefined values', function() {
+      assert.deepEqual(util.keys({a: undefined, b: null, c: NaN}), ['a', 'b', 'c']);
     });
   });
   
   describe('vals', function() {
-    it("should enumerate every defined value", function() {
+    it('should enumerate every defined value', function() {
       assert.deepEqual(util.vals({a: 1, b: 1}), [1, 1]);
     });
 
-    it("should include values defined on prototypes", function() {
+    it('should include values defined on prototypes', function() {
       function Abc() {
         this.a = 1;
         this.b = 2;
@@ -237,20 +237,20 @@ describe('util', function() {
       assert.deepEqual(util.vals(new Abc()), [1, 2, 3]);
     });
 
-    it("should include values with null or undefined values", function() {
+    it('should include values with null or undefined values', function() {
       assert.deepEqual(util.vals({a: undefined, b: null, c: NaN}), [undefined, null, NaN]);
     });
   });
 
   describe('toMap', function() {
-    it("should return a boolean map of array values", function() {
+    it('should return a boolean map of array values', function() {
       var m = util.toMap([1,3,5]);
       assert.deepEqual({'1':1, '3':1, '5':1}, m);
     });
   });
 
   describe('keystr', function() {
-    it("should construct valid key strings", function() {
+    it('should construct valid key strings', function() {
       assert.strictEqual('', util.keystr([]));
       assert.strictEqual('a', util.keystr(['a']));
       assert.strictEqual('1', util.keystr([1]));
@@ -298,6 +298,77 @@ describe('util', function() {
 
     it('should handle property for number arguments', function() {
       assert.equal(util.accessor(1)(['a', 'b']), 'b');
+    });
+
+    it('should return named functions', function() {
+      assert.equal('foo', util.name(util.accessor('foo')));
+      assert.equal('foo.bar', util.name(util.accessor('foo.bar')));
+      assert.equal('1', util.name(util.accessor(1)));
+    });
+
+    it('should be aliased to the $ method', function() {
+      assert.strictEqual(util.accessor, util.$);
+    });
+  });
+
+  describe('accessor helpers', function() {
+    var t = {t: Date.UTC(2005, 2, 3, 13, 17)};
+    var d = {d: new Date(t.t)};
+
+    it('should support length extraction', function() {
+      assert.equal(5, util.$length('s')({s:'abcde'}));
+      assert.equal(5, util.$length()('abcde'));
+      assert.equal('length_s', util.name(util.$length('s')));
+      assert.equal('length', util.name(util.$length()));
+    });
+
+    it('should support year extraction', function() {
+      assert.equal(2005, util.$year('t')(t));
+      assert.equal(2005, util.$year('d')(d));
+      assert.equal(2005, util.$year()(d.d));
+      assert.equal('year_t', util.name(util.$year('t')));
+      assert.equal('year', util.name(util.$year()));
+    });
+
+    it('should support month extraction', function() {
+      assert.equal(2, util.$month('t')(t));
+      assert.equal(2, util.$month('d')(d));
+      assert.equal(2, util.$month()(d.d));
+      assert.equal('month_t', util.name(util.$month('t')));
+      assert.equal('month', util.name(util.$month()));
+    });
+
+    it('should support date extraction', function() {
+      assert.equal(3, util.$date('t')(t));
+      assert.equal(3, util.$date('d')(d));
+      assert.equal(3, util.$date()(d.d));
+      assert.equal('date_t', util.name(util.$date('t')));
+      assert.equal('date', util.name(util.$date()));
+    });
+
+    it('should support day extraction', function() {
+      var day = d.d.getUTCDay();
+      assert.equal(day, util.$day('t')(t));
+      assert.equal(day, util.$day('d')(d));
+      assert.equal(day, util.$day()(d.d));
+      assert.equal('day_t', util.name(util.$day('t')));
+      assert.equal('day', util.name(util.$day()));
+    });
+
+    it('should support hour extraction', function() {
+      assert.equal(13, util.$hour('t')(t));
+      assert.equal(13, util.$hour('d')(d));
+      assert.equal(13, util.$hour()(d.d));
+      assert.equal('hour_t', util.name(util.$hour('t')));
+      assert.equal('hour', util.name(util.$hour()));
+    });
+
+    it('should support minute extraction', function() {
+      assert.equal(17, util.$minute('t')(t));
+      assert.equal(17, util.$minute('d')(d));
+      assert.equal(17, util.$minute()(d.d));
+      assert.equal('minute_t', util.name(util.$minute('t')));
+      assert.equal('minute', util.name(util.$minute()));
     });
   });
 
@@ -418,7 +489,7 @@ describe('util', function() {
   describe('truncate', function() {
     it('should reduce string length', function() {
       assert.equal(util.truncate('123456789', 5), '1234…');
-      assert.equal(util.truncate('123456789', 5, null, null, ""), '12345');
+      assert.equal(util.truncate('123456789', 5, null, null, ''), '12345');
     });
 
     it('should respect position argument', function() {

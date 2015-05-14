@@ -14,9 +14,11 @@ function $bin(values, f, opt) {
   opt = options(values, f, opt);
   f = opt.accessor || util.identity;
   var b = spec(opt);
-  return b ?
-    util.$func("bin", b.value.bind(b))(f) :
-    (f || util.identity);
+  return !b ? (f || util.identity) :
+    util.$func("bin", b.unit.unit ?
+      function(x) { return b.value(b.unit.unit(x)); } :
+      function(x) { return b.value(x); }
+    )(f);
 }
 
 function histogram(values, f, opt) {

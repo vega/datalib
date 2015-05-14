@@ -5,9 +5,9 @@ var types = {
     name: "count",
     set:  "cell.num"
   }),
-  "nulls": measure({
-    name: "nulls",
-    set:  "this.nulls"
+  "missing": measure({
+    name: "missing",
+    set:  "this.missing"
   }),
   "valid": measure({
     name: "valid",
@@ -31,6 +31,11 @@ var types = {
     add:  "var d = v - this.mean; this.mean += d / this.valid;",
     rem:  "var d = v - this.mean; this.mean -= d / this.valid;",
     set:  "this.mean"
+  }),
+  "avg": measure({
+    name: "avg",
+    set:  "this.mean",
+    req:  ["mean"], idx: 1
   }),
   "var": measure({
     name: "var",
@@ -136,9 +141,9 @@ function resolve(agg, stream) {
 
 function create(agg, stream, accessor, mutator) {
   var all = resolve(agg, stream),
-      ctr = "this.cell = cell; this.tuple = t; this.valid = 0; this.nulls = 0;",
-      add = "if (v==null) this.nulls++; if (!this.isValid(v)) return; this.valid++;",
-      rem = "if (v==null) this.nulls--; if (!this.isValid(v)) return; this.valid--;",
+      ctr = "this.cell = cell; this.tuple = t; this.valid = 0; this.missing = 0;",
+      add = "if (v==null) this.missing++; if (!this.isValid(v)) return; this.valid++;",
+      rem = "if (v==null) this.missing--; if (!this.isValid(v)) return; this.valid--;",
       set = "var t = this.tuple; var cell = this.cell;";
 
   all.forEach(function(a) {

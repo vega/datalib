@@ -116,8 +116,8 @@ describe('aggregate', function() {
       assert.equal(stats.count(values), run({'*':'count'}).count);
     });
 
-    it('should count null values', function() {
-      assert.equal(stats.count.nulls(values), run({'a':'nulls'}).nulls_a);
+    it('should count missing values', function() {
+      assert.equal(stats.count.missing(values), run({'a':'missing'}).missing_a);
     });
 
     it('should count valid values', function() {
@@ -146,6 +146,10 @@ describe('aggregate', function() {
 
     it('should compute mean', function() {
       assert.equal(stats.mean(values), run({'a':'mean'}).mean_a);
+    });
+
+    it('should compute average', function() {
+      assert.equal(stats.mean(values), run({'a':'avg'}).avg_a);
     });
 
     it('should compute var', function() {
