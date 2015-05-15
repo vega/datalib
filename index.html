@@ -37,10 +37,8 @@
       + "// Show summary statistics for each column of the data table.\n"
       + "dl.summary(data).toString()\n\n"
       + "// Compute correlation measures between price and date.\n"
-      + "var price = dl.accessor('price');\n"
-      + "var date = dl.accessor('date');\n"
-      + "dl.cor(data, price, date) // Pearson product-moment correlation\n"
-      + "dl.cor.rank(data, price, date) // Spearman rank correlation\n\n";
+      + "dl.cor(data, 'price', 'date') // Pearson product-moment correlation\n"
+      + "dl.cor.rank(data, 'price', date') // Spearman rank correlation\n\n";
     console.log(msg);
     </script>
   </head>
@@ -51,7 +49,7 @@
       </a>
       <div id="logo">
         <div id="links">
-          <a href="datalib.min.js"><strong>datalib.min.js</strong> (24k)</a><br/>
+          <a href="datalib.min.js"><strong>datalib.min.js</strong></a><br/>
           <a href="https://github.com/uwdata/datalib"><strong>Source</strong> (GitHub)</a>
         </div>
         <div id="wordmark">
@@ -62,9 +60,10 @@
         <strong>Datalib</strong> is a JavaScript data utility library. It provides facilities for data loading, type inference, common statistics, and string templates. This includes:
         <ul>
           <li>Loading and parsing data files (JSON, TopoJSON, CSV, TSV).</li>
-          <li>Summary statistics (mean, deviation, median, correlation measures, <em>etc.</em>).</li>
-          <li>Data-driven string templates, including a set of expressive filters.</li>
-          <li>Utilities for working with JavaScript objects and arrays.</li>
+          <li>Summary statistics (mean, deviation, median, correlation, histograms, <em>etc.</em>).</li>
+          <li>Group-by aggregation queries, including streaming data support.</li>
+          <li>Data-driven string templates with expressive formatting filters.</li>
+          <li>Utilities for working with JavaScript functions, objects and arrays.</li>
         </ul>
       </div>
       <div class="content">
