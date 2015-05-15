@@ -23,6 +23,7 @@ function annotation(data, types) {
 }
 
 function type(values, f) {
+  f = util.$(f);
   var v, i, n;
 
   // if data array has type annotations, use them
@@ -45,11 +46,12 @@ function typeAll(data, fields) {
   if (!data.length) return;
   fields = fields || util.keys(data[0]);
   return fields.reduce(function(types, f) {
-    return (types[f] = type(data, util.$(f)), types);
+    return (types[f] = type(data, f), types);
   }, {});
 }
 
 function infer(values, f) {
+  f = util.$(f);
   var i, j, v;
 
   // types to test for, in precedence order
@@ -75,7 +77,7 @@ function infer(values, f) {
 function inferAll(data, fields) {
   fields = fields || util.keys(data[0]);
   return fields.reduce(function(types, f) {
-    var type = infer(data, util.$(f));
+    var type = infer(data, f);
     if (PARSERS[type]) types[f] = type;
     return types;
   }, {});

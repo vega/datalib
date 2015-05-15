@@ -68,6 +68,8 @@ describe('read', function() {
         {a: '2', b: 'false'},
         {a: '3', b: null}
       ];
+      assert.equal('integer', type.infer(data, 'a'));
+      assert.equal('boolean', type.infer(data, 'b'));
       assert.equal('integer', type.infer(data, util.accessor('a')));
       assert.equal('boolean', type.infer(data, util.accessor('b')));
     });
