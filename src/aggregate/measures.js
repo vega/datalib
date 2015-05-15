@@ -1,6 +1,11 @@
 var util = require('../util');
 
 var types = {
+  'values': measure({
+    name: 'values',
+    init: 'cell.collect = true;',
+    set:  'cell.data.values()', idx: -1
+  }),
   'count': measure({
     name: 'count',
     set:  'cell.num'
@@ -12,11 +17,6 @@ var types = {
   'valid': measure({
     name: 'valid',
     set:  'this.valid'
-  }),
-  'data': measure({
-    name: 'data',
-    init: 'cell.collect = true;',
-    set:  'cell.data.values()', idx: -1
   }),
   'sum': measure({
     name: 'sum',
@@ -63,36 +63,36 @@ var types = {
   'median': measure({
     name: 'median',
     set:  'cell.data.q2(this.get)',
-    req:  ['data'], idx: 3
+    req:  ['values'], idx: 3
   }),
   'q1': measure({
     name: 'q1',
     set:  'cell.data.q1(this.get)',
-    req:  ['data'], idx: 3
+    req:  ['values'], idx: 3
   }),
   'q3': measure({
     name: 'q3',
     set:  'cell.data.q3(this.get)',
-    req:  ['data'], idx: 3
+    req:  ['values'], idx: 3
   }),
   'distinct': measure({
     name: 'distinct',
     set:  'this.distinct(cell.data.values(), this.get)',
-    req:  ['data'], idx: 3
+    req:  ['values'], idx: 3
   }),
   'argmin': measure({
     name: 'argmin',
     add:  'if (v < this.min) this.argmin = t;',
     rem:  'this.argmin = null;',
     set:  'this.argmin || cell.data.min(this.get)',
-    req:  ['min'], str: ['data'], idx: 3
+    req:  ['min'], str: ['values'], idx: 3
   }),
   'argmax': measure({
     name: 'argmax',
     add:  'if (v > this.max) this.argmax = t;',
     rem:  'this.argmax = null;',
     set:  'this.argmax || cell.data.max(this.get)',
-    req:  ['max'], str: ['data'], idx: 3
+    req:  ['max'], str: ['values'], idx: 3
   }),
   'min': measure({
     name: 'min',
@@ -100,7 +100,7 @@ var types = {
     add:  'if (v < this.min) this.min = v;',
     rem:  'this.min = NaN;',
     set:  'this.min = (isNaN(this.min) ? this.get(cell.data.min(this.get)) : this.min)',
-    str:  ['data'], idx: 4
+    str:  ['values'], idx: 4
   }),
   'max': measure({
     name: 'max',
@@ -108,7 +108,7 @@ var types = {
     add:  'if (v > this.max) this.max = v;',
     rem:  'this.max = null;',
     set:  'this.max = (isNaN(this.max) ? this.get(cell.data.max(this.get)) : this.max)',
-    str:  ['data'], idx: 4
+    str:  ['values'], idx: 4
   }),
   'modeskew': measure({
     name: 'modeskew',

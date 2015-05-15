@@ -9,5 +9,5 @@ module.exports = function() {
   // create and return an aggregator
   return new Aggregator()
     .groupby(args)
-    .summarize({'*':'data'});
+    .summarize({'*':'values'});
 };

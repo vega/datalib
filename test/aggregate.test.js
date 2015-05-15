@@ -50,10 +50,10 @@ describe('aggregate', function() {
       assert.equal(4, groupby('b', 'a').execute(table).length);
     });
 
-    it('should collect tuples by default', function() {
+    it('should collect values by default', function() {
       var g = groupby('b').execute(table);
-      assert.deepEqual([table[0], table[3]], g[0].data);
-      assert.deepEqual([table[1], table[2]], g[1].data);
+      assert.deepEqual([table[0], table[3]], g[0].values);
+      assert.deepEqual([table[1], table[2]], g[1].values);
     });
 
     it('should handle null, undefined and NaN values', function() {
@@ -108,8 +108,8 @@ describe('aggregate', function() {
       assert.deepEqual(undef, array);
     });
 
-    it('should collect tuples', function() {
-      assert.deepEqual(table, run({'*':'data'}).data);
+    it('should collect values', function() {
+      assert.deepEqual(table, run({'*':'values'}).values);
     });
 
     it('should count all values', function() {
