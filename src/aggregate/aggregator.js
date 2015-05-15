@@ -62,6 +62,11 @@ proto.summarize = function(fields) {
   return this;
 };
 
+// Convenience method to summarize by count
+proto.count = function() {
+  return this.summarize({'*':'count'});
+};
+
 // Override to perform custom tuple value assignment
 proto._assign = function(object, name, value) {
   object[name] = value;

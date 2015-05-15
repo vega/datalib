@@ -33,6 +33,12 @@ var data = dl.csv('http://uwdata.github.io/datalib/data/stocks.csv');
 // Show summary statistics for each column of the data table.
 console.log(dl.summary(data).toString());
 
+// Compute average and standard deviation by ticker symbol.
+var rollup = dl.groupby('symbol')
+  .summarize({'price': ['avg', 'stdev']})
+  .execute(data);
+console.log(JSON.stringify(rollup, null, 2));
+
 // Compute correlation measures between price and date.
 console.log(
   dl.cor(data, 'price', 'date'),      // Pearson product-moment correlation
@@ -40,11 +46,11 @@ console.log(
   dl.cor.dist(data, 'price', 'date')  // Distance correlation
 );
 
-// Compute average and std. deviation by ticker symbol
-var rollup = dl.groupby('symbol')
-  .summarize({'price': ['avg', 'stdev']})
-  .execute(data);
-console.log(JSON.stringify(rollup, null, 2));
+// Compute mutual information distance between years and binned price.
+var bin_price = dl.$bin(data, 'price'); // returns binned price values
+var year_date = dl.$year('date');       // returns year from date field
+var counts = dl.groupby(year_date, bin_price).count().execute(data);
+console.log(dl.mutual.dist(counts, 'bin_price', 'year_date', 'count'));
 ```
 
 ## Build Process
