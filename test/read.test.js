@@ -21,13 +21,13 @@ var strings = data.map(function(x) {
 var parsed = data.map(function(x) {
   return {a:x.a, b:x.b, c:x.c, d:Date.parse(x.d), e:x.e};
 });
-parsed.types = {
+type.annotation(parsed, {
   a: 'integer',
   b: 'string',
   c: 'boolean',
   d: 'date',
   e: 'number'
-};
+});
 
 function toDelimitedText(data, delimiter) {
   var head = fields.join(delimiter);
@@ -72,8 +72,8 @@ describe('read', function() {
       assert.equal('boolean', type.infer(data, util.accessor('b')));
     });
     it('should infer types for all fields', function() {
-      assert.deepEqual(parsed.types, type.inferAll(data));
-      assert.deepEqual(parsed.types, type.inferAll(strings));
+      assert.deepEqual(type.annotation(parsed), type.inferAll(data));
+      assert.deepEqual(type.annotation(parsed), type.inferAll(strings));
     });
   });
 
@@ -83,7 +83,7 @@ describe('read', function() {
       assert.deepEqual(read(json, {type:'json'}), data);
     });
     it('should parse json fields', function() {
-      assert.deepEqual(read(json, {type:'json', parse: parsed.types}), parsed);
+      assert.deepEqual(read(json, {type:'json', parse: type.annotation(parsed)}), parsed);
     });
     it('should auto-parse json fields', function() {
       assert.deepEqual(read(json, {type:'json', parse:'auto'}), parsed);
@@ -100,7 +100,7 @@ describe('read', function() {
       assert.deepEqual(read(csv, {type:'csv'}), strings);
     });
     it('should parse csv fields', function() {
-      assert.deepEqual(read(csv, {type:'csv', parse:parsed.types}), parsed);
+      assert.deepEqual(read(csv, {type:'csv', parse:type.annotation(parsed)}), parsed);
     });
     it('should auto-parse csv fields', function() {
       assert.deepEqual(read(csv, {type:'csv', parse:'auto'}), parsed);
@@ -113,7 +113,7 @@ describe('read', function() {
       assert.deepEqual(read(tsv, {type:'tsv'}), strings);
     });
     it('should parse tsv fields', function() {
-      assert.deepEqual(read(tsv, {type:'tsv', parse:parsed.types}), parsed);
+      assert.deepEqual(read(tsv, {type:'tsv', parse:type.annotation(parsed)}), parsed);
     });
     it('should auto-parse tsv fields', function() {
       assert.deepEqual(read(tsv, {type:'tsv', parse:'auto'}), parsed);

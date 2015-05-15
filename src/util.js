@@ -1,5 +1,5 @@
 var Buffer = require('buffer').Buffer;
-var units = require('./date-units');
+var units = require('./time-units');
 var u = module.exports = {};
 
 // where are we?

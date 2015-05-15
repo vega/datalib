@@ -4,7 +4,7 @@ var assert = require('chai').assert;
 var bins = require('../src/bins/bins');
 var $bin = require('../src/bins/histogram').$bin;
 var histogram = require('../src/bins/histogram').histogram;
-var units = require('../src/date-units');
+var units = require('../src/time-units');
 var util = require('../src/util');
 var gen = require('../src/generate');
 

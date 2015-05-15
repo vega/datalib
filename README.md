@@ -10,11 +10,11 @@ For documentation, see the datalib [API Reference](../../wiki/API-Reference).
 
 Datalib provides a set of utilities for working with data. These include:
 
-- Loading and parsing data files (e.g., JSON, TopoJSON, CSV, TSV)
-- Summary statistics (e.g., mean, stdev, median, histograms, etc)
-- Group-by aggregation queries, including streaming data support
-- Data-driven string templates with expressive formatting filters
-- Utilities for working with JavaScript objects and arrays
+- Loading and parsing data files (JSON, TopoJSON, CSV, TSV).
+- Summary statistics (mean, deviation, median, correlation, histograms, etc)
+- Group-by aggregation queries, including streaming data support.
+- Data-driven string templates with expressive formatting filters.
+- Utilities for working with JavaScript functions, objects and arrays.
 
 Datalib can be used both server-side and client-side. For use in node.js,
 simply `npm install datalib` or include datalib as a dependency in your package.json file. For use on the client, install datalib via `bower install datalib` or include datalib.min.js on your web page. The minified JS file is built using browserify (see below for details).

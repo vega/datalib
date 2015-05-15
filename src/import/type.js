@@ -1,5 +1,7 @@
 var util = require('../util');
 
+var TYPES = '__types__';
+
 var PARSERS = {
   boolean: util.boolean,
   integer: util.number,
@@ -15,19 +17,36 @@ var TESTS = {
   date: function(x) { return !isNaN(Date.parse(x)); }
 };
 
+function annotation(data, types) {
+  if (!types) return data && data[TYPES] || null;
+  data[TYPES] = types;
+}
+
 function type(values, f) {
   var v, i, n;
 
   // if data array has type annotations, use them
-  if (values.types) {
-    v = f(values.types);
+  if (values[TYPES]) {
+    v = f(values[TYPES]);
     if (util.isString(v)) return v;
   }
 
   for (i=0, n=values.length; !util.isValid(v) && i<n; ++i) {
     v = f ? f(values[i]) : values[i];
   }
-  return util.isDate(v) ? 'date' : util.isNumber(v) ? 'number' : 'string';
+
+  return util.isDate(v) ? 'date' :
+    util.isNumber(v)    ? 'number' :
+    util.isBoolean(v)   ? 'boolean' :
+    util.isString(v)    ? 'string' : null;
+}
+
+function typeAll(data, fields) {
+  if (!data.length) return;
+  fields = fields || util.keys(data[0]);
+  return fields.reduce(function(types, f) {
+    return (types[f] = type(data, util.$(f)), types);
+  }, {});
 }
 
 function infer(values, f) {
@@ -56,12 +75,14 @@ function infer(values, f) {
 function inferAll(data, fields) {
   fields = fields || util.keys(data[0]);
   return fields.reduce(function(types, f) {
-    var type = infer(data, util.accessor(f));
+    var type = infer(data, util.$(f));
     if (PARSERS[type]) types[f] = type;
     return types;
   }, {});
 }
 
+type.annotation = annotation;
+type.all = typeAll;
 type.infer = infer;
 type.inferAll = inferAll;
 type.parsers = PARSERS;

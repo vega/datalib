@@ -1,5 +1,5 @@
 var util = require('../util');
-var units = require('../date-units');
+var units = require('../time-units');
 var EPSILON = 1e-15;
 
 function bins(opt) {

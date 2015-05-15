@@ -6,11 +6,11 @@ var dl = {
   type:      require('./import/type'),
   bins:      require('./bins/bins'),
   $bin:      require('./bins/histogram').$bin,
+  groupby:   require('./aggregate/groupby'),
   histogram: require('./bins/histogram').histogram,
   summary:   require('./summary'),
   template:  require('./template'),
-  dateunits: require('./date-units'),
-  groupby:   require('./aggregate/groupby')
+  timeunits: require('./time-units')
 };
 
 util.extend(dl, util);

@@ -22,7 +22,7 @@ function parse(data, types) {
       d[cols[j]] = parsers[j](d[cols[j]]);
     }
   }
-  data.types = types;
+  type.annotation(data, types);
 }
 
 read.formats = formats;
