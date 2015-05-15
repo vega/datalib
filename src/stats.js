@@ -294,24 +294,17 @@ stats.dist = function(values, a, b, exp) {
       X = values,
       Y = f ? values : a,
       e = f ? exp : b,
+      L2 = e === 2 || e == null,
       n = values.length, s = 0, d, i;
   if (f) {
     a = util.$(a);
     b = util.$(b);
   }
-  if (e === 2 || e == null) {
-    for (i=0; i<n; ++i) {
-      d = f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]);
-      s += d*d;
-    }
-    return Math.sqrt(s);
-  } else {
-    for (i=0; i<n; ++i) {
-      d = f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]);
-      s += Math.pow(Math.abs(d), e);
-    }
-    return Math.pow(s, 1/e);
+  for (i=0; i<n; ++i) {
+    d = f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]);
+    s += L2 ? d*d : Math.pow(Math.abs(d), e);
   }
+  return L2 ? Math.sqrt(s) : Math.pow(s, 1/e);
 };
 
 // Construct a mean-centered distance matrix for an array of numbers.
@@ -351,16 +344,16 @@ stats.dist.mat = function(X) {
 // Compute the Shannon entropy (log base 2) of an array of counts.
 stats.entropy = function(counts, f) {
   f = util.$(f);
-  var i, p, s = 0, H = 0, N = counts.length;
-  for (i=0; i<N; ++i) {
+  var i, p, s = 0, H = 0, n = counts.length;
+  for (i=0; i<n; ++i) {
     s += (f ? f(counts[i]) : counts[i]);
   }
   if (s === 0) return 0;
-  for (i=0; i<N; ++i) {
+  for (i=0; i<n; ++i) {
     p = (f ? f(counts[i]) : counts[i]) / s;
-    if (p > 0) H += p * Math.log(p) / Math.LN2;
+    if (p) H += p * Math.log(p);
   }
-  return -H;
+  return -H / Math.LN2;
 };
 
 // Compute the mutual information between two discrete variables.
@@ -374,21 +367,22 @@ stats.mutual = function(values, a, b, counts) {
 
   var px = {},
       py = {},
-      i, s = 0, t, N = z.length, p, I = 0, H = 0;
+      n = z.length,
+      s = 0, I = 0, H = 0, p, t, i;
 
-  for (i=0; i<N; ++i) {
+  for (i=0; i<n; ++i) {
     px[x[i]] = 0;
     py[y[i]] = 0;
   }
 
-  for (i=0; i<N; ++i) {
+  for (i=0; i<n; ++i) {
     px[x[i]] += z[i];
     py[y[i]] += z[i];
     s += z[i];
   }
 
   t = 1 / (s * Math.LN2);
-  for (i=0; i<N; ++i) {
+  for (i=0; i<n; ++i) {
     if (z[i] === 0) continue;
     p = (s * z[i]) / (px[x[i]] * py[y[i]]);
     I += z[i] * t * Math.log(p);

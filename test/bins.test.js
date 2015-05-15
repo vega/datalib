@@ -142,7 +142,7 @@ describe('binning', function() {
         assert.equal(str[i], b(str[i]));
       }
       var o = str.map(function(x) { return {a:x}; });
-      b = $bin(str, 'a');
+      b = $bin(o, 'a');
       for (var i=0; i<o.length; ++i) {
         assert.equal(o[i].a, b(o[i]));
       }

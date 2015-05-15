@@ -12,13 +12,12 @@ var qtype = {
 
 function $bin(values, f, opt) {
   opt = options(values, f, opt);
-  f = opt.accessor || util.identity;
   var b = spec(opt);
-  return !b ? (f || util.identity) :
+  return !b ? (opt.accessor || util.identity) :
     util.$func('bin', b.unit.unit ?
       function(x) { return b.value(b.unit.unit(x)); } :
       function(x) { return b.value(x); }
-    )(f);
+    )(opt.accessor);
 }
 
 function histogram(values, f, opt) {
@@ -31,26 +30,19 @@ function histogram(values, f, opt) {
 
 function spec(opt) {
   var t = opt.type, b = null;
-  if (qtype[t]) {
+  if (t == null || qtype[t]) {
     if (t === 'integer' && opt.minstep == null) opt.minstep = 1;
     b = (t === 'date') ? bins.date(opt) : bins(opt);
   }
   return b;
 }
 
-function options(values, f, opt) {
-  if (util.isArray(values)) {
-    if (opt == null && !util.isFunction(f) && !util.isString(f)) {
-      opt = f;
-      f = null;
-    }
-  } else {
-    opt = values;
-    values = null;
-    f = null;
-  }
-  f = util.$(f);
-  opt = opt || {};
+function options() {
+  var a = arguments,
+      i = 0,
+      values = util.isArray(a[i]) ? a[i++] : null,
+      f = util.isFunction(a[i]) || util.isString(a[i]) ? util.$(a[i++]) : null,
+      opt = util.extend({}, a[i]);
   
   if (values) {
     opt.type = opt.type || type(values, f);
