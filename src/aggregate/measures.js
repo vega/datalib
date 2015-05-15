@@ -32,33 +32,33 @@ var types = {
     rem:  'var d = v - this.mean; this.mean -= d / this.valid;',
     set:  'this.mean'
   }),
-  'avg': measure({
-    name: 'avg',
+  'average': measure({
+    name: 'average',
     set:  'this.mean',
     req:  ['mean'], idx: 1
   }),
-  'var': measure({
-    name: 'var',
+  'variance': measure({
+    name: 'variance',
     init: 'this.dev = 0;',
     add:  'this.dev += d * (v - this.mean);',
     rem:  'this.dev -= d * (v - this.mean);',
     set:  'this.dev / (this.valid-1)',
     req:  ['mean'], idx: 1
   }),
-  'varp': measure({
-    name: 'varp',
+  'variancep': measure({
+    name: 'variancep',
     set:  'this.dev / this.valid',
-    req:  ['var'], idx: 2
+    req:  ['variance'], idx: 2
   }),
   'stdev': measure({
     name: 'stdev',
     set:  'Math.sqrt(this.dev / (this.valid-1))',
-    req:  ['var'], idx: 2
+    req:  ['variance'], idx: 2
   }),
   'stdevp': measure({
     name: 'stdevp',
     set:  'Math.sqrt(this.dev / this.valid)',
-    req:  ['var'], idx: 2
+    req:  ['variance'], idx: 2
   }),
   'median': measure({
     name: 'median',

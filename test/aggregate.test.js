@@ -149,21 +149,21 @@ describe('aggregate', function() {
     });
 
     it('should compute average', function() {
-      assert.equal(stats.mean(values), run({'a':'avg'}).avg_a);
+      assert.equal(stats.mean(values), run({'a':'average'}).average_a);
     });
 
-    it('should compute var', function() {
-      assert.equal(stats.variance(values), run({'a':'var'}).var_a);
+    it('should compute variance', function() {
+      assert.equal(stats.variance(values), run({'a':'variance'}).variance_a);
     });
 
     it('should compute stdev', function() {
       assert.equal(stats.stdev(values), run({'a':'stdev'}).stdev_a);
     });
 
-    it('should compute varp', function() {
+    it('should compute variancep', function() {
       var N = stats.count.valid(values);
       var v = stats.variance(values);
-      assert.equal((N-1)*v/N, run({'a':'varp'}).varp_a);
+      assert.equal((N-1)*v/N, run({'a':'variancep'}).variancep_a);
     });
 
     it('should compute stdevp', function() {

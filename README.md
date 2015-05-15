@@ -33,9 +33,9 @@ var data = dl.csv('http://uwdata.github.io/datalib/data/stocks.csv');
 // Show summary statistics for each column of the data table.
 console.log(dl.summary(data).toString());
 
-// Compute average and standard deviation by ticker symbol.
+// Compute mean and standard deviation by ticker symbol.
 var rollup = dl.groupby('symbol')
-  .summarize({'price': ['avg', 'stdev']})
+  .summarize({'price': ['mean', 'stdev']})
   .execute(data);
 console.log(JSON.stringify(rollup, null, 2));
 
