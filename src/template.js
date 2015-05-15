@@ -4,7 +4,8 @@ var d3 = require('d3');
 var context = {
   formats:    [],
   format_map: {},
-  truncate:   util.truncate
+  truncate:   util.truncate,
+  pad:        util.pad
 };
 
 function template(text) {
@@ -70,6 +71,10 @@ function template_var(text, variable) {
     return src;
   }
   
+  function date() {
+    return '(typeof ' + src + '==="number"?new Date('+src+'):'+src+')';
+  }
+  
   var src = util.field(prop).map(util.str).join('][');
   src = variable + '[' + src + ']';
   
@@ -127,6 +132,12 @@ function template_var(text, variable) {
         b = (b!=='left' && b!=='middle' && b!=='center') ? 'right' : b;
         src = 'this.truncate(' + strcall() + ',' + a + ',\'' + b + '\')';
         break;
+      case 'pad':
+        a = util.number(args[0]);
+        b = args[1];
+        b = (b!=='left' && b!=='middle' && b!=='center') ? 'right' : b;
+        src = 'this.pad(' + strcall() + ',' + a + ',\'' + b + '\')';
+        break;
       case 'number':
         a = template_format(args[0], d3.format);
         stringCast = false;
@@ -135,7 +146,7 @@ function template_var(text, variable) {
       case 'time':
         a = template_format(args[0], d3.time.format);
         stringCast = false;
-        src = 'this.formats['+a+']('+src+')';
+        src = 'this.formats['+a+']('+date()+')';
         break;
       default:
         throw Error('Unrecognized template filter: ' + f);

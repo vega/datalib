@@ -92,27 +92,39 @@ describe('stats', function() {
     });
   });
 
-  describe('extent', function() {
+  describe('extent/min/max', function() {
     it('should calculate min and max values', function() {
-      var e = stats.extent([1, 2, 3, 4, 5]);
+      var a = [1, 2, 3, 4, 5];
+      var e = stats.extent(a);
       assert.equal(e[0], 1);
       assert.equal(e[1], 5);
+      assert.equal(e[0], stats.min(a));
+      assert.equal(e[1], stats.max(a));
 
-      e = stats.extent([1.1, 2.2, 3.3, 4.4, 5.5]);
+      a = [1.1, 2.2, 3.3, 4.4, 5.5];
+      e = stats.extent(a);
       assert.equal(e[0], 1.1);
       assert.equal(e[1], 5.5);
+      assert.equal(e[0], stats.min(a));
+      assert.equal(e[1], stats.max(a));
     });
 
     it('should handle non-numeric values', function() {
-      var e = stats.extent(['aa', 'eeeee', 'bbb', 'cccc', 'dddddd']);
+      var a = ['aa', 'eeeee', 'bbb', 'cccc', 'dddddd'];
+      var e = stats.extent(a);
       assert.equal(e[0], 'aa');
       assert.equal(e[1], 'eeeee');
+      assert.equal(e[0], stats.min(a));
+      assert.equal(e[1], stats.max(a));
     });
 
     it('should ignore null values', function() {
-      var e = stats.extent([2, 1, null, 5, 4]);
+      var a = [2, 1, null, 5, 4];
+      var e = stats.extent(a);
       assert.equal(e[0], 1);
       assert.equal(e[1], 5);
+      assert.equal(e[0], stats.min(a));
+      assert.equal(e[1], stats.max(a));
     });
   });
 

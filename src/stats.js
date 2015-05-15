@@ -145,6 +145,16 @@ stats.modeskew = function(values, f) {
   return std === 0 ? 0 : (avg - med) / std;
 };
 
+// Find the minimum value in an array.
+stats.min = function(values, f) {
+  return stats.extent(values, f)[0];
+};
+
+// Find the maximum value in an array.
+stats.max = function(values, f) {
+  return stats.extent(values, f)[1];
+};
+
 // Find the minimum and maximum of an array of values.
 stats.extent = function(values, f) {
   f = util.$(f);

@@ -486,6 +486,23 @@ describe('util', function() {
     });
   });
 
+  describe('pad', function() {
+    it('should increase string length', function() {
+      assert.equal(util.pad('12345', 8), '12345   ');
+      assert.equal(util.pad('12345', 8, null, '!'), '12345!!!');
+    });
+
+    it('should return longer inputs as-is', function() {
+      assert.equal(util.pad('12345', 3), '12345');
+    });
+
+    it('should respect position argument', function() {
+      assert.equal(util.pad('12345', 8, 'right'),  '12345   ');
+      assert.equal(util.pad('12345', 8, 'left'),   '   12345');
+      assert.equal(util.pad('12345', 8, 'middle'), ' 12345  ');
+    });
+  });
+
   describe('truncate', function() {
     it('should reduce string length', function() {
       assert.equal(util.truncate('123456789', 5), '1234…');

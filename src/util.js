@@ -249,10 +249,32 @@ u.startsWith = String.prototype.startsWith ?
     return string.lastIndexOf(searchString, 0) === 0;
   };
 
+u.pad = function(s, length, pos, padchar) {
+  padchar = padchar || " ";
+  var d = length - s.length;
+  if (d <= 0) return s;
+  switch (pos) {
+    case 'left':
+      return strrep(d, padchar) + s;
+    case 'middle':
+    case 'center':
+      return strrep(Math.floor(d/2), padchar) +
+         s + strrep(Math.ceil(d/2), padchar);
+    default:
+      return s + strrep(d, padchar);
+  }
+};
+
+function strrep(n, str) {
+  var s = "", i;
+  for (i=0; i<n; ++i) s += str;
+  return s;
+}
+
 u.truncate = function(s, length, pos, word, ellipsis) {
   var len = s.length;
   if (len <= length) return s;
-  ellipsis = ellipsis !== undefined ? String(ellipsis) : '…';
+  ellipsis = ellipsis !== undefined ? String(ellipsis) : '\u2026';
   var l = Math.max(0, length - ellipsis.length);
 
   switch (pos) {
