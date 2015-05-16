@@ -32,7 +32,7 @@ describe('print', function() {
     });
 
     it('should respect separator option', function() {
-      var s = print.table(table, {sep:'\t'});
+      var s = print.table(table, {separator:'\t'});
       assert.equal(table.length+2, s.split('\t').length);
     });
   });

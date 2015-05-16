@@ -1,7 +1,10 @@
+var dsv = require('./dsv');
+
 module.exports = {
   json: require('./json'),
-  csv: require('./csv'),
-  tsv: require('./tsv'),
   topojson: require('./topojson'),
-  treejson: require('./treejson')
+  treejson: require('./treejson'),
+  dsv: dsv,
+  csv: dsv.delimiter(','),
+  tsv: dsv.delimiter('\t')
 };
