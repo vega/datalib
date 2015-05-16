@@ -35,7 +35,7 @@
       + "// Load a CSV file. Datalib does type inference for you.\n"
       + "var data = dl.csv('data/stocks.csv');\n\n"
       + "// Show summary statistics for each column of the data table.\n"
-      + "dl.summary(data).toString()\n\n"
+      + "console.log(dl.print.summary(data));\n\n"
       + "// Compute correlation measures between price and date.\n"
       + "dl.cor(data, 'price', 'date') // Pearson product-moment correlation\n"
       + "dl.cor.rank(data, 'price', 'date') // Spearman rank correlation\n\n";
