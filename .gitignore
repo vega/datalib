@@ -2,6 +2,7 @@ _site
 node_modules
 .DS_Store
 .idea
+temp
 datalib.js
 datalib.min.js
 datalib.min.js.map
