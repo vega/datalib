@@ -38,7 +38,7 @@ u.extend = function(obj) {
 };
 
 u.length = function(x) {
-  return x.length !== null ? x.length : 0;
+  return x != null && x.length != null ? x.length : 0;
 };
 
 u.keys = function(x) {
@@ -170,6 +170,7 @@ u.$func = function(name, op) {
   };
 };
 
+u.$valid  = u.$func('valid', u.isValid);
 u.$length = u.$func('length', u.length);
 u.$year   = u.$func('year', units.year.unit);
 u.$month  = u.$func('month', units.monthOfYear.unit);
@@ -178,6 +179,11 @@ u.$day    = u.$func('day', units.dayOfWeek.unit);
 u.$hour   = u.$func('hour', units.hourOfDay.unit);
 u.$minute = u.$func('minute', units.minuteOfHour.unit);
 
+u.$in = function(f, values) {
+  f = u.$(f);
+  var map = u.isArray(values) ? u.toMap(values) : values;
+  return function(d) { return !!map[f(d)]; };
+};
 
 // comparison / sorting functions
 

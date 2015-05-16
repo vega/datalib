@@ -9,7 +9,6 @@ var dl = {
   groupby:   require('./aggregate/groupby'),
   histogram: require('./bins/histogram').histogram,
   print:     require('./print'),
-  summary:   require('./summary'),
   template:  require('./template'),
   timeunits: require('./time-units')
 };

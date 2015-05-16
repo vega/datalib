@@ -7,7 +7,7 @@ var PARSERS = {
   integer: util.number,
   number:  util.number,
   date:    util.date,
-  string:  util.identity
+  string:  function(x) { return x==='' ? null : x; }
 };
 
 var TESTS = {

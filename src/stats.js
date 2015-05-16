@@ -1,4 +1,5 @@
 var util = require('./util');
+var type = require('./import/type');
 var gen = require('./generate');
 var stats = {};
 
@@ -452,6 +453,7 @@ stats.profile = function(values, f) {
   vals.sort(util.cmp);
 
   return {
+    type:     type(values, f),
     unique:   u,
     count:    values.length,
     valid:    valid,
@@ -466,6 +468,16 @@ stats.profile = function(values, f) {
     q3:       stats.quantile(vals, 0.75),
     modeskew: sd === 0 ? 0 : (mean - v) / sd
   };
+};
+
+// Compute profiles for all variables in a data set.
+stats.summary = function(data, fields) {
+  fields = fields || util.keys(data[0]);
+  var s = fields.map(function(f) {
+    var p = stats.profile(data, util.$(f));
+    return (p.field = f, p);
+  });
+  return (s.__summary__ = true, s);
 };
 
 module.exports = stats;
