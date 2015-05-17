@@ -55,7 +55,7 @@ proto.summarize = function(fields) {
       measures: Measures.create(
         m,
         this._stream, // streaming remove flag
-        f.get || util.$(f.name), // input tuple getter
+        f.get && util.$(f.get) || util.$(f.name), // input tuple getter
         this._assign) // output tuple setter
     });
   }

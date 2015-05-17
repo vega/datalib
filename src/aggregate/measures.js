@@ -106,7 +106,7 @@ var types = {
     name: 'max',
     init: 'this.max = -Infinity;',
     add:  'if (v > this.max) this.max = v;',
-    rem:  'this.max = null;',
+    rem:  'this.max = NaN;',
     set:  'this.max = (isNaN(this.max) ? this.get(cell.data.max(this.get)) : this.max)',
     str:  ['values'], idx: 4
   }),
