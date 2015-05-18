@@ -170,7 +170,7 @@ proto.rem = function(x) {
 };
 
 proto.result = function() {
-  var results = [],
+  var result = [],
       aggr = this._aggr,
       cell, i, k;
 
@@ -180,12 +180,44 @@ proto.result = function() {
       for (i=0; i<aggr.length; ++i) {
         cell.aggs[aggr[i].name].set();
       }
-      results.push(cell.tuple);
+      result.push(cell.tuple);
     }
     cell.flag = 0;
   }
 
-  return results;
+  return result;
+};
+
+proto.changes = function() {
+  var changes = {add:[], rem:[], mod:[]},
+      aggr = this._aggr,
+      cell, flag, i, k;
+
+  for (k in this._cells) {
+    cell = this._cells[k];
+    flag = cell.flag;
+
+    // update tuple properties
+    for (i=0; i<aggr.length; ++i) {
+      cell.aggs[aggr[i].name].set();
+    }
+
+    // organize output tuples
+    if (cell.num <= 0) {
+      if (flag === Flags.MOD_CELL) {
+        changes.rem.push(cell.tuple);
+      }
+      delete this._cells[k];
+    } else if (flag & Flags.ADD_CELL) {
+      changes.add.push(cell.tuple);
+    } else if (flag & Flags.MOD_CELL) {
+      changes.mod.push(cell.tuple);
+    }
+
+    cell.flag = 0;
+  }
+
+  return changes;
 };
 
 proto.execute = function(input) {

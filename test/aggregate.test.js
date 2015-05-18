@@ -95,7 +95,9 @@ describe('aggregate', function() {
     it('should support getter argument', function() {
       var sum1 = run([{name:'a', ops:['sum']}]).sum_a;
       var sum2 = run([{name:'f', get:util.accessor('a'), ops:['sum']}]).sum_f;
+      var sum3 = run([{name:'f', get:'a', ops:['sum']}]).sum_f;
       assert.equal(sum1, sum2);
+      assert.equal(sum1, sum3);
     });
 
     it('should handle null arguments', function() {
@@ -213,16 +215,17 @@ describe('aggregate', function() {
     ];
 
     it('should accept streaming inserts', function() {
-      var sum = groupby().summarize({'a':'sum'})
+      var sum = groupby().summarize({'a': ['sum', 'max']})
         .insert([table[0], table[1]])
         .insert([table[2], table[3]])
         .result();
       assert.equal(10, sum[0].sum_a);
+      assert.equal(4, sum[0].max_a);
     });
 
     it('should reject streaming removes if unrequested', function() {
       assert.throws(function() {
-        var sum = groupby().summarize({'a':'sum'})
+        var sum = groupby().summarize({'a': ['sum', 'max']})
           .insert(table)
           .remove([table[2], table[3]])
           .result();
@@ -232,11 +235,46 @@ describe('aggregate', function() {
     it('should accept streaming removes if requested', function() {
       var sum = groupby()
         .stream(true)
-        .summarize({'a':'sum'})
+        .summarize({'a': ['sum', 'max']})
         .insert(table)
         .remove([table[2], table[3]])
         .result();
       assert.equal(3, sum[0].sum_a);
+      assert.equal(2, sum[0].max_a);
+    });
+
+    it('should return streaming change sets', function() {
+      var set = groupby()
+        .stream(true)
+        .summarize({'a': ['sum', 'max']})
+        .insert(table)
+        .remove([table[2], table[3]])
+        .changes();
+      assert.equal(1, set.add.length);
+      assert.equal(0, set.rem.length);
+      assert.equal(0, set.mod.length);
+
+      var gb = groupby()
+        .stream(true)
+        .summarize({'a': ['sum', 'max']})
+        .insert(table);
+      var set1 = gb.changes();
+      assert.equal(1, set1.add.length);
+      assert.equal(0, set1.rem.length);
+      assert.equal(0, set1.mod.length);
+
+      var set2 = gb.remove([table[2], table[3]]).changes();
+      assert.equal(0, set2.add.length);
+      assert.equal(0, set2.rem.length);
+      assert.equal(1, set2.mod.length);
+
+      var set3 = gb.remove([table[0], table[1]]).changes();
+      assert.equal(0, set3.add.length);
+      assert.equal(1, set3.rem.length);
+      assert.equal(0, set3.mod.length);
+      
+      assert.strictEqual(set1.add[0], set2.mod[0]);
+      assert.strictEqual(set1.add[0], set3.rem[0]);
     });
 
     it('should support measure getter reconfiguration', function() {
