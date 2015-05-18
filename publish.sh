@@ -21,8 +21,8 @@ npm publish
 # exit if npm publish failed 
 rc=$?
 if [[ $rc != 0 ]]; then 
-	echo "${RED} npm publish failed.  Publishing cancelled. ${NC} \n\n"
-	exit $rc; 
+  echo "${RED} npm publish failed.  Publishing cancelled. ${NC} \n\n"
+  exit $rc; 
 fi
 
 
