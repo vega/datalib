@@ -24,6 +24,13 @@ proto.stream = function(v) {
   return this;
 };
 
+// key accessor to use for streaming removes
+proto.key = function(key) {
+  if (key == null) return this._key;
+  this._key = util.$(key);
+  return this;
+};
+
 // Input: array of objects of the form
 // {name: string, get: function}
 proto.groupby = function(dims) {
@@ -125,7 +132,7 @@ proto._newcell = function(x, k) {
     cell.aggs[aggr[i].name] = new aggr[i].measures(cell, cell.tuple);
   }
   if (cell.collect) {
-    cell.data = new Collector();
+    cell.data = new Collector(this._key);
   }
 
   return cell;

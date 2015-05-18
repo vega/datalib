@@ -243,6 +243,17 @@ describe('aggregate', function() {
       assert.equal(2, sum[0].max_a);
     });
 
+    it('should support streaming removes by key', function() {
+      var sum = groupby().key('a')
+        .stream(true)
+        .summarize({'a': ['sum', 'max']})
+        .insert(table)
+        .remove([{a:3, b:2}, {a:4, b:2}])
+        .result();
+      assert.equal(3, sum[0].sum_a);
+      assert.equal(2, sum[0].max_a);
+    });
+
     it('should return streaming change sets', function() {
       var set = groupby()
         .stream(true)

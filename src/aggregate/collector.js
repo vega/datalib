@@ -1,10 +1,12 @@
+var util = require('../util');
 var stats = require('../stats');
 
 var REM = '$!_rem_!#';
 
-function Collector() {
+function Collector(key) {
   this._add = [];
   this._rem = [];
+  this._key = key || null;
 }
 
 var proto = Collector.prototype;
@@ -21,19 +23,29 @@ proto.values = function() {
   if (this._rem.length === 0) return this._add;
   var a = this._add,
       r = this._rem,
+      k = this._key,
       x = Array(a.length - r.length),
       i, j, n;
 
-  for (i=0, n=r.length; i<n; ++i) {
-    r[i][REM] = 1;
+  if (k) {
+    // has unique key field, use that
+    var lut = util.toMap(r, k);
+    for (i=0, j=0, n=a.length; i<n; ++i) {
+      if (!lut.hasOwnProperty(k(a[i]))) { x[j++] = a[i]; }
+    }
+  } else {
+    // no unique key, mark tuples directly
+    for (i=0, n=r.length; i<n; ++i) {
+      r[i][REM] = 1;
+    }
+    for (i=0, j=0, n=a.length; i<n; ++i) {
+      if (!a[i][REM]) { x[j++] = a[i]; }
+    }
+    for (i=0, n=r.length; i<n; ++i) {
+      delete r[i][REM];
+    }
   }
-  for (i=0, j=0, n=a.length; i<n; ++i) {
-    if (!a[i][REM]) { x[j++] = a[i]; }
-  }
-  for (i=0, n=r.length; i<n; ++i) {
-    delete r[i][REM];
-  }
-  
+
   this._rem = [];
   this._f = null;
   return (this._add = x);

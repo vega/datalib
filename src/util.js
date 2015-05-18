@@ -53,10 +53,10 @@ u.vals = function(x) {
   return vals;
 };
 
-u.toMap = function(list) {
-  return list.reduce(function(obj, x) {
-    return (obj[x] = 1, obj);
-  }, {});
+u.toMap = function(list, f) {
+  return (f = u.$(f)) ?
+    list.reduce(function(obj, x) { return (obj[f(x)] = 1, obj); }, {}) :
+    list.reduce(function(obj, x) { return (obj[x] = 1, obj); }, {});
 };
 
 u.keystr = function(values) {
