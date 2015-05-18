@@ -38,7 +38,7 @@ u.extend = function(obj) {
 };
 
 u.length = function(x) {
-  return x != null && x.length != null ? x.length : 0;
+  return x != null && x.length != null ? x.length : null;
 };
 
 u.keys = function(x) {
@@ -109,13 +109,21 @@ u.isBuffer = (Buffer && Buffer.isBuffer) || u.false;
 
 // type coercion functions
 
-u.number = function(s) { return s == null ? null : +s; };
+u.number = function(s) {
+  return s == null || s === '' ? null : +s;
+};
 
-u.boolean = function(s) { return s == null ? null : s==='false' ? false : !!s; };
+u.boolean = function(s) {
+  return s == null || s === '' ? null : s==='false' ? false : !!s;
+};
 
-u.date = function(s) { return s == null ? null : Date.parse(s); };
+u.date = function(s) {
+  return s == null || s === '' ? null : Date.parse(s);
+};
 
-u.array = function(x) { return x != null ? (u.isArray(x) ? x : [x]) : []; };
+u.array = function(x) {
+  return x != null ? (u.isArray(x) ? x : [x]) : [];
+};
 
 u.str = function(x) {
   return u.isArray(x) ? '[' + x.map(u.str) + ']'
