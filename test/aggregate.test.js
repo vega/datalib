@@ -331,50 +331,18 @@ describe('aggregate', function() {
       assert.equal(182, r[0].max_y);
     });
 
-    it('should support modification by key', function() {
+    it('should support summary modification by key', function() {
       var add = [
          {"x":1,"y":28,"_id":1},
          {"x":2,"y":55,"_id":2},
-         {"x":3,"y":43,"_id":3},
-         {"x":4,"y":91,"_id":4},
-         {"x":5,"y":81,"_id":5},
-         {"x":6,"y":53,"_id":6},
-         {"x":7,"y":19,"_id":7},
-         {"x":8,"y":87,"_id":8},
-         {"x":9,"y":52,"_id":9},
-         {"x":10,"y":48,"_id":10},
-         {"x":11,"y":24,"_id":11},
-         {"x":12,"y":49,"_id":12},
-         {"x":13,"y":87,"_id":13},
-         {"x":14,"y":66,"_id":14},
-         {"x":15,"y":17,"_id":15},
-         {"x":16,"y":27,"_id":16},
-         {"x":17,"y":68,"_id":17},
-         {"x":18,"y":16,"_id":18},
-         {"x":19,"y":49,"_id":19},
-         {"x":20,"y":15,"_id":20}
+         {"x":3,"y":13,"_id":3},
+         {"x":4,"y":91,"_id":4}
       ];
       var mod = [
          {"x":2,"y":56,"_id":1},
          {"x":6,"y":86,"_id":3},
-         {"x":10,"y":162,"_id":5},
-         {"x":14,"y":38,"_id":7},
-         {"x":18,"y":104,"_id":9},
-         {"x":22,"y":48,"_id":11},
-         {"x":26,"y":174,"_id":13},
-         {"x":30,"y":34,"_id":15},
-         {"x":34,"y":136,"_id":17},
-         {"x":38,"y":98,"_id":19},
          {"x":2,"y":110,"_id":2},
-         {"x":4,"y":182,"_id":4},
-         {"x":6,"y":106,"_id":6},
-         {"x":8,"y":174,"_id":8},
-         {"x":10,"y":96,"_id":10},
-         {"x":12,"y":98,"_id":12},
-         {"x":14,"y":132,"_id":14},
-         {"x":16,"y":54,"_id":16},
-         {"x":18,"y":32,"_id":18},
-         {"x":20,"y":30,"_id":20}
+         {"x":4,"y":182,"_id":4}
       ];
 
       var agg = groupby()
@@ -389,8 +357,35 @@ describe('aggregate', function() {
         agg._mod(a, p);
       }
       var r = agg.result();
-      assert.equal( 30, r[0].min_y);
+      assert.equal( 56, r[0].min_y);
       assert.equal(182, r[0].max_y);
+    });
+
+    it('should support groupby modification by key', function() {
+      var table = [
+        {country: 'US', type: 'gold', count: 100, _id: 0},
+        {country: 'US', type: 'silver', count: 13, _id: 1},
+        {country: 'US', type: 'bronze', count: 15, _id: 2},
+        {country: 'Canada', type: 'gold', count: 5, _id: 3},
+        {country: 'Canada', type: 'silver', count: 4, _id: 4},
+        {country: 'Canada', type: 'bronze', count: 3, _id: 5}
+      ];
+      var agg = groupby('country')
+        .stream(true).key('_id')
+        .summarize({count: ['min', 'max']});
+
+      agg.execute(table);
+      var old = util.duplicate(table[0]);
+      table[0].country = "India";
+      agg._mod(table[0], old);
+      var r = agg.result().sort(util.comparator("+country"));
+
+      assert.equal(  3, r[0].min_count); // Canada
+      assert.equal(  5, r[0].max_count);
+      assert.equal(100, r[1].min_count); // India
+      assert.equal(100, r[1].max_count);
+      assert.equal( 13, r[2].min_count); // U.S.
+      assert.equal( 15, r[2].max_count);
     });
 
     it('should return streaming change sets', function() {
@@ -427,13 +422,33 @@ describe('aggregate', function() {
       assert.strictEqual(set1.add[0], set3.rem[0]);
     });
 
-    it('should support measure getter reconfiguration', function() {
-      var sum = groupby().summarize({'a':'sum'}).insert(table)
-        .accessors({'a':'b'}).insert(table).result();
-      assert.equal(16, sum[0].sum_a);
-      sum = groupby().summarize({'a':'sum'}).insert(table)
-        .accessors({'a':util.accessor('b')}).insert(table).result();
-      assert.equal(16, sum[0].sum_a);
+    it('should support streaming of raw values', function() {
+      var agg = groupby().stream(true).summarize([{
+        name: 'value',
+        get:  util.identity,
+        ops:  ['min', 'max'],
+        as:   ['min', 'max']
+      }]);
+
+      var domain1 = [{a:1}, {a:3}, {a:6}];
+      var domain2 = [{b:9}, {b:2}];
+      var f1 = util.$('a');
+      var f2 = util.$('b');
+
+      var r = agg
+        .insert(domain1.map(f1)) // or, looping calls to _add
+        .insert(domain2.map(f2)) // to avoid array creation
+        .result()[0];
+      assert.equal(1, r.min);
+      assert.equal(9, r.max);
+
+      r = agg
+        .remove([f1(domain1[0])])
+        .remove([f2(domain2[0])])
+        .result()[0];
+      assert.equal(2, r.min);
+      assert.equal(6, r.max);
     });
+
   });
 });

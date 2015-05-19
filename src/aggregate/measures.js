@@ -83,22 +83,22 @@ var types = {
   'argmin': measure({
     name: 'argmin',
     add:  'if (v < this.min) this.argmin = t;',
-    rem:  'this.argmin = null;',
-    set:  'this.argmin || cell.data.min(this.get)',
+    rem:  'if (v <= this.min) this.argmin = null;',
+    set:  'this.argmin = this.argmin || cell.data.min(this.get)',
     req:  ['min'], str: ['values'], idx: 3
   }),
   'argmax': measure({
     name: 'argmax',
     add:  'if (v > this.max) this.argmax = t;',
-    rem:  'this.argmax = null;',
-    set:  'this.argmax || cell.data.max(this.get)',
+    rem:  'if (v >= this.max) this.argmax = null;',
+    set:  'this.argmax = this.argmax || cell.data.max(this.get)',
     req:  ['max'], str: ['values'], idx: 3
   }),
   'min': measure({
     name: 'min',
     init: 'this.min = +Infinity;',
     add:  'if (v < this.min) this.min = v;',
-    rem:  'this.min = NaN;',
+    rem:  'if (v <= this.min) this.min = NaN;',
     set:  'this.min = (isNaN(this.min) ? this.get(cell.data.min(this.get)) : this.min)',
     str:  ['values'], idx: 4
   }),
@@ -106,7 +106,7 @@ var types = {
     name: 'max',
     init: 'this.max = -Infinity;',
     add:  'if (v > this.max) this.max = v;',
-    rem:  'this.max = NaN;',
+    rem:  'if (v >= this.max) this.max = NaN;',
     set:  'this.max = (isNaN(this.max) ? this.get(cell.data.max(this.get)) : this.max)',
     str:  ['values'], idx: 4
   }),

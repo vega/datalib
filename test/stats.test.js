@@ -447,7 +447,7 @@ describe('stats', function() {
       assert.equal(stats.quartile(v)[0], p.q1);
       assert.equal(stats.quartile(v)[2], p.q3);
       assert.equal(stats.modeskew(v), p.modeskew);
-      assert.deepEqual(stats.unique(v).counts, p.unique);
+      assert.deepEqual(stats.count.map(v), p.unique);
     });
 
     it('should return length statistics for strings', function(){

@@ -72,7 +72,8 @@ function numerical(values, f, b) {
 }
 
 function categorical(values, f, sort) {
-  var u = stats.unique(values, f), c = u.counts;
+  var u = stats.unique(values, f),
+      c = stats.count.map(values, f);
   return u.map(function(k) { return {value: k, count: c[k]}; })
     .sort(util.comparator(sort ? '-count' : '+value'));
 }

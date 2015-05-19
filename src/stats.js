@@ -3,24 +3,18 @@ var type = require('./import/type');
 var gen = require('./generate');
 var stats = {};
 
-// Collect unique values and associated counts.
-// Output: an array of unique values, in observed order
-// The array includes an additional 'counts' property,
-// which is a hash from unique values to occurrence counts.
+// Collect unique values.
+// Output: an array of unique values, in first-observed order
 stats.unique = function(values, f, results) {
   f = util.$(f);
   results = results || [];
   var u = {}, v, i, n;
   for (i=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
-    if (v in u) {
-      u[v] += 1;
-    } else {
-      u[v] = 1;
-      results.push(v);
-    }
+    if (v in u) continue;
+    u[v] = 1;
+    results.push(v);
   }
-  results.counts = u;
   return results;
 };
 
@@ -63,6 +57,17 @@ stats.count.distinct = function(values, f) {
     count += 1;
   }
   return count;
+};
+
+// Construct a map from distinct values to occurrence counts.
+stats.count.map = function(values, f) {
+  f = util.$(f);
+  var map = {}, v, i, n;
+  for (i=0, n=values.length; i<n; ++i) {
+    v = f ? f(values[i]) : values[i];
+    map[v] = (v in map) ? map[v] + 1 : 1;
+  }
+  return map;
 };
 
 // Compute the median of an array of numbers.

@@ -79,16 +79,6 @@ proto._assign = function(object, name, value) {
   object[name] = value;
 };
 
-proto.accessors = function(fields) {
-  var aggr = this._aggr, i, n, f;
-  for (i=0, n=aggr.length; i<n; ++i) {
-    if ((f = fields[aggr[i].name])) {
-      aggr[i].measures.prototype.get = util.$(f);
-    }
-  }
-  return this;
-};
-
 function summarize_args(fields) {
   if (util.isArray(fields)) { return fields; }
   if (fields == null) { return []; }
@@ -176,15 +166,24 @@ proto._rem = function(x) {
   cell.flag |= Flags.MOD_CELL;
 };
 
-proto._mod = function(x, prev) {
-  var cell = this._cell(x),
+proto._mod = function(curr, prev) {
+  var cell0 = this._cell(prev),
+      cell1 = this._cell(curr),
       aggr = this._aggr, i;
 
-  for (i=0; i<aggr.length; ++i) {
-    cell.aggs[aggr[i].name].rem(prev);
-    cell.aggs[aggr[i].name].add(x);
+  if (cell0 !== cell1) {
+    cell0.num -= 1;
+    cell1.num += 1;
+    if (cell0.collect) cell0.data.rem(prev);
+    if (cell1.collect) cell1.data.add(curr);
   }
-  cell.flag |= Flags.MOD_CELL;
+
+  for (i=0; i<aggr.length; ++i) {
+    cell0.aggs[aggr[i].name].rem(prev);
+    cell1.aggs[aggr[i].name].add(curr);
+  }
+  cell0.flag |= Flags.MOD_CELL;
+  cell1.flag |= Flags.MOD_CELL;
 };
 
 proto.result = function() {

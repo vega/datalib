@@ -7,6 +7,7 @@ function Collector(key) {
   this._add = [];
   this._rem = [];
   this._key = key || null;
+  this._last = null;
 }
 
 var proto = Collector.prototype;
@@ -32,6 +33,16 @@ proto.values = function() {
     var lut = util.toMap(r, k);
     for (i=0, j=0, n=a.length; i<n; ++i) {
       if (!lut.hasOwnProperty(k(a[i]))) { x[j++] = a[i]; }
+    }
+  } else if (!util.isObject(r[0])) {
+    // process collection of raw values
+    var m = stats.count.map(r);
+    for (i=0, j=0, n=a.length; i<n; ++i) {
+      if (m[a[i]] > 0) {
+        m[a[i]] -= 1;
+      } else {
+        x[j++] = a[i];
+      }
     }
   } else {
     // no unique key, mark tuples directly
