@@ -176,6 +176,17 @@ proto._rem = function(x) {
   cell.flag |= Flags.MOD_CELL;
 };
 
+proto._mod = function(x, prev) {
+  var cell = this._cell(x),
+      aggr = this._aggr, i;
+
+  for (i=0; i<aggr.length; ++i) {
+    cell.aggs[aggr[i].name].rem(prev);
+    cell.aggs[aggr[i].name].add(x);
+  }
+  cell.flag |= Flags.MOD_CELL;
+};
+
 proto.result = function() {
   var result = [],
       aggr = this._aggr,
