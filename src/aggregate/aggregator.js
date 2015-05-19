@@ -152,7 +152,7 @@ proto._ingest = util.identity;
 
 // Process Tuples
 
-proto.add = function(x) {
+proto._add = function(x) {
   var cell = this._cell(x),
       aggr = this._aggr, i;
 
@@ -164,7 +164,7 @@ proto.add = function(x) {
   cell.flag |= Flags.MOD_CELL;
 };
 
-proto.rem = function(x) {
+proto._rem = function(x) {
   var cell = this._cell(x),
       aggr = this._aggr, i;
 
@@ -192,6 +192,7 @@ proto.result = function() {
     cell.flag = 0;
   }
 
+  this._rems = false;
   return result;
 };
 
@@ -224,6 +225,7 @@ proto.changes = function() {
     cell.flag = 0;
   }
 
+  this._rems = false;
   return changes;
 };
 
@@ -232,8 +234,9 @@ proto.execute = function(input) {
 };
 
 proto.insert = function(input) {
+  this._consolidate();
   for (var i=0; i<input.length; ++i) {
-    this.add(input[i]);
+    this._add(input[i]);
   }
   return this;
 };
@@ -244,9 +247,21 @@ proto.remove = function(input) {
       ' Call stream(true) prior to calling summarize.';
   }
   for (var i=0; i<input.length; ++i) {
-    this.rem(input[i]);
+    this._rem(input[i]);
   }
+  this._rems = true;
   return this;
+};
+
+// consolidate removals
+proto._consolidate = function() {
+  if (!this._rems) return;
+  for (var k in this._cells) {
+    if (this._cells[k].collect) {
+      this._cells[k].data.values();
+    }
+  }
+  this._rems = false;
 };
 
 module.exports = Aggregator;
