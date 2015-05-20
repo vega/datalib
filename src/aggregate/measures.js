@@ -146,29 +146,33 @@ function create(agg, stream, accessor, mutator) {
       rem = 'if (v==null) this.missing--; if (!this.isValid(v)) return; this.valid--;',
       set = 'var t = this.tuple; var cell = this.cell;';
 
-  all.forEach(function(a) {
-    if (a.idx < 0) {
-      ctr = a.init + ctr;
-      add = a.add + add;
-      rem = a.rem + rem;
-    } else {
-      ctr += a.init;
-      add += a.add;
-      rem += a.rem;
-    }
-  });
-  agg.slice()
-    .sort(function(a, b) { return a.idx - b.idx; })
-    .forEach(function(a) {
-      set += 'this.assign(t,\''+a.out+'\','+a.set+');';
+  if (agg.length) {
+    all.forEach(function(a) {
+      if (a.idx < 0) {
+        ctr = a.init + ctr;
+        add = a.add + add;
+        rem = a.rem + rem;
+      } else {
+        ctr += a.init;
+        add += a.add;
+        rem += a.rem;
+      }
     });
-  set += 'return t;';
+    agg.slice()
+      .sort(function(a, b) { return a.idx - b.idx; })
+      .forEach(function(a) {
+        set += 'this.assign(t,\''+a.out+'\','+a.set+');';
+      });
+    set += 'return t;';
+  } else {
+    add = rem = set = '';
+  }
 
   /* jshint evil: true */
   ctr = Function('cell', 't', ctr);
   ctr.prototype.assign = mutator;
-  ctr.prototype.add = Function('t', 'var v = this.get(t);' + add);
-  ctr.prototype.rem = Function('t', 'var v = this.get(t);' + rem);
+  ctr.prototype.add = Function('t', add ? 'var v = this.get(t);' + add : '');
+  ctr.prototype.rem = Function('t', rem ? 'var v = this.get(t);' + rem : '');
   ctr.prototype.set = Function(set);
   ctr.prototype.get = accessor;
   ctr.prototype.mod = mod;

@@ -422,7 +422,17 @@ describe('aggregate', function() {
       assert.strictEqual(set1.add[0], set3.rem[0]);
     });
 
-    it('should support streaming of raw values', function() {
+    it('should support groupby of raw values', function() {
+      var r = groupby({name: 'value', get: util.identity})
+        .count()
+        .execute([1,1,1,2,2,3,null]);
+      assert.equal(1, r[0].value); assert.equal(3, r[0].count);
+      assert.equal(2, r[1].value); assert.equal(2, r[1].count);
+      assert.equal(3, r[2].value); assert.equal(1, r[2].count);
+      assert.equal(null, r[3].value); assert.equal(1, r[3].count);
+    });
+
+    it('should support summarize of raw values', function() {
       var agg = groupby().stream(true).summarize([{
         name: 'value',
         get:  util.identity,

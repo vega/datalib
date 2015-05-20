@@ -49,7 +49,7 @@ proto.groupby = function(dims) {
 proto.summarize = function(fields) {
   fields = summarize_args(fields);
   var aggr = (this._aggr = []),
-      m, f, i, j, op, as;
+      m, f, i, j, op, as, get;
 
   for (i=0; i<fields.length; ++i) {
     for (j=0, m=[], f=fields[i]; j<f.ops.length; ++j) {
@@ -57,12 +57,14 @@ proto.summarize = function(fields) {
       as = (f.as && f.as[j]) || (op + (f.name==='*' ? '' : '_'+f.name));
       m.push(Measures[op](as));
     }
+    get = f.get && util.$(f.get) ||
+      (f.name === '*' ? util.identity : util.$(f.name));
     aggr.push({
       name: f.name,
       measures: Measures.create(
         m,
         this._stream, // streaming remove flag
-        f.get && util.$(f.get) || util.$(f.name), // input tuple getter
+        get,          // input tuple getter
         this._assign) // output tuple setter
     });
   }
