@@ -3,7 +3,7 @@ var Aggregator = require('./aggregator');
 
 module.exports = function() {
   // flatten arguments into a single array
-  var args = Array.prototype.reduce.call(arguments, function(a, x) {
+  var args = [].reduce.call(arguments, function(a, x) {
     return a.concat(util.array(x));
   }, []);
   // create and return an aggregator

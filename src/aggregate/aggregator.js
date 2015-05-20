@@ -41,19 +41,21 @@ proto.groupby = function(dims) {
     if (d == null) throw 'Invalid groupby argument: ' + d;
     return d;
   });
-  return this;
+  return this.clear();
 };
 
 // Input: array of objects of the form
 // {name: string, ops: [string, ...]}
 proto.summarize = function(fields) {
   fields = summarize_args(fields);
+  this._count = true;
   var aggr = (this._aggr = []),
       m, f, i, j, op, as, get;
 
   for (i=0; i<fields.length; ++i) {
     for (j=0, m=[], f=fields[i]; j<f.ops.length; ++j) {
       op = f.ops[j];
+      if (op !== 'count') this._count = false;
       as = (f.as && f.as[j]) || (op + (f.name==='*' ? '' : '_'+f.name));
       m.push(Measures[op](as));
     }
@@ -68,7 +70,7 @@ proto.summarize = function(fields) {
         this._assign) // output tuple setter
     });
   }
-  return this;
+  return this.clear();
 };
 
 // Convenience method to summarize by count
@@ -98,23 +100,25 @@ proto.clear = function() {
   return (this._cells = {}, this);
 };
 
-proto._keys = function(x) {
+proto._cellkey = function(x) {
   var d = this._dims,
-      n = d.length,
-      k = Array(n), i;
-  for (i=0; i<n; ++i) { k[i] = d[i].get(x); }
-  return {key: util.keystr(k), keys: k};
+      n = d.length, i,
+      k = String(d[0].get(x));
+  for (i=1; i<n; ++i) {
+    k += '|' + d[i].get(x);
+  }
+  return k;
 };
 
 proto._cell = function(x) {
-  var k = this._keys(x);
-  return this._cells[k.key] || (this._cells[k.key] = this._newcell(x, k));
+  var key = this._dims.length ? this._cellkey(x) : '';
+  return this._cells[key] || (this._cells[key] = this._newcell(x));
 };
 
-proto._newcell = function(x, k) {
+proto._newcell = function(x) {
   var cell = {
     num:   0,
-    tuple: this._newtuple(x, k),
+    tuple: this._newtuple(x),
     flag:  Flags.ADD_CELL,
     aggs:  {}
   };
@@ -126,14 +130,13 @@ proto._newcell = function(x, k) {
   if (cell.collect) {
     cell.data = new Collector(this._key);
   }
-
   return cell;
 };
 
 proto._newtuple = function(x) {
   var dims = this._dims,
       t = {}, i, n;
-  for(i=0, n=dims.length; i<n; ++i) {
+  for (i=0, n=dims.length; i<n; ++i) {
     t[dims[i].name] = dims[i].get(x);
   }
   return this._ingest(t);
@@ -149,9 +152,11 @@ proto._add = function(x) {
       aggr = this._aggr, i;
 
   cell.num += 1;
-  if (cell.collect) cell.data.add(x);
-  for (i=0; i<aggr.length; ++i) {
-    cell.aggs[aggr[i].name].add(x);
+  if (!this._count) { // skip if count-only
+    if (cell.collect) cell.data.add(x);
+    for (i=0; i<aggr.length; ++i) {
+      cell.aggs[aggr[i].name].add(x);
+    }
   }
   cell.flag |= Flags.MOD_CELL;
 };
@@ -161,9 +166,11 @@ proto._rem = function(x) {
       aggr = this._aggr, i;
 
   cell.num -= 1;
-  if (cell.collect) cell.data.rem(x);
-  for (i=0; i<aggr.length; ++i) {
-    cell.aggs[aggr[i].name].rem(x);
+  if (!this._count) { // skip if count-only
+    if (cell.collect) cell.data.rem(x);
+    for (i=0; i<aggr.length; ++i) {
+      cell.aggs[aggr[i].name].rem(x);
+    }
   }
   cell.flag |= Flags.MOD_CELL;
 };

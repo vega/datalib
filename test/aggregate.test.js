@@ -214,6 +214,16 @@ describe('aggregate', function() {
       {a:4, b:2}
     ];
 
+    it('should clear contents on field updates', function() {
+      var agg = groupby().summarize({'a': ['sum', 'max']});
+      assert.notEqual(0, agg.execute(table));
+      assert.equal(0, agg.groupby('b').result().length);
+
+      agg = groupby().summarize({'a': ['sum', 'max']});
+      assert.notEqual(0, agg.execute(table));
+      assert.equal(0, agg.summarize({'b':'sum'}).result().length);
+    });
+
     it('should accept streaming inserts', function() {
       var sum = groupby().summarize({'a': ['sum', 'max']})
         .insert([table[0], table[1]])
