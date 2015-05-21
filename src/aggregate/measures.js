@@ -84,14 +84,14 @@ var types = {
     name: 'argmin',
     add:  'if (v < this.min) this.argmin = t;',
     rem:  'if (v <= this.min) this.argmin = null;',
-    set:  'this.argmin = this.argmin || cell.data.min(this.get)',
+    set:  'this.argmin = this.argmin || cell.data.argmin(this.get)',
     req:  ['min'], str: ['values'], idx: 3
   }),
   'argmax': measure({
     name: 'argmax',
     add:  'if (v > this.max) this.argmax = t;',
     rem:  'if (v >= this.max) this.argmax = null;',
-    set:  'this.argmax = this.argmax || cell.data.max(this.get)',
+    set:  'this.argmax = this.argmax || cell.data.argmax(this.get)',
     req:  ['max'], str: ['values'], idx: 3
   }),
   'min': measure({
@@ -99,7 +99,7 @@ var types = {
     init: 'this.min = +Infinity;',
     add:  'if (v < this.min) this.min = v;',
     rem:  'if (v <= this.min) this.min = NaN;',
-    set:  'this.min = (isNaN(this.min) ? this.get(cell.data.min(this.get)) : this.min)',
+    set:  'this.min = (isNaN(this.min) ? cell.data.min(this.get) : this.min)',
     str:  ['values'], idx: 4
   }),
   'max': measure({
@@ -107,7 +107,7 @@ var types = {
     init: 'this.max = -Infinity;',
     add:  'if (v > this.max) this.max = v;',
     rem:  'if (v >= this.max) this.max = NaN;',
-    set:  'this.max = (isNaN(this.max) ? this.get(cell.data.max(this.get)) : this.max)',
+    set:  'this.max = (isNaN(this.max) ? cell.data.max(this.get) : this.max)',
     str:  ['values'], idx: 4
   }),
   'modeskew': measure({

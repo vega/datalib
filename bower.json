@@ -1,7 +1,7 @@
 {
   "name": "datalib",
   "main": "datalib.js",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "homepage": "http://github.com/uwdata/datalib.git",
   "authors": [
     "UW Interactive Data Lab (http://idl.cs.washington.edu)"

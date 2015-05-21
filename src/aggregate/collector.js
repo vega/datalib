@@ -73,8 +73,23 @@ proto.extent = function(get) {
   }
   return this._ext;
 };
-proto.min = function(f) { return this.extent(f)[0]; };
-proto.max = function(f) { return this.extent(f)[1]; };
+
+proto.argmin = function(f) {
+  return this.extent(f)[0];
+};
+
+proto.argmax = function(f) {
+  return this.extent(f)[1];
+};
+
+proto.min = function(f) {
+  var m = this.extent(f)[0];
+  return m ? f(m) : +Infinity;
+};
+proto.max = function(f) {
+  var m = this.extent(f)[1];
+  return m ? f(m) : -Infinity;
+};
 
 proto.quartile = function(get) {
   if (this._f !== get || !this._q) {
@@ -83,8 +98,17 @@ proto.quartile = function(get) {
   }
   return this._q;
 };
-proto.q1 = function(f) { return this.quartile(f)[0]; };
-proto.q2 = function(f) { return this.quartile(f)[1]; };
-proto.q3 = function(f) { return this.quartile(f)[2]; };
+
+proto.q1 = function(f) {
+  return this.quartile(f)[0];
+};
+
+proto.q2 = function(f) {
+  return this.quartile(f)[1];
+};
+
+proto.q3 = function(f) {
+  return this.quartile(f)[2];
+};
 
 module.exports = Collector;

@@ -468,6 +468,12 @@ describe('aggregate', function() {
         .result()[0];
       assert.equal(2, r.min);
       assert.equal(6, r.max);
+
+      agg._mod(3, 2);
+      agg._mod(7, 6);
+      r = agg.result()[0];
+      assert.equal(3, r.min);
+      assert.equal(7, r.max);
     });
 
   });

@@ -182,7 +182,7 @@ stats.extent = function(values, f) {
 // Find the integer indices of the minimum and maximum values.
 stats.extent.index = function(values, f) {
   f = util.$(f);
-  var a, b, x, y, v, i, n = values.length;
+  var x = -1, y = -1, a, b, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
     if (util.isValid(v)) { a = b = v; x = y = i; break; }

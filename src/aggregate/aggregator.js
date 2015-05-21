@@ -185,6 +185,9 @@ proto._mod = function(curr, prev) {
     cell1.num += 1;
     if (cell0.collect) cell0.data.rem(prev);
     if (cell1.collect) cell1.data.add(curr);
+  } else if (cell0.collect && !util.isObject(curr)) {
+    cell0.data.rem(prev);
+    cell0.data.add(curr);
   }
 
   for (i=0; i<aggr.length; ++i) {
@@ -203,6 +206,9 @@ proto.result = function() {
   for (k in this._cells) {
     cell = this._cells[k];
     if (cell.num > 0) {
+      if (cell.collect) {
+        cell.data.values();
+      }
       for (i=0; i<aggr.length; ++i) {
         cell.aggs[aggr[i].name].set();
       }
@@ -223,6 +229,11 @@ proto.changes = function() {
   for (k in this._cells) {
     cell = this._cells[k];
     flag = cell.flag;
+
+    // consolidate collector values
+    if (cell.collect) {
+      cell.data.values();
+    }
 
     // update tuple properties
     for (i=0; i<aggr.length; ++i) {
