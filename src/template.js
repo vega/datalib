@@ -21,6 +21,7 @@ function template(text) {
   }
 }
 
+template.source = source;
 module.exports = template;
 
 // clear cache of format objects
