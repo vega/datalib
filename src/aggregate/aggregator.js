@@ -206,13 +206,18 @@ proto.result = function() {
   for (k in this._cells) {
     cell = this._cells[k];
     if (cell.num > 0) {
+      // consolidate collector values
       if (cell.collect) {
         cell.data.values();
       }
+      // update tuple properties
       for (i=0; i<aggr.length; ++i) {
         cell.aggs[aggr[i].name].set();
       }
+      // add output tuple
       result.push(cell.tuple);
+    } else {
+      delete this._cells[k];
     }
     cell.flag = 0;
   }

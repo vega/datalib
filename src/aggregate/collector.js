@@ -21,7 +21,9 @@ proto.rem = function(v) {
 };
 
 proto.values = function() {
-  if (this._rem.length === 0) return (this._get = null, this._add);
+  this._get = null;
+  if (this._rem.length === 0) return this._add;
+
   var a = this._add,
       r = this._rem,
       k = this._key,
@@ -58,7 +60,6 @@ proto.values = function() {
   }
 
   this._rem = [];
-  this._get = null;
   return (this._add = x);
 };
 
