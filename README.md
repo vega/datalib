@@ -13,7 +13,7 @@ For documentation, see the datalib [API Reference](../../wiki/API-Reference).
 Datalib provides a set of utilities for working with data. These include:
 
 - Loading and parsing data files (JSON, TopoJSON, CSV, TSV).
-- Summary statistics (mean, deviation, median, correlation, histograms, etc)
+- Summary statistics (mean, deviation, median, correlation, histograms, etc).
 - Group-by aggregation queries, including streaming data support.
 - Data-driven string templates with expressive formatting filters.
 - Utilities for working with JavaScript functions, objects and arrays.
