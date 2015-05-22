@@ -39,7 +39,7 @@ console.log(dl.print.summary(data));
 var rollup = dl.groupby('symbol')
   .summarize({'price': ['mean', 'stdev']})
   .execute(data);
-console.log(JSON.stringify(rollup, null, 2));
+console.log(dl.print.table(rollup));
 
 // Compute correlation measures between price and date.
 console.log(
