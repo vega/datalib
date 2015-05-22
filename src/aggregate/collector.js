@@ -1,7 +1,7 @@
 var util = require('../util');
 var stats = require('../stats');
 
-var REM = '$!_rem_!#';
+var REM = '__dl_rem__';
 
 function Collector(key) {
   this._add = [];
@@ -26,23 +26,23 @@ proto.values = function() {
       r = this._rem,
       k = this._key,
       x = Array(a.length - r.length),
-      i, j, n;
+      i, j, n, m;
 
-  if (k) {
-    // has unique key field, use that
-    var lut = util.toMap(r, k);
-    for (i=0, j=0, n=a.length; i<n; ++i) {
-      if (!lut.hasOwnProperty(k(a[i]))) { x[j++] = a[i]; }
-    }
-  } else if (!util.isObject(r[0])) {
-    // process collection of raw values
-    var m = stats.count.map(r);
+  if (!util.isObject(r[0])) {
+    // processing raw values
+    m = stats.count.map(r);
     for (i=0, j=0, n=a.length; i<n; ++i) {
       if (m[a[i]] > 0) {
         m[a[i]] -= 1;
       } else {
         x[j++] = a[i];
       }
+    }
+  } else if (k) {
+    // has unique key field, so use that
+    m = util.toMap(r, k);
+    for (i=0, j=0, n=a.length; i<n; ++i) {
+      if (!m.hasOwnProperty(k(a[i]))) { x[j++] = a[i]; }
     }
   } else {
     // no unique key, mark tuples directly
@@ -58,57 +58,57 @@ proto.values = function() {
   }
 
   this._rem = [];
-  this._f = null;
+  this._get = null;
   return (this._add = x);
 };
 
 // memoizing statistics methods
 
 proto.extent = function(get) {
-  if (this._f !== get || !this._ext) {
+  if (this._get !== get || !this._ext) {
     var v = this.values(),
         i = stats.extent.index(v, get);
     this._ext = [v[i[0]], v[i[1]]];
-    this._f = get;    
+    this._get = get;    
   }
   return this._ext;
 };
 
-proto.argmin = function(f) {
-  return this.extent(f)[0];
+proto.argmin = function(get) {
+  return this.extent(get)[0];
 };
 
-proto.argmax = function(f) {
-  return this.extent(f)[1];
+proto.argmax = function(get) {
+  return this.extent(get)[1];
 };
 
-proto.min = function(f) {
-  var m = this.extent(f)[0];
-  return m ? f(m) : +Infinity;
+proto.min = function(get) {
+  var m = this.extent(get)[0];
+  return m ? get(m) : +Infinity;
 };
-proto.max = function(f) {
-  var m = this.extent(f)[1];
-  return m ? f(m) : -Infinity;
+proto.max = function(get) {
+  var m = this.extent(get)[1];
+  return m ? get(m) : -Infinity;
 };
 
 proto.quartile = function(get) {
-  if (this._f !== get || !this._q) {
+  if (this._get !== get || !this._q) {
     this._q = stats.quartile(this.values(), get);
-    this._f = get;    
+    this._get = get;    
   }
   return this._q;
 };
 
-proto.q1 = function(f) {
-  return this.quartile(f)[0];
+proto.q1 = function(get) {
+  return this.quartile(get)[0];
 };
 
-proto.q2 = function(f) {
-  return this.quartile(f)[1];
+proto.q2 = function(get) {
+  return this.quartile(get)[1];
 };
 
-proto.q3 = function(f) {
-  return this.quartile(f)[2];
+proto.q3 = function(get) {
+  return this.quartile(get)[2];
 };
 
 module.exports = Collector;
