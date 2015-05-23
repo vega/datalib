@@ -12,7 +12,6 @@ function browser() {
   return browserify({
       entries: ['./src/'],
       standalone: 'dl',
-      debug: true,
       cache: {}, packageCache: {}
     })
     .external(['d3', 'topojson']);
