@@ -3,3 +3,4 @@ test/
 temp
 index.html
 publish.sh
+coverage

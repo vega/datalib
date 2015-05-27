@@ -33,11 +33,13 @@ gulp.task('build', function() { build(); });
 
 gulp.task('test', function() {
   return gulp.src(['test/**/*.js'], { read: false })
-    .pipe(mocha())
+    .pipe(mocha({
+      istanbul: true
+    }))
     .on('error', gutil.log);
 });
 
-gulp.task('jshint', function() {  
+gulp.task('jshint', function() {
   return gulp.src('src/**/*.js')
     .pipe(jshint())
     .pipe(jshint.reporter('default'));
