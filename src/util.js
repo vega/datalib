@@ -102,7 +102,7 @@ u.isDate = function(obj) {
 };
 
 u.isValid = function(obj) {
-  return obj != null && (typeof(obj) !== 'number' || !isNaN(obj));
+  return obj != null && obj === obj;
 };
 
 u.isBuffer = (Buffer && Buffer.isBuffer) || u.false;
