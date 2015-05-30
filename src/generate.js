@@ -29,7 +29,7 @@ gen.random = {};
 
 gen.random.uniform = function(min, max) {
   if (max === undefined) {
-    max = min;
+    max = min === undefined ? 1 : min;
     min = 0;
   }
   var d = max - min;
