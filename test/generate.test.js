@@ -81,7 +81,7 @@ describe('generate', function() {
       var sd = samples.reduce(function(a,b) { return a+(b-avg)*(b-avg); }, 0);
       sd = Math.sqrt(sd / (samples.length-1));
       assert.closeTo(u, avg, 0.5);
-      assert.closeTo(s, sd, 0.5);
+      assert.closeTo(s, sd, 1.0);
     }
     it('should generate normal samples', function() {
       normalTest(0, 1, gen.random.normal().samples(1000));

@@ -148,6 +148,8 @@ function http(url, callback) {
     if (!error && response.statusCode === 200) {
       callback(null, body);
     } else {
+      error = error || 'Load failed' + ((response && response.statusCode) ?
+        ' with response code ' + response.statusCode + '.' : '.');
       callback(error, null);
     }
   });

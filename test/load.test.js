@@ -15,6 +15,31 @@ var text = require('fs').readFileSync(file, 'utf8');
 
 describe('load', function() {
 
+  it('should sanitize url', function() {
+    assert.equal('file://a.txt', load.sanitizeUrl({
+      file: 'a.txt'
+    }));
+    assert.equal('hostname/a.txt', load.sanitizeUrl({
+      url: 'a.txt',
+      baseURL: 'hostname'
+    }));
+    assert.equal('hostname/a.txt', load.sanitizeUrl({
+      url: 'a.txt',
+      baseURL: 'hostname/'
+    }));
+    assert.equal('http://h.com/a.txt', load.sanitizeUrl({
+      url: '//h.com/a.txt'
+    }));
+    assert.equal('https://h.com/a.txt', load.sanitizeUrl({
+      url: '//h.com/a.txt',
+      defaultProtocol: 'https'
+    }));
+  });
+
+  it('should throw error for invalid path', function() {
+    assert.throws(function() { return load({}); });
+  });
+
   it('should load from file path', function(done) {
     load({file: file}, function(error, data) {
       assert.equal(text, data);
@@ -24,6 +49,10 @@ describe('load', function() {
   
   it('should load from file path synchronously', function() {
     assert.equal(text, load({file: file}));
+  });
+
+  it('should infer file load in node', function() {
+    assert.equal(text, load({url: file}));
   });
 
   it('should load from file url', function(done) {
@@ -36,6 +65,15 @@ describe('load', function() {
   it('should load from http url', function(done) {
     load({url: url}, function(error, data) {
       assert.equal(text, data);
+      done();
+    });
+  });
+
+  it('should error with invalid url', function(done) {
+    load({url: url+'.invalid'}, function(error, data) {
+      assert.isNull(data);
+      console.log("ERROR = ", error);
+      assert.isNotNull(error);
       done();
     });
   });
