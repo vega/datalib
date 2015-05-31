@@ -22,6 +22,7 @@ function template(text) {
 }
 
 template.source = source;
+template.context = context;
 module.exports = template;
 
 // clear cache of format objects
@@ -31,7 +32,11 @@ template.clearFormatCache = function() {
   context.format_map = {};
 };
 
-function source(text, variable) {
+// Generate source code for a template function.
+// text: the template text
+// variable: the name of the data object variable ('obj' by default)
+// properties: optional hash for collecting all accessed properties
+function source(text, variable, properties) {
   variable = variable || 'obj';
   var index = 0;
   var src = '\'';
@@ -46,7 +51,7 @@ function source(text, variable) {
 
     if (interpolate) {
       src += '\'\n+((__t=(' +
-        template_var(interpolate, variable) +
+        template_var(interpolate, variable, properties) +
         '))==null?\'\':__t)+\n\'';
     }
 
@@ -56,11 +61,11 @@ function source(text, variable) {
   return src + '\'';
 }
 
-function template_var(text, variable) {
+function template_var(text, variable, properties) {
   var filters = text.split('|');
   var prop = filters.shift().trim();
   var stringCast = true;
-  
+
   function strcall(fn) {
     fn = fn || '';
     if (stringCast) {
@@ -71,14 +76,15 @@ function template_var(text, variable) {
     }
     return src;
   }
-  
+
   function date() {
     return '(typeof ' + src + '==="number"?new Date('+src+'):'+src+')';
   }
-  
+
+  if (properties) properties[prop] = 1;
   var src = util.field(prop).map(util.str).join('][');
   src = variable + '[' + src + ']';
-  
+
   for (var i=0; i<filters.length; ++i) {
     var f = filters[i], args = null, pidx, a, b;
 

@@ -148,4 +148,25 @@ describe('template', function() {
     assert.equal('hello', f({a: '---HELLO---'}));
   });
 
+  function source(str, obj, p) {
+    return 'var __t; return ' + template.source(str, obj, p) + ';';
+  }
+
+  it('should expose source code generator', function() {
+    var f = new Function(source('hello'));
+    assert.equal('hello', f({}));
+
+    f = new Function('myvar', source('{{a}}', 'myvar'));
+    assert.equal('hello', f({a: 'hello'}));
+  });
+
+  it('should collected referenced variables', function() {
+    var props = {};
+    var f = new Function('d', source('{{a}} {{b}}', 'd', props));
+    assert.equal('1 2', f({a:1, b:2, c:3, d:4}));
+    assert.isDefined(props['a']);
+    assert.isDefined(props['b']);
+    assert.isUndefined(props['c']);
+    assert.isUndefined(props['d']);
+  });
 });
