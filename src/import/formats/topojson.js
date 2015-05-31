@@ -10,7 +10,7 @@ module.exports = function(data, format) {
     if ((obj = t.objects[format.feature])) {
       return topojson.feature(t, obj).features;
     } else {
-      throw Error('Invalid TopoJSON object: '+format.feature);
+      throw Error('Invalid TopoJSON object: ' + format.feature);
     }
   } else if (format && format.mesh) {
     if ((obj = t.objects[format.mesh])) {
@@ -21,6 +21,4 @@ module.exports = function(data, format) {
   } else {
     throw Error('Missing TopoJSON feature or mesh parameter.');
   }
-
-  return [];
 };

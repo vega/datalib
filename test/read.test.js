@@ -137,6 +137,20 @@ describe('read', function() {
       var tj = topojson.feature(json, json.objects['countries']).features;
       assert.equal(JSON.stringify(tj), JSON.stringify(feature));
     });
+
+    it('should throw error if topojson is invalid', function() {
+      var data = {};
+      assert.throws(function() {
+        read(data, {type:'topojson', feature: 'countries'});
+      });
+      assert.throws(function() {
+        read(data, {type:'topojson', mesh: 'countries'});
+      });
+    });
+
+    it('should throw error if topojson parameters are missing', function() {
+      assert.throws(function() { read(world, {type:'topojson'}); });
+    });
   });
 
   describe('treejson', function() {
