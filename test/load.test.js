@@ -72,7 +72,6 @@ describe('load', function() {
   it('should error with invalid url', function(done) {
     load({url: url+'.invalid'}, function(error, data) {
       assert.isNull(data);
-      console.log("ERROR = ", error);
       assert.isNotNull(error);
       done();
     });

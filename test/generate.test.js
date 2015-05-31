@@ -78,10 +78,10 @@ describe('generate', function() {
     function normalTest(u, s, samples) {
       var sum = samples.reduce(function(a,b) { return a+b; }, 0);
       var avg = sum / samples.length;
-      var sd = samples.reduce(function(a,b) { return a+(b-avg)*(b-avg); }, 0);
-      sd = Math.sqrt(sd / (samples.length-1));
-      assert.closeTo(u, avg, 0.5);
-      assert.closeTo(s, sd, 1.0);
+      var dev = samples.reduce(function(a,b) { return a+(b-avg)*(b-avg); }, 0);
+      dev = dev / (samples.length-1);
+      // mean within 99% confidence interval
+      assert.closeTo(u, avg, 2.58*dev/Math.sqrt(samples.length));
     }
     it('should generate normal samples', function() {
       normalTest(0, 1, gen.random.normal().samples(1000));
