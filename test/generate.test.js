@@ -80,8 +80,8 @@ describe('generate', function() {
       var avg = sum / samples.length;
       var dev = samples.reduce(function(a,b) { return a+(b-avg)*(b-avg); }, 0);
       dev = dev / (samples.length-1);
-      // mean within 99% confidence interval
-      assert.closeTo(u, avg, 2.58*dev/Math.sqrt(samples.length));
+      // mean within 99.9% confidence interval
+      assert.closeTo(u, avg, 4*dev/Math.sqrt(samples.length));
     }
     it('should generate normal samples', function() {
       normalTest(0, 1, gen.random.normal().samples(1000));

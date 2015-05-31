@@ -42,5 +42,13 @@ describe('readers', function() {
       done();
     });
   });
+  
+  it('should return error if read fails', function(done) {
+    readers.json('file://' + file, {parse: 'auto'}, function(error, data) {
+      assert.isNotNull(error);
+      assert.isNull(data);
+      done();
+    });
+  });
 
 });

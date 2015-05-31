@@ -42,6 +42,31 @@ function toDelimitedText(data, delimiter) {
 
 describe('read', function() {
 
+  describe('type checks', function() {
+    it('should check booleans', function() {
+      assert.equal('boolean', type([NaN, null, true, false]));
+    });
+    it('should check numbers', function() {
+      assert.equal('number', type([NaN, null, 1, 2]));
+      assert.equal('number', type([NaN, null, 1.4, 2.3]));
+    });
+    it('should check dates', function() {
+      assert.equal('date', type([NaN, null, new Date('1/1/2001'), new Date('Jan 5, 2001')]));
+    });
+    it('should check strings', function() {
+      assert.equal('string', type([NaN, null, 'a', 'b']));
+    });
+    it('should support accessor', function() {
+      assert.equal('string', type([{a:null}, {a:'a'}, {a:'b'}], util.$('a')));
+      assert.equal('string', type([{a:null}, {a:'a'}, {a:'b'}], 'a'));
+    });
+    it('should use existing type annotations', function() {
+      var d = data.slice();
+      type.annotation(d, type.inferAll(d));
+      assert.equal('integer', type(d, 'a'));
+    });
+  });
+
   describe('type inference', function() {
     it('should infer booleans', function() {
       assert.equal('boolean', type.infer(['true', 'false', NaN, null]));
@@ -139,7 +164,7 @@ describe('read', function() {
     });
 
     it('should throw error if topojson is invalid', function() {
-      var data = {};
+      var data = {objects: {}};
       assert.throws(function() {
         read(data, {type:'topojson', feature: 'countries'});
       });

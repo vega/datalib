@@ -214,6 +214,15 @@ describe('aggregate', function() {
       {a:4, b:2}
     ];
 
+    it('should update cells over multiple runs', function() {
+      var agg = groupby('b').stream(true).summarize({'a': ['sum', 'max']});
+      var r1 = agg.execute(table);
+      var r2 = agg.remove(table.slice(2)).result();
+      assert.equal(2, r1.length);
+      assert.equal(1, r2.length);
+      assert.equal(1, util.keys(agg._cells).length);
+    });
+
     it('should clear contents on field updates', function() {
       var agg = groupby().summarize({'a': ['sum', 'max']});
       assert.notEqual(0, agg.execute(table));
@@ -357,7 +366,7 @@ describe('aggregate', function() {
 
       var agg = groupby()
         .stream(true).key('_id')
-        .summarize({'y': ['min', 'max']});
+        .summarize({'y': ['min', 'max', 'argmin', 'argmax']});
       agg.insert(add).changes();
       for (var i=0; i<mod.length; ++i) {
         var t = mod[i],
@@ -369,6 +378,8 @@ describe('aggregate', function() {
       var r = agg.result();
       assert.equal( 56, r[0].min_y);
       assert.equal(182, r[0].max_y);
+      assert.strictEqual(add[0], r[0].argmin_y);
+      assert.strictEqual(add[3], r[0].argmax_y);
     });
 
     it('should support groupby modification by key', function() {

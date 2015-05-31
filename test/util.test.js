@@ -49,6 +49,11 @@ describe('util', function() {
       assert(util.cmp(null, 'b') < 0);
       assert(util.cmp('b', null) > 0);
     });
+
+    it('should compare null and NaN values', function() {
+      assert.equal(0, util.cmp(null, null));
+      assert(isNaN(util.cmp(NaN, NaN)));
+    });
   });
   
   describe('comparator generator', function() {
@@ -86,7 +91,20 @@ describe('util', function() {
       assert.equal(comparator({'p': 1, 'q': 5}, {'p': 1, 'q': 5}), 0);
     });
   });
-  
+
+  describe('stable sort', function() {    
+    it('should compute a stable sort', function() {
+      var data = [
+        {id: 1, a: 2},
+        {id: 2, a: 5},
+        {id: 3, a: 1},
+        {id: 4, a: 2}
+      ];
+      util.stablesort(data, util.$('a'), util.$('id'));
+      assert.deepEqual([3,1,4,2], data.map(util.$('id')));
+    });
+  });
+
   describe('number', function() {
     it('should convert numeric String to number', function() {
       assert.strictEqual(util.number('2.2'), 2.2);
@@ -128,7 +146,7 @@ describe('util', function() {
       assert.strictEqual(util.number(2.2), 2.2);
     });
   });
-  
+
   describe('boolean', function() {
     it('should convert string "true" to true', function() {
       assert.strictEqual(util.boolean('true'), true);
@@ -159,7 +177,7 @@ describe('util', function() {
       assert.strictEqual(util.boolean(undefined), null);
     });
   });
-  
+
   describe('array', function() {
     it('should return an empty array for null argument', function() {
       assert.deepEqual(util.array(null), []);
@@ -178,7 +196,7 @@ describe('util', function() {
       assert.deepEqual(util.array(1), [1]);
     });
   });
-  
+
   describe('str', function() {
     it('should wrap string arguments in single quotation marks', function() {
       assert.strictEqual(util.str('test'), "'test'");
@@ -222,7 +240,7 @@ describe('util', function() {
       assert.deepEqual(util.keys({a: undefined, b: null, c: NaN}), ['a', 'b', 'c']);
     });
   });
-  
+
   describe('vals', function() {
     it('should enumerate every defined value', function() {
       assert.deepEqual(util.vals({a: 1, b: 1}), [1, 1]);
@@ -276,7 +294,7 @@ describe('util', function() {
         ['a.b.c', 'a2.b2', 'a3.b3.c3' ]);
     });
   });
-  
+
   describe('accessor', function() {
     it('should return null argument', function() {
       assert.isNull(util.accessor(null));
@@ -369,6 +387,17 @@ describe('util', function() {
       assert.equal(17, util.$minute()(d.d));
       assert.equal('minute_t', util.name(util.$minute('t')));
       assert.equal('minute', util.name(util.$minute()));
+    });
+
+    it('should support set inclusion', function() {
+      assert.isTrue(util.$in('a', [1,2,3])({a:1}));
+      assert.isTrue(util.$in('a', [1,2,3])({a:2}));
+      assert.isTrue(util.$in('a', [1,2,3])({a:3}));
+      assert.isFalse(util.$in('a', [1,2,3])({a:4}));
+      assert.isTrue(util.$in('a', {1:1, 2:1, 3:1})({a:1}));
+      assert.isTrue(util.$in('a', {1:1, 2:1, 3:1})({a:2}));
+      assert.isTrue(util.$in('a', {1:1, 2:1, 3:1})({a:3}));
+      assert.isFalse(util.$in('a', {1:1, 2:1, 3:1})({a:4}));
     });
   });
 
@@ -476,6 +505,28 @@ describe('util', function() {
         util.duplicate(o1);
       };
       assert.throws(f);
+    });
+  });
+
+  describe('equal', function() {
+    it('should check for deep equality', function() {
+      assert.isTrue(util.equal(null, null));
+      assert.isTrue(util.equal(1, 1));
+      assert.isFalse(util.equal(1, 2));
+      assert.isTrue(util.equal('a', 'a'));
+      assert.isFalse(util.equal('a', 'b'));
+      assert.isTrue(util.equal([1,2], [1,2]));
+      assert.isFalse(util.equal([1,2], [2,1]));
+      assert.isTrue(util.equal({a:[1,2]}, {a:[1,2]}));
+      assert.isFalse(util.equal({a:[1,2]}, {a:[2,1]}));
+    });
+
+    it('should use JSON inclusion rules', function() {
+      assert.isTrue(util.equal({}, {a:undefined}));
+      assert.isTrue(util.equal(
+        {a:[1,2], f:function() { return 1; }},
+        {a:[1,2]}
+      ));
     });
   });
 

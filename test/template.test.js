@@ -49,6 +49,16 @@ describe('template', function() {
     assert.equal('hello THERE', f({a: 'there'}));
   });
 
+  it('should handle lower-locale filter', function() {
+    var f = template('hello {{a|lower-locale}}');
+    assert.equal('hello there', f({a: 'THERE'}));
+  });
+
+  it('should handle upper-locale filter', function() {
+    var f = template('hello {{a|upper-locale}}');
+    assert.equal('hello THERE', f({a: 'there'}));
+  });
+
   it('should handle trim filter', function() {
     var f = template('hello {{a|trim}}');
     assert.equal('hello there', f({a: ' there '}));
@@ -128,6 +138,10 @@ describe('template', function() {
     assert.equal('the date: 2011-01-01', f({a: new Date(2011, 0, 1)}));
   });
 
+  it('should throw error if format pattern is unquoted', function() {
+    assert.throws(function() { template('hello {{a|number:.3f}}'); });
+  });
+
   it('should handle multiple filters', function() {
     var f = template('{{a|lower|slice:3,-3}}');
     assert.equal('hello', f({a:'---HeLlO---'}));
@@ -135,6 +149,10 @@ describe('template', function() {
     assert.equal('5.0', f({a:'---HeLlO---'}));
     f = template("{{a|lower|slice:3,-3|length|number:'.1f'}}");
     assert.equal('5.0', f({a:'---HeLlO---'}));
+  });
+
+  it('should throw error with unrecognized filter', function() {
+    assert.throws(function() { template('{{a|fake}}'); });
   });
 
   it('should handle extraneous spaces', function() {
@@ -146,6 +164,18 @@ describe('template', function() {
     
     f = template('{{a | lower | mid : 3, 5 }}');
     assert.equal('hello', f({a: '---HELLO---'}));
+  });
+
+  it('should support clearing format cache', function() {
+    template.clearFormatCache();
+    assert.equal(0, template.context.formats.length);
+    assert.isUndefined(template.context.format_map['.3f']);
+    var f = template('hello {{a|number:".3f"}}');
+    assert.isDefined(template.context.format_map['.3f']);
+    assert.equal(1, template.context.formats.length);
+    template.clearFormatCache();
+    assert.equal(0, template.context.formats.length);
+    assert.isUndefined(template.context.format_map['.3f']);
   });
 
   function source(str, obj, p) {

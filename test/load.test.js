@@ -35,9 +35,30 @@ describe('load', function() {
       defaultProtocol: 'https'
     }));
   });
+  
+  it('should handle client-side sanitization', function() {
+    util.isNode = false;
+    global.document = {
+      createElement: function() {
+        return {host: '', href: '', hostname: 'localhost'};
+      }
+    };
+    global.window = {location: {hostname: 'localhost'}};
+    assert.equal('http://localhost/a.txt', load.sanitizeUrl({
+      url: 'http://localhost/a.txt',
+      domainWhiteList: ['localhost']
+    }));
+    util.isNode = true;
+    delete global.document;
+    delete global.window;
+  });
 
   it('should throw error for invalid path', function() {
     assert.throws(function() { return load({}); });
+  });
+
+  it('should throw error for empty url', function() {
+    assert.throws(function() { return load({url: ''}); });
   });
 
   it('should load from file path', function(done) {
@@ -46,7 +67,7 @@ describe('load', function() {
       done();
     });
   });
-  
+
   it('should load from file path synchronously', function() {
     assert.equal(text, load({file: file}));
   });
@@ -125,5 +146,11 @@ describe('load', function() {
         done();
       }
     );
+  });
+
+  it('should attempt xhr if not server-side', function() {
+    util.isNode = false;
+    assert.throws(function() { load({url: url}) });
+    util.isNode = true;
   });
 });
