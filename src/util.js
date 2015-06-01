@@ -1,4 +1,4 @@
-var Buffer = require('buffer').Buffer;
+var buffer = require('buffer');
 var units = require('./time-units');
 var u = module.exports = {};
 
@@ -105,7 +105,7 @@ u.isValid = function(obj) {
   return obj != null && obj === obj;
 };
 
-u.isBuffer = (Buffer && Buffer.isBuffer) || u.false;
+u.isBuffer = (buffer.Buffer && buffer.Buffer.isBuffer) || u.false;
 
 // type coercion functions
 
@@ -222,8 +222,6 @@ u.cmp = function(a, b) {
   } else if (a > b) {
     return 1;
   } else if (a >= b) {
-    return 0;
-  } else if (a === null && b === null) {
     return 0;
   } else if (a === null) {
     return -1;

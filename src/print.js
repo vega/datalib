@@ -44,7 +44,7 @@ module.exports.table = function(data, opt) {
     return '{{' +
       name +
       (FMT[types[name]] || '') +
-      ('|pad:' + lens[i] + ',' + POS[types[name]] || 'right') +
+      ('|pad:' + lens[i] + ',' + (POS[types[name]] || 'right')) +
       ('|truncate:' + lens[i]) +
     '}}';
   }).join(opt.separator));

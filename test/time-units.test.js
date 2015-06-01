@@ -194,6 +194,12 @@ describe('time-units', function() {
       span = +max - +min;
       unit = units.find(span, 1, 20);
       assert.equal('year', unit.type);
+
+      min = new Date(Date.UTC(2000,1,1));
+      max = new Date(Date.UTC(2005,1,1));
+      span = +max - +min;
+      unit = units.find(span, 50, 200);
+      assert.equal('month', unit.type);
     });
   });
 

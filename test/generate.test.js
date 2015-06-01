@@ -32,6 +32,7 @@ describe('generate', function() {
       assert.deepEqual([0,1,2], gen.range(3));
       assert.deepEqual([2,3,4], gen.range(2, 5));
       assert.deepEqual([1,3,5,7], gen.range(1, 8, 2));
+      assert.deepEqual([2,1,0], gen.range(2, -1, -1));
       assert.deepEqual([], gen.range(0, 2, -1));
     });
     it('should throw error for infinite range', function() {

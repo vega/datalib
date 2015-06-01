@@ -11,6 +11,10 @@ var gen = require('../src/generate');
 describe('binning', function() {
 
   describe('bins', function() {
+    it('should throw error if called without options', function() {
+      assert.throws(function() { return bins(); });
+    });
+
     it('should bin integer values', function() {
       var b = bins({min:0, max:10, minstep:1});
       assert.equal(b.start, 0);
@@ -73,6 +77,10 @@ describe('binning', function() {
   });
 
   describe('bins.date', function() {
+    it('should throw error if called without options', function() {
+      assert.throws(function() { return bins.date(); });
+    });
+
     it('should bin across years', function() {
       var b = bins.date({
         min: Date.parse('1/1/2000'),
@@ -80,6 +88,7 @@ describe('binning', function() {
       });
       assert.equal(b.step, 1);
       assert.equal(b.unit.type, 'year');
+      assert.equal(+b.value(2000), Date.UTC(2000,0,1));
     });
 
     it('should accept explicit units', function() {
@@ -98,6 +107,25 @@ describe('binning', function() {
       });
       assert.equal(b.step, 6);
       assert.equal(b.unit.type, 'month');
+
+      b = bins.date({
+        min:  Date.parse('1/1/2000'),
+        max:  Date.parse('1/1/2010'),
+        unit: 'dayOfWeek'
+      });
+      assert.equal(b.step, 1);
+      assert.equal(b.unit.type, 'dayOfWeek');
+    });
+
+    it('should support raw values', function() {
+      var b = bins.date({
+        min: Date.parse('1/1/2000'),
+        max: Date.parse('1/1/2010'),
+        raw: true
+      });
+      assert.equal(b.step, 1);
+      assert.equal(b.unit.type, 'year');
+      assert.equal(b.value(2000), 2000);
     });
   });
 
@@ -108,6 +136,12 @@ describe('binning', function() {
     var year = [Date.UTC(2000, 0, 1), Date.UTC(2010, 0, 1)];
 
     it('should bin numeric values', function() {
+      var b = $bin({min:1, max:9});
+      assert.equal(1, b(1.00));
+      assert.equal(1, b(1.75));
+      assert.equal(2, b(2.01));
+      assert.equal(3, b(3.14));
+
       var b = $bin(num);
       assert.equal(1, b(1.00));
       assert.equal(1, b(1.75));
@@ -187,6 +221,15 @@ describe('binning', function() {
       assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor('value')));
       assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor('count')));
     });
+    
+    it('should handle accessor', function() {
+      var vals = [1,2,3,4,5,6,7,1,2,3,4,5,1,2,3].map(function(x) {
+        return {a: x};
+      });
+      var h = histogram(vals, util.$('a'), {type: 'integer', maxbins: 20});
+      assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor('value')));
+      assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor('count')));
+    });
 
     it('should bin date values', function() {
       var dates = [
@@ -203,14 +246,15 @@ describe('binning', function() {
       assert.deepEqual([1,0,0,1,0,0,1], h.map(util.accessor('count')));
     });
 
-    it('should ignore null values among dates', function() {
+    it('should ignore invalid values among dates', function() {
       var dates = [
         null,
         new Date(1979, 5, 15),
         undefined,
         new Date(1982, 2, 19),
         NaN,
-        new Date(1985, 4, 20)
+        new Date(1985, 4, 20),
+        new Date(NaN)
       ];
       var h = histogram(dates);
       assert(h.bins.unit.type, 'year');
@@ -226,6 +270,13 @@ describe('binning', function() {
       var h = histogram(strings);
       assert.deepEqual(['a','b','c','d','e','f'], h.map(util.accessor('value')));
       assert.deepEqual([6,5,8,5,7,5], h.map(util.accessor('count')));
+    });
+
+    it('should support sorting binned string values', function() {
+      var strings = 'aaaaaabbbbbccccccccdddddeeeeeeefffff'.split('');
+      var h = histogram(strings, {sort: true});
+      assert.deepEqual(['c','e','a','b','d','f'], h.map(util.accessor('value')));
+      assert.deepEqual([8,7,6,5,5,5], h.map(util.accessor('count')));
     });
   });
 

@@ -1,0 +1,69 @@
+var fs = require("fs");
+
+module.exports = function XMLHttpRequest() {
+  var self = this,
+      info = self._info = {},
+      headers = {},
+      url;
+
+  // TODO handle file system errors?
+
+  self.readyState = 0;
+
+  self.open = function(m, u, a) {
+    info.url = u;
+    info.async = a;
+    self.readyState = 1;
+    self.send = a ? read : readSync;
+    
+    // force state change for testing purposes
+    if (self.onreadystatechange) self.onreadystatechange();
+  };
+
+  self.setRequestHeader = function(n, v) {
+    if (/^Accept$/i.test(n)) info.mimeType = v.split(/,/g)[0];
+  };
+
+  function read() {
+    self.readyState = 2;
+    fs.readFile(info.url, "binary", function(e, d) {
+      if (e) {
+        self.status = 404; // assumed
+      } else {
+        self.status = self.type ? null : 200;
+        self.responseType = self.type || 'text';
+        self.response = d;
+        self.responseText = d;
+        self.responseXML = {_xml: d};
+        headers["Content-Length"] = d.length;
+      }
+      self.readyState = 4;
+      XMLHttpRequest._last = self;
+      if (self.onload) self.onload();
+      if (self.onreadystatechange) self.onreadystatechange();
+    });
+  }
+
+  function readSync() {
+    self.readyState = 2;
+    try {
+      var d = fs.readFileSync(info.url, "binary");
+      self.status = self.type ? null : 200;
+      self.responseType = self.type || 'text';
+      self.response = d;
+      self.responseText = d;
+      self.responseXML = {_xml: d};
+      headers["Content-Length"] = d.length;
+    } catch (e) {
+      self.status = 404; // assumed
+    }
+    self.readyState = 4;
+    XMLHttpRequest._last = self;
+    if (self.onload) self.onload();
+    if (self.onreadystatechange) self.onreadystatechange();
+  }
+
+  self.getResponseHeader = function(n) {
+    return headers[n];
+  };
+};

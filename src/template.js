@@ -12,13 +12,8 @@ function template(text) {
   var src = source(text, 'd');
   src = 'var __t; return ' + src + ';';
 
-  try {
-    /* jshint evil: true */
-    return (new Function('d', src)).bind(context);
-  } catch (e) {
-    e.source = src;
-    throw e;
-  }
+  /* jshint evil: true */
+  return (new Function('d', src)).bind(context);
 }
 
 template.source = source;

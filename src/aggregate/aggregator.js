@@ -247,9 +247,7 @@ proto.changes = function() {
 
     // organize output tuples
     if (cell.num <= 0) {
-      if (flag === Flags.MOD_CELL) {
-        changes.rem.push(cell.tuple);
-      }
+      changes.rem.push(cell.tuple);
       delete this._cells[k];
     } else if (flag & Flags.ADD_CELL) {
       changes.add.push(cell.tuple);

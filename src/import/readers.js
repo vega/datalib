@@ -19,7 +19,7 @@ module.exports = util
 
       // load data
       var data = load(opt, callback ? function(error, data) {
-        if (error) callback(error, null);
+        if (error) { callback(error, null); return; }
         try {
           // data loaded, now parse it (async)
           data = read(data, format);

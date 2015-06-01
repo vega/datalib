@@ -3,7 +3,7 @@ var units = require('../time-units');
 var EPSILON = 1e-15;
 
 function bins(opt) {
-  opt = opt || {};
+  if (!opt) { throw Error("Missing binning options."); }
 
   // determine range
   var maxb = opt.maxbins || 15,
@@ -86,7 +86,7 @@ function date_index(v) {
 }
 
 bins.date = function(opt) {
-  opt = opt || {};
+  if (!opt) { throw Error("Missing date binning options."); }
 
   // find time step, then bin
   var dmin = opt.min,

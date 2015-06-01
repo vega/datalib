@@ -30,19 +30,27 @@ describe('readers', function() {
     });
     assert.deepEqual(csv, data);
   });
-  
+
   it('should read synchronously using format argument', function() {
     var data = readers.csv('file://' + file, {type: 'csv', parse: 'auto'});
     assert.deepEqual(csv, data);
   });
-  
+
   it('should read asynchronously using format argument', function(done) {
     readers.csv('file://' + file, {type: 'csv', parse: 'auto'}, function(error, data) {
       assert.deepEqual(csv, data);
       done();
     });
   });
-  
+
+  it('should return error if load fails', function(done) {
+    readers.csv('file://' + file + ".invalid", function(error, data) {
+      assert.isNotNull(error);
+      assert.isNull(data);
+      done();
+    });
+  });
+
   it('should return error if read fails', function(done) {
     readers.json('file://' + file, {parse: 'auto'}, function(error, data) {
       assert.isNotNull(error);

@@ -5,13 +5,17 @@ var util = require('../src/util');
 var load = require('../src/import/load');
 
 var host = 'uwdata.github.io';
+var hostsub = 'github.io';
 var dir = '/datalib/';
 var base = 'http://' + host + dir;
 var uri = 'data/flare.json';
 var url = base + uri;
 var rel = '//' + host + dir + uri;
 var file = './test/' + uri;
+var fake = 'http://globalhost/invalid.dne';
 var text = require('fs').readFileSync(file, 'utf8');
+
+global.XMLHttpRequest = require('./lib/XMLHttpRequest');
 
 describe('load', function() {
 
@@ -37,17 +41,26 @@ describe('load', function() {
   });
   
   it('should handle client-side sanitization', function() {
+    var host = '';
     util.isNode = false;
+    global.window = {location: {hostname: 'localhost'}};
     global.document = {
       createElement: function() {
-        return {host: '', href: '', hostname: 'localhost'};
+        return {host: host, href: '', hostname: 'localhost'};
       }
     };
-    global.window = {location: {hostname: 'localhost'}};
+
     assert.equal('http://localhost/a.txt', load.sanitizeUrl({
       url: 'http://localhost/a.txt',
       domainWhiteList: ['localhost']
     }));
+
+    var host = 'localhost';
+    assert.equal('http://localhost/a.txt', load.sanitizeUrl({
+      url: 'http://localhost/a.txt',
+      domainWhiteList: ['localhost']
+    }));
+
     util.isNode = true;
     delete global.document;
     delete global.window;
@@ -139,6 +152,15 @@ describe('load', function() {
     );
   });
 
+  it('should load from white-listed http subdomain', function(done) {
+    load({url: url, domainWhiteList: [hostsub]},
+      function(error, data) {
+        assert.equal(text, data);
+        done();
+      }
+    );
+  });
+
   it('should not load from un-white-listed http domain', function(done) {
     load({url: url, domainWhiteList: []},
       function(error, data) {
@@ -148,9 +170,72 @@ describe('load', function() {
     );
   });
 
-  it('should attempt xhr if not server-side', function() {
+  it('should return error for invalid protocol', function(done) {
+    load({url: 'htsp://globalhost/invalid.dne'},
+      function(error, data) {
+        assert.isNull(data);
+        assert.isNotNull(error);
+        done();
+      }
+    );
+  });
+
+  it('should support xhr async', function(done) {
     util.isNode = false;
-    assert.throws(function() { load({url: url}) });
+    load({url: file}, function(error, data) {
+      util.isNode = true;
+      assert.equal(text, data);
+      done(); 
+    });
+  });
+
+  it('should support xhr async fallbacks', function(done) {
+    util.isNode = false;
+    XMLHttpRequest.prototype.type = 'data';
+    load({url: file}, function(error, data) {
+      util.isNode = true;
+      delete XMLHttpRequest.prototype.type;
+      assert.equal(text, data);
+      done(); 
+    });
+  });
+
+  it('should support xhr sync', function() {
+    util.isNode = false;
+    assert.equal(text, load({url: file}));    
     util.isNode = true;
   });
+
+  it('should return error on failed xhr', function(done) {
+    util.isNode = false;
+    load({url: fake}, function(error, data) {
+      util.isNode = true;
+      assert.isNotNull(error);
+      assert.isNull(data);
+      done(); 
+    });
+  });
+
+  it('should use XDomainRequest for xhr if available', function(done) {
+    util.isNode = false;
+    global.XDomainRequest = global.XMLHttpRequest;
+    load({url: fake}, function(error, data) {
+      util.isNode = true;
+      delete global.XDomainRequest;
+      assert.isNotNull(error);
+      done();
+    });
+  });
+
+  it('should use onload for xhr if available', function(done) {
+    util.isNode = false;
+    XMLHttpRequest.prototype.onload = function() {};
+    load({url: fake}, function(error, data) {
+      util.isNode = true;
+      delete XMLHttpRequest.prototype.onload;
+      assert.isNotNull(error);
+      done();
+    });
+  });
+
 });

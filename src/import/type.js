@@ -77,8 +77,7 @@ function infer(values, f) {
 function inferAll(data, fields) {
   fields = fields || util.keys(data[0]);
   return fields.reduce(function(types, f) {
-    var type = infer(data, f);
-    if (PARSERS[type]) types[f] = type;
+    types[f] = infer(data, f);
     return types;
   }, {});
 }

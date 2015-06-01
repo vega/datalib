@@ -1,7 +1,8 @@
 var json = require('./json');
 var topojson = require('topojson');
 
-module.exports = function(data, format) {
+var reader = function(data, format) {
+  var topojson = reader.topojson;
   if (topojson == null) { throw Error('TopoJSON library not loaded.'); }
 
   var t = json(data, format), obj;
@@ -22,3 +23,6 @@ module.exports = function(data, format) {
     throw Error('Missing TopoJSON feature or mesh parameter.');
   }
 };
+
+reader.topojson = require('topojson');
+module.exports = reader;

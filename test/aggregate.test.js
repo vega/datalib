@@ -15,6 +15,10 @@ describe('aggregate', function() {
       {a: 3, b: 1}
     ];
 
+    it('should throw error with invalid argument', function() {
+      assert.throws(function() { return groupby(true); });
+    });
+
     it('should accept string argument', function() {
       assert.equal(3, groupby('a').execute(table).length);
       assert.equal(2, groupby('b').execute(table).length);
@@ -30,7 +34,13 @@ describe('aggregate', function() {
     it('should accept accessor arguments', function() {
       var a = util.accessor('a');
       var b = util.accessor('b');
+      function aa(x) { return x.a; }
+      var aaa = function(x) { return x.a; };
+
       assert.equal(3, groupby(a).execute(table).length);
+      assert.equal(3, groupby(a).execute(table).length);
+      assert.equal(3, groupby(aa).execute(table).length);
+      assert.equal(3, groupby(aaa).execute(table).length);
       assert.equal(2, groupby(b).execute(table).length);
       assert.equal(4, groupby([a,b]).execute(table).length);
       assert.equal(4, groupby([b,a]).execute(table).length);
@@ -145,6 +155,14 @@ describe('aggregate', function() {
     it('should compute q3', function() {
       assert.equal(stats.quartile(values)[2], run({'a':'q3'}).q3_a);
     });
+    
+    it('should compute quartiles', function() {
+      var r = run({'a':['q1', 'median', 'q3']});
+      var q = stats.quartile(values);
+      assert.equal(q[0], r.q1_a);
+      assert.equal(q[1], r.median_a);
+      assert.equal(q[2], r.q3_a);
+    });
 
     it('should compute mean', function() {
       assert.equal(stats.mean(values), run({'a':'mean'}).mean_a);
@@ -186,6 +204,13 @@ describe('aggregate', function() {
       assert.equal(stats.extent(values)[1], run({'a':'max'}).max_a);
     });
 
+    it('should compute extents', function() {
+      var r = run({'a':['min','max']});
+      var e = stats.extent(values);
+      assert.equal(e[0], r.min_a);
+      assert.equal(e[1], r.max_a);
+    });
+
     it('should compute argmin', function() {
       assert.strictEqual(table[0], run({'a':'argmin'}).argmin_a);
     });
@@ -214,6 +239,13 @@ describe('aggregate', function() {
       {a:4, b:2}
     ];
 
+    it('should support getter methods', function() {
+      var f = util.$('id');
+      var agg = groupby('b').stream(true).key(f);
+      assert.strictEqual(true, agg.stream());
+      assert.strictEqual(f, agg.key());
+    });
+
     it('should update cells over multiple runs', function() {
       var agg = groupby('b').stream(true).summarize({'a': ['sum', 'max']});
       var r1 = agg.execute(table);
@@ -240,6 +272,61 @@ describe('aggregate', function() {
         .result();
       assert.equal(10, sum[0].sum_a);
       assert.equal(4, sum[0].max_a);
+    });
+
+    it('should handle an invalid input tables', function() {
+      var values = {
+        'count': 1,
+        'valid': 0,
+        'missing': 1,
+        'distinct': 1,
+        'min': +Infinity,
+        'max': -Infinity,
+        'argmin': undefined,
+        'argmax': undefined,
+        'sum': 0,
+        'mean': 0,
+        'average': 0,
+        'variance': 0,
+        'stdev': 0,
+        'modeskew': 0,
+        'median': NaN,
+        'q1': NaN,
+        'q3': NaN
+      }
+      var s = util.keys(values);
+      function test(r) {
+        s.forEach(function(k) {
+          if (isNaN(values[k])) {
+            assert.isTrue(isNaN(r[k+'_a']));
+          } else {
+            assert.strictEqual(values[k], r[k+'_a']);
+          }
+        });
+      }
+      var agg = groupby().stream(true).summarize({'a':s});
+      test(agg.execute([{a:null}])[0]);
+
+      var t = [{a:5}];
+      agg.insert(t).result();
+      test(agg.remove(t).result()[0]);
+    });
+
+    it('should calculate online statistics', function() {
+      var data = [1,2,3,4,5,6,7,8,9,10].map(function(x) { return {a:x}; });
+      var fields = ['sum', 'mean', 'variance', 'stdev'];
+      var agg = groupby().stream(true).summarize({'a': fields});
+      var f = util.$('a');
+      
+      agg.execute(data);
+      do {
+        var t = data.pop();
+        var r = agg.remove([t]).result()[0];
+        assert.equal(stats.sum(data, f), r.sum_a);
+        assert.equal(stats.mean(data, f), r.mean_a);
+        assert.equal(stats.variance(data, f), r.variance_a);
+        assert.equal(stats.stdev(data, f), r.stdev_a);
+      } while (data.length > 1);
     });
 
     it('should reject streaming removes if unrequested', function() {
@@ -350,6 +437,44 @@ describe('aggregate', function() {
       assert.equal(182, r[0].max_y);
     });
 
+    it('should support streaming modifications', function() {
+      var init = [
+         {"x":1, "_id":1},
+         {"x":1, "_id":2},
+         {"x":1, "_id":3},
+         {"x":1, "_id":4},
+         {"x":1, "_id":5}
+      ];
+      var add = [
+        {"x":2, "_id":6}
+      ];
+      var mod = [
+         {"x":2, "_id":2},
+         {"x":2, "_id":3},
+         {"x":2, "_id":4}
+      ];
+
+      var agg = groupby('x').stream(true).summarize({'*': 'count'});
+      var r = agg.insert(init).changes();
+      assert.equal(5, r.add[0].count);
+      
+      r = agg.remove([init[0]]).insert(add).changes();
+      assert.equal(4, r.mod[0].count);
+      assert.equal(1, r.add[0].count);
+      
+      for (var i=0; i<mod.length; ++i) {
+        var prev = util.duplicate(init[i+1]);
+        init[i+1].x = mod[i].x;
+        agg._mod(init[i+1], prev);
+      }
+      r = agg.changes();
+      assert.equal(1, r.mod[0].count);
+      assert.equal(4, r.mod[1].count);
+      
+      r = agg.remove([init[4]]).changes();
+      assert.equal(0, r.rem[0].count);
+    });
+
     it('should support summary modification by key', function() {
       var add = [
          {"x":1,"y":28,"_id":1},
@@ -358,6 +483,7 @@ describe('aggregate', function() {
          {"x":4,"y":91,"_id":4}
       ];
       var mod = [
+         {"x":4,"y":12,"_id":4},
          {"x":2,"y":56,"_id":1},
          {"x":6,"y":86,"_id":3},
          {"x":2,"y":110,"_id":2},

@@ -40,6 +40,7 @@ describe('stats', function() {
 
   describe('count', function() {
     it('should count all values', function() {
+      assert.equal(stats.count([]), 0);
       assert.equal(stats.count([3, 1, 2]), 3);
       assert.equal(stats.count([null, 1, 2, null]), 4);
       assert.equal(stats.count([NaN, 1, 2]), 3);
@@ -60,6 +61,10 @@ describe('stats', function() {
     it('should ignore undefined values', function() {
       assert.equal(stats.count.valid([1, undefined, 2, undefined, 3]), 3);
     });
+
+    it('should support accessor', function() {
+      assert.equal(stats.count.valid([{a:3}, {a:1}, {a:2}], 'a'), 3);
+    });
   });
 
   describe('count.distinct', function() {
@@ -75,6 +80,10 @@ describe('stats', function() {
     it('should recognize undefined values', function() {
       assert.equal(stats.count.distinct([1, undefined, 2, undefined, 3]), 4);
     });
+
+    it('should support accessor', function() {
+      assert.equal(stats.count.distinct([{a:3}, {a:1}, {a:2}], 'a'), 3);
+    });
   });
 
   describe('count.missing', function() {
@@ -89,6 +98,26 @@ describe('stats', function() {
 
     it('should count undefined values', function() {
       assert.equal(stats.count.missing([1, undefined, 2, undefined, 3]), 2);
+    });
+
+    it('should support accessor', function() {
+      assert.equal(stats.count.missing([{a:3}, {a:1}, {a:2}], 'a'), 0);
+    });
+  });
+
+  describe('count.map', function() {
+    it('should create count hash', function() {
+      var map = stats.count.map(['a', 'a', 'b']);
+      assert.equal(map.a, 2);
+      assert.equal(map.b, 1);
+      assert.isUndefined(map.c);
+    });
+
+    it('should support accessor', function() {
+      var map = stats.count.map([{a:'a'}, {a:'a'}, {a:'b'}], 'a');
+      assert.equal(map.a, 2);
+      assert.equal(map.b, 1);
+      assert.isUndefined(map.c);
     });
   });
 
@@ -161,6 +190,10 @@ describe('stats', function() {
     it('should ignore null values', function() {
       assert.equal(stats.median([1, 2, null]), 1.5);
     });
+
+    it('should support accessor', function() {
+      assert.equal(stats.median([{a:3}, {a:1}, {a:2}], 'a'), 2);
+    });
   });
 
   describe('quantile', function() {
@@ -179,6 +212,15 @@ describe('stats', function() {
       assert.equal(stats.quantile(a, 0.75), 3.25);
       assert.equal(stats.quantile(a, 1.00), 4);
     });
+
+    it('should support accessor', function() {
+      var a = [{a:1}, {a:2}, {a:3}, {a:4}, {a:5}];
+      assert.equal(stats.quantile(a, 'a', 0.00), 1);
+      assert.equal(stats.quantile(a, 'a', 0.25), 2);
+      assert.equal(stats.quantile(a, 'a', 0.50), 3);
+      assert.equal(stats.quantile(a, 'a', 0.75), 4);
+      assert.equal(stats.quantile(a, 'a', 1.00), 5);
+    });
   });
 
   describe('mean', function() {
@@ -190,6 +232,52 @@ describe('stats', function() {
 
     it('should ignore null values', function() {
       assert.closeTo(stats.mean([1, 2, null]), 1.5, EPSILON);
+    });
+
+    it('should support accessor', function() {
+      assert.equal(stats.mean([{a:1}, {a:2}], 'a'), 1.5);
+    });
+  });
+
+  describe('variance & stdev', function() {
+    it('should calculate variance and stdev values', function() {
+      assert.closeTo(stats.variance([3, 1, 2]), 1, EPSILON);
+      assert.closeTo(stats.variance([1, 3]), 2, EPSILON);
+      assert.closeTo(stats.variance([-2, -2, -1, 1, 2, 2]), 3.6, EPSILON);
+      assert.equal(Math.sqrt(stats.variance([3, 1, 2])), stats.stdev([3, 1, 2]));
+      assert.equal(Math.sqrt(stats.variance([1, 3])), stats.stdev([1, 3]));
+      assert.equal(
+        Math.sqrt(stats.variance([-2, -2, -1, 1, 2, 2])),
+        stats.stdev([-2, -2, -1, 1, 2, 2])
+      );
+      assert.equal(0, stats.variance([]));
+      assert.equal(0, stats.variance([1]));
+      assert.equal(0, stats.stdev([]));
+      assert.equal(0, stats.stdev([1]));
+    });
+
+    it('should ignore null values', function() {
+      assert.equal(stats.variance([3, 1, 2, null]), 1);
+      assert.equal(stats.stdev([3, 1, 2, null]), 1);
+    });
+
+    it('should support accessor', function() {
+      assert.equal(stats.variance([{a:1}, {a:3}], 'a'), 2);
+      assert.equal(stats.stdev([{a:1}, {a:3}], 'a'), Math.sqrt(2));
+    });
+  });
+
+  describe('modeskew', function() {
+    it('should calculate modeskew values', function() {
+      assert.equal(stats.modeskew([]), 0);
+      assert.equal(stats.modeskew([1]), 0);
+      assert.equal(stats.modeskew([1,3]), 0);
+      assert.equal(stats.modeskew([1,1,4]), 1/Math.sqrt(3));
+    });
+
+    it('should support accessor', function() {
+      assert.equal(stats.modeskew([{a:1}, {a:2}], 'a'), 0);
+      assert.equal(stats.modeskew([{a:1}, {a:1} ,{a:4}], 'a'), 1/Math.sqrt(3));
     });
   });
 
@@ -230,6 +318,14 @@ describe('stats', function() {
 
     it('should throw error with inputs of unequal length', function() {
       assert.throws(function() { stats.dot([1,2,3], [1,2]); });
+    });
+
+    it('should ignore NaN values', function() {
+      var a = [1, 2, NaN];
+      var b = [3, 2, 1];
+      assert.equal(stats.dot(a, b), 1*3 + 2*2);
+      var t = [{a:1, b:3}, {a:2, b:2}, {a:NaN, b:1}];
+      assert.equal(stats.dot(t, 'a', 'b'), 1*3 + 2*2);
     });
   });
 

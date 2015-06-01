@@ -27,9 +27,21 @@ describe('print', function() {
       assert.equal(3, s.split('\n').length);
     });
 
+    it('should respect start option', function() {
+      var s = print.table(table, {start:2});
+      assert.equal(2, s.split('\n').length);
+    });
+
     it('should respect minwidth option', function() {
       var s = print.table(table, {minwidth:4});
       assert.equal(0, s.indexOf('sym\u2026'));
+    });
+
+    it('should respect maxwidth option', function() {
+      var s = print.table(table, {maxwidth:4});
+      assert.equal(0, s.indexOf('sym\u2026'));
+      s = print.table(table, {maxwidth:-1});
+      assert.equal(-1, s.indexOf('\u2026'));
     });
 
     it('should respect separator option', function() {
@@ -46,6 +58,7 @@ describe('print', function() {
       }
       return count;
     }
+
     var data = [
       {symbol:'DATA', value: 300.57},
       {symbol:'DATA', value: 12.3},
@@ -58,13 +71,17 @@ describe('print', function() {
       {symbol:'DATA', value: 6},
       {symbol:'DATA', value: 7},
       {symbol:'DATA', value: 8},
-      {symbol:'DATA', value: NaN}
+      {symbol:'DATA', value: NaN},
+      {symbol:'ATAD', value: 0},
     ];
+
     it('should print summary', function() {
       var summary = stats.summary(data);
       var s1 = print.summary(data);
       var s2 = print.summary(summary);
+      var s3 = (summary.toString = print.summary, summary.toString());
       assert.strictEqual(s1, s2);
+      assert.strictEqual(s1, s3);
       assert.equal(2, count(s1, '-- '));
       assert.equal(2, count(s1, 'valid'));
       assert.equal(1, count(s1, 'top values'));

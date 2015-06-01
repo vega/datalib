@@ -43,6 +43,9 @@ function toDelimitedText(data, delimiter) {
 describe('read', function() {
 
   describe('type checks', function() {
+    it('should check nulls', function() {
+      assert.equal(null, type([null]));
+    });
     it('should check booleans', function() {
       assert.equal('boolean', type([NaN, null, true, false]));
     });
@@ -54,16 +57,49 @@ describe('read', function() {
       assert.equal('date', type([NaN, null, new Date('1/1/2001'), new Date('Jan 5, 2001')]));
     });
     it('should check strings', function() {
-      assert.equal('string', type([NaN, null, 'a', 'b']));
+      assert.equal('string', type([NaN, null, '', 'a', 'b']));
     });
     it('should support accessor', function() {
       assert.equal('string', type([{a:null}, {a:'a'}, {a:'b'}], util.$('a')));
       assert.equal('string', type([{a:null}, {a:'a'}, {a:'b'}], 'a'));
     });
+    it('should recover type annotations', function() {
+      assert.isNull(type.annotation([]));
+      assert.isUndefined(type.all([]));
+      var types = type.all(parsed);
+      assert.deepEqual(type.annotation(parsed), types);
+    });
     it('should use existing type annotations', function() {
       var d = data.slice();
-      type.annotation(d, type.inferAll(d));
+      var types = type.inferAll(d);
+      type.annotation(d, types);
       assert.equal('integer', type(d, 'a'));
+      types.a = 12345;
+      assert.equal('number', type(d, 'a'));
+    });
+  });
+
+  describe('type parsers', function() {
+    var p = type.parsers;
+    it('should parse booleans', function() {
+      assert.equal(true, p.boolean('true'));
+      assert.equal(false, p.boolean('false'));
+      assert.equal(null, p.boolean(null));
+    });
+    it('should parse numbers', function() {
+      assert.equal(1, p.number('1'));
+      assert.equal(3.14, p.number('3.14'));
+      assert.equal(null, p.number(null));
+    });
+    it('should parse date', function() {
+      assert.equal(+(new Date(2000, 0, 1)), +p.date('1/1/2000'));
+      assert.equal(null, p.date(null));
+    });
+    it('should parse strings', function() {
+      assert.equal('a', p.string('a'));
+      assert.equal('bb', p.string('bb'));
+      assert.equal(null, p.string(''));
+      assert.equal(null, p.string(null));
     });
   });
 
@@ -85,7 +121,7 @@ describe('read', function() {
       assert.equal('date', type.infer([new Date('1/1/2001'), null, new Date('Jan 5, 2001')]));
     });
     it('should infer strings when all else fails', function() {
-      assert.equal('string', type.infer(['hello', '1', 'true', null]));
+      assert.equal('string', type.infer(['hello', '', '1', 'true', null]));
     });
     it('should handle function accessors', function() {
       var data = [
@@ -107,6 +143,7 @@ describe('read', function() {
   describe('json', function() {
     var json = JSON.stringify(data);
     it('should read json data', function() {
+      assert.deepEqual(read(json), data);
       assert.deepEqual(read(json, {type:'json'}), data);
     });
     it('should parse json fields', function() {
@@ -147,6 +184,32 @@ describe('read', function() {
     });
   });
 
+  describe('dsv', function() {
+    var psv = toDelimitedText(data, '|');
+    it('should read dsv data', function() {
+      assert.deepEqual(read(psv, {type:'dsv', delimiter:'|'}), strings);
+      assert.equal(read('', {type:'dsv', delimiter:'|'}), '');
+    });
+    it('should support delimiter constructor', function() {
+      var reader = read.formats.dsv.delimiter('|');
+      assert.deepEqual(reader(psv), strings);
+    });
+    it('should accept header parameter', function() {
+      var body = psv.slice(psv.indexOf('\n')+1);
+      assert.deepEqual(read(body, {
+        type: 'dsv',
+        delimiter: '|',
+        header: fields
+      }), strings);
+    });
+    it('should parse dsv fields', function() {
+      assert.deepEqual(read(psv, {type:'dsv', delimiter:'|', parse:type.annotation(parsed)}), parsed);
+    });
+    it('should auto-parse dsv fields', function() {
+      assert.deepEqual(read(psv, {type:'dsv', delimiter:'|', parse:'auto'}), parsed);
+    });
+  });
+
   describe('topojson', function() {
     var world = fs.readFileSync('./test/data/world-110m.json', 'utf8');
     var json = JSON.parse(world);
@@ -161,6 +224,14 @@ describe('read', function() {
       var feature = read(world, {type:'topojson', feature: 'countries'});
       var tj = topojson.feature(json, json.objects['countries']).features;
       assert.equal(JSON.stringify(tj), JSON.stringify(feature));
+    });
+
+    it('should throw error if topojson library unavailable', function() {
+      read.formats.topojson.topojson = null;
+      assert.throws(function() {
+        read(world, {type:'topojson', mesh: 'countries'});
+      });
+      read.formats.topojson.topojson = topojson;
     });
 
     it('should throw error if topojson is invalid', function() {

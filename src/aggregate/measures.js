@@ -29,7 +29,7 @@ var types = {
     name: 'mean',
     init: 'this.mean = 0;',
     add:  'var d = v - this.mean; this.mean += d / this.valid;',
-    rem:  'var d = v - this.mean; this.mean -= d / this.valid;',
+    rem:  'var d = v - this.mean; this.mean -= this.valid ? d / this.valid : this.mean;',
     set:  'this.mean'
   }),
   'average': measure({
@@ -42,22 +42,22 @@ var types = {
     init: 'this.dev = 0;',
     add:  'this.dev += d * (v - this.mean);',
     rem:  'this.dev -= d * (v - this.mean);',
-    set:  'this.dev / (this.valid-1)',
+    set:  'this.valid > 1 ? this.dev / (this.valid-1) : 0',
     req:  ['mean'], idx: 1
   }),
   'variancep': measure({
     name: 'variancep',
-    set:  'this.dev / this.valid',
+    set:  'this.valid > 1 ? this.dev / this.valid : 0',
     req:  ['variance'], idx: 2
   }),
   'stdev': measure({
     name: 'stdev',
-    set:  'Math.sqrt(this.dev / (this.valid-1))',
+    set:  'this.valid > 1 ? Math.sqrt(this.dev / (this.valid-1)) : 0',
     req:  ['variance'], idx: 2
   }),
   'stdevp': measure({
     name: 'stdevp',
-    set:  'Math.sqrt(this.dev / this.valid)',
+    set:  'this.valid > 1 ? Math.sqrt(this.dev / this.valid) : 0',
     req:  ['variance'], idx: 2
   }),
   'median': measure({
@@ -142,8 +142,8 @@ function resolve(agg, stream) {
 function create(agg, stream, accessor, mutator) {
   var all = resolve(agg, stream),
       ctr = 'this.cell = cell; this.tuple = t; this.valid = 0; this.missing = 0;',
-      add = 'if (v==null) this.missing++; if (!this.isValid(v)) return; this.valid++;',
-      rem = 'if (v==null) this.missing--; if (!this.isValid(v)) return; this.valid--;',
+      add = 'if (v==null) this.missing++; if (!this.isValid(v)) return; ++this.valid;',
+      rem = 'if (v==null) this.missing--; if (!this.isValid(v)) return; --this.valid;',
       set = 'var t = this.tuple; var cell = this.cell;';
 
   all.forEach(function(a) {

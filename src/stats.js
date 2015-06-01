@@ -124,7 +124,7 @@ stats.mean = function(values, f) {
 // Compute the sample variance of an array of numbers.
 stats.variance = function(values, f) {
   f = util.$(f);
-  if (!util.isArray(values) || values.length===0) return 0;
+  if (!util.isArray(values) || values.length < 2) return 0;
   var mean = 0, M2 = 0, delta, i, c, v;
   for (i=0, c=0; i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
@@ -206,14 +206,14 @@ stats.dot = function(values, a, b) {
     }
     for (i=0; i<values.length; ++i) {
       v = values[i] * a[i];
-      if (!Number.isNaN(v)) sum += v;
+      if (v === v) sum += v;
     }
   } else {
     a = util.$(a);
     b = util.$(b);
     for (i=0; i<values.length; ++i) {
       v = a(values[i]) * b(values[i]);
-      if (!Number.isNaN(v)) sum += v;
+      if (v === v) sum += v;
     }
   }
   return sum;

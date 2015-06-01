@@ -56,6 +56,14 @@ describe('util', function() {
     });
   });
   
+  describe('number comparison function', function() {
+    it('should compare numbers', function() {
+      assert.equal(-1, util.numcmp(1, 2));
+      assert.equal(+1, util.numcmp(2, 1));
+      assert.equal(0, util.numcmp(3, 3));
+    });
+  });
+
   describe('comparator generator', function() {
     it('should always return 0 when called without arguments', function() {
       assert.equal(util.comparator()('a', 'b'), 0);
@@ -197,6 +205,46 @@ describe('util', function() {
     });
   });
 
+  describe('identity', function() {
+    it('should return input value', function() {
+      var x = {};
+      assert.strictEqual(x, util.identity(x));
+      assert.strictEqual(null, util.identity(null));
+    });
+  });
+
+  describe('true', function() {
+    it('should return true value', function() {
+      assert.isTrue(util.true());
+      assert.equal('true', util.name(util.true));
+    });
+  });
+
+  describe('false', function() {
+    it('should return false value', function() {
+      assert.isFalse(util.false());
+      assert.equal('false', util.name(util.false));
+    });
+  });
+
+  describe('name', function() {
+    it('should return function name, if set', function() {
+      assert.strictEqual(null, util.name(null));
+      assert.strictEqual(null, util.name(undefined));
+      assert.equal('name', util.name(util.namedfunc('name', function() {})));
+    });
+  });
+
+  describe('length', function() {
+    it('should return length', function() {
+      assert.equal(3, util.length('abc'));
+      assert.equal(2, util.length([1,2]));
+      assert.strictEqual(null, util.length(true));
+      assert.strictEqual(null, util.length(null));
+      assert.strictEqual(null, util.length());
+    });
+  });
+
   describe('str', function() {
     it('should wrap string arguments in single quotation marks', function() {
       assert.strictEqual(util.str('test'), "'test'");
@@ -219,6 +267,11 @@ describe('util', function() {
 
     it('should recursively wrap arrays in square brackets', function() {
       assert.equal(util.str([['1', 3], '2']), "[['1',3],'2']");
+    });
+
+    it('should stringify objects', function() {
+      var x = {a: {b: {c: 1}}};
+      assert.equal(JSON.stringify(x), util.str(x));
     });
   });
 
@@ -567,6 +620,7 @@ describe('util', function() {
     });
 
     it('should truncate on word boundary', function() {
+      assert.equal(util.truncate('hello there', 4, 'right', true), 'hel…');
       assert.equal(util.truncate('hello there', 10, 'right', true), 'hello…');
       assert.equal(util.truncate('hello there', 10, 'left', true), '…there');
       assert.equal(util.truncate('hello there friend', 15, 'middle', true), 'hello…friend');
