@@ -1,5 +1,4 @@
 var json = require('./json');
-var topojson = require('topojson');
 
 var reader = function(data, format) {
   var topojson = reader.topojson;
