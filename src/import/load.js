@@ -137,7 +137,7 @@ function file(filename, callback) {
   if (!callback) {
     return fs.readFileSync(filename, 'utf8');
   }
-  require('fs').readFile(filename, callback);
+  require('fs').readFile(filename, 'utf8', callback);
 }
 
 function http(url, callback) {
