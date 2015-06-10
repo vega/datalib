@@ -255,10 +255,10 @@ u.stablesort = function(array, sortBy, keyFn) {
 // We could have used the polyfill code, but lets wait until ES6 becomes a standard first
 u.startsWith = String.prototype.startsWith ?
   function(string, searchString) {
-    return string.startsWith(searchString);
+    return string == null ? false : string.startsWith(searchString);
   } :
   function(string, searchString) {
-    return string.lastIndexOf(searchString, 0) === 0;
+    return string == null ? false : string.lastIndexOf(searchString, 0) === 0;
   };
 
 u.pad = function(s, length, pos, padchar) {

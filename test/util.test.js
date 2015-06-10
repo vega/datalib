@@ -588,6 +588,10 @@ describe('util', function() {
       assert.isTrue(util.startsWith('1234512345', '12345'));
       assert.isFalse(util.startsWith('1234554321', '54321'));
     });
+    it('should handle null input', function() {
+      assert.isFalse(util.startsWith(null, '12345'));
+      assert.isFalse(util.startsWith(undefined, '54321'));
+    });
   });
 
   describe('pad', function() {

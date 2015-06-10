@@ -74,7 +74,7 @@ function load(opt, callback) {
   }
 
   if (!url) {
-    error('Invalid URL: ' + url);
+    error('Invalid URL: ' + opt.url);
   } else if (!util.isNode) {
     // in browser, use xhr
     return xhr(url, callback);

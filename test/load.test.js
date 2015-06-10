@@ -38,6 +38,8 @@ describe('load', function() {
       url: '//h.com/a.txt',
       defaultProtocol: 'https'
     }));
+    assert.equal(null, load.sanitizeUrl({url: undefined}));
+    assert.equal(null, load.sanitizeUrl({url: null}));
   });
   
   it('should handle client-side sanitization', function() {
