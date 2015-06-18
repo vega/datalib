@@ -56,11 +56,10 @@ console.log(dl.mutual.dist(counts, 'bin_price', 'year_date', 'count'));
 
 ## Build Process
 
-To use datalib in the browser, you need to build the datalib.js and datalib.min.js files. We use the [gulp](http://gulpjs.com/) build system along with [browserify](http://browserify.org/) to build the file.
+To use datalib in the browser, you need to build the datalib.js and datalib.min.js files. We assume that you have [npm](https://www.npmjs.com/) installed.
 
-1. Install gulp, as needed. Follow [step 1 on the Gulp Getting Started guide](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md).
-2. Run `npm install` in the datalib folder to install dependencies.
-3. Run `gulp`.
+1. Run `npm install` in the datalib folder to install dependencies.
+2. Run `npm run build`. This will invoke [browserify](http://browserify.org/) to bundle the source files into datalib.js, and then [uglify-js](http://lisperator.net/uglifyjs/) to create the minified datalib.min.js.
 
 ## Dependencies
 
