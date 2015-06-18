@@ -1,6 +1,6 @@
 {
   "name": "datalib",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "description": "JavaScript utilites for loading, summarizing and working with data.",
   "keywords": [
     "data",
@@ -45,7 +45,7 @@
   "main": "src/index.js",
   "scripts": {
     "test": "gulp test",
-    "publish": "scripts/publish.sh"
+    "deploy": "scripts/deploy.sh"
   },
   "browserify": {
     "transform": [
