@@ -76,7 +76,8 @@ a:hover {
 }
 
 .credits a:hover img {
-  border: 1px solid #652c90;
+  border-radius: 4px;
+  box-shadow: 2px 2px 18px #8a5ed3;
 }
 
 .code {
