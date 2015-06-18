@@ -4,7 +4,7 @@ var assert = require('chai').assert;
 var util = require('../src/util');
 var load = require('../src/import/load');
 
-var host = 'uwdata.github.io';
+var host = 'vega.github.io';
 var hostsub = 'github.io';
 var dir = '/datalib/';
 var base = 'http://' + host + dir;
