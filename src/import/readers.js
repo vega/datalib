@@ -23,14 +23,14 @@ module.exports = util
         try {
           // data loaded, now parse it (async)
           data = read(data, format);
+          callback(null, data);
         } catch (e) {
           callback(e, null);
         }
-        callback(null, data);
       } : undefined);
       
       // data loaded, now parse it (sync)
-      if (data) return read(data, format);
+      if (!callback) return read(data, format);
     };
     return out;
   }, {});
