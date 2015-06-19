@@ -1,5 +1,3 @@
-var util = require('../util');
-
 // Matches absolute URLs with optional protocol
 //   https://...    file://...    //...
 var protocol_re = /^([A-Za-z]+:)?\/\//;
@@ -15,13 +13,13 @@ function sanitizeUrl(opt) {
 
   // In case this is a relative url (has no host), prepend opt.baseURL
   if (opt.baseURL && !protocol_re.test(url)) {
-    if (!util.startsWith(url, '/') && opt.baseURL[opt.baseURL.length-1] !== '/') {
+    if (!startsWith(url, '/') && opt.baseURL[opt.baseURL.length-1] !== '/') {
       url = '/' + url; // Ensure that there is a slash between the baseURL (e.g. hostname) and url
     }
     url = opt.baseURL + url;
   }
   // relative protocol, starts with '//'
-  if (util.isNode && util.startsWith(url, '//')) {
+  if (!load.useXHR && startsWith(url, '//')) {
     url = (opt.defaultProtocol || 'http') + ':' + url;
   }
   // If opt.domainWhiteList is set, only allows url, whose hostname
@@ -30,12 +28,7 @@ function sanitizeUrl(opt) {
   // * Is a proper subdomain of one of the values in the whitelist
   if (opt.domainWhiteList) {
     var domain, origin;
-    if (util.isNode) {
-      // relative protocol is broken: https://github.com/defunctzombie/node-url/issues/5
-      var parts = require('url').parse(url);
-      domain = parts.hostname;
-      origin = null;
-    } else {
+    if (load.useXHR) {
       var a = document.createElement('a');
       a.href = url;
       // From http://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
@@ -47,6 +40,11 @@ function sanitizeUrl(opt) {
       }
       domain = a.hostname.toLowerCase();
       origin = window.location.hostname;
+    } else {
+      // relative protocol is broken: https://github.com/defunctzombie/node-url/issues/5
+      var parts = require('url').parse(url);
+      domain = parts.hostname;
+      origin = null;
     }
 
     if (origin !== domain) {
@@ -75,17 +73,17 @@ function load(opt, callback) {
 
   if (!url) {
     error('Invalid URL: ' + opt.url);
-  } else if (!util.isNode) {
-    // in browser, use xhr
+  } else if (load.useXHR) {
+    // on client, use xhr
     return xhr(url, callback);
-  } else if (util.startsWith(url, fileProtocol)) {
-    // in node.js, if url starts with 'file://', strip it and load from file
+  } else if (startsWith(url, fileProtocol)) {
+    // on server, if url starts with 'file://', strip it and load from file
     return file(url.slice(fileProtocol.length), callback);
   } else if (url.indexOf('://') < 0) { // TODO better protocol check?
-    // if node.js, if no protocol assume file
+    // on server, if no protocol assume file
     return file(url, callback);
   } else {
-    // for regular URLs in node.js
+    // for regular URLs on server
     return http(url, callback);
   }
 }
@@ -137,7 +135,7 @@ function file(filename, callback) {
   if (!callback) {
     return fs.readFileSync(filename, 'utf8');
   }
-  require('fs').readFile(filename, callback);
+  fs.readFile(filename, callback);
 }
 
 function http(url, callback) {
@@ -155,6 +153,12 @@ function http(url, callback) {
   });
 }
 
+function startsWith(string, searchString) {
+  return string == null ? false : string.lastIndexOf(searchString, 0) === 0;
+}
+
 load.sanitizeUrl = sanitizeUrl;
+
+load.useXHR = (typeof XMLHttpRequest !== 'undefined');
 
 module.exports = load;

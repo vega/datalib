@@ -2,11 +2,6 @@ var buffer = require('buffer');
 var units = require('./time-units');
 var u = module.exports = {};
 
-// where are we?
-
-u.isNode = typeof process !== 'undefined' &&
-           typeof process.stderr !== 'undefined';
-
 // utility functions
 
 var FNAME = '__name__';
@@ -250,16 +245,6 @@ u.stablesort = function(array, sortBy, keyFn) {
 
 
 // string functions
-
-// ES6 compatibility per https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith#Polyfill
-// We could have used the polyfill code, but lets wait until ES6 becomes a standard first
-u.startsWith = String.prototype.startsWith ?
-  function(string, searchString) {
-    return string == null ? false : string.startsWith(searchString);
-  } :
-  function(string, searchString) {
-    return string == null ? false : string.lastIndexOf(searchString, 0) === 0;
-  };
 
 u.pad = function(s, length, pos, padchar) {
   padchar = padchar || " ";

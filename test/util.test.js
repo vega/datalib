@@ -5,12 +5,6 @@ var util = require('../src/util');
 
 describe('util', function() {
 
-  describe('isNode', function() {
-    it('should be true', function() {
-      assert.isTrue(util.isNode);
-    });
-  });
-
   describe('type checkers', function() {
     it('isNumber(0) should be true', function() {
       assert.isTrue(util.isNumber(0));
@@ -580,17 +574,6 @@ describe('util', function() {
         {a:[1,2], f:function() { return 1; }},
         {a:[1,2]}
       ));
-    });
-  });
-
-  describe('startsWith', function() {
-    it('should check string prefixes', function() {
-      assert.isTrue(util.startsWith('1234512345', '12345'));
-      assert.isFalse(util.startsWith('1234554321', '54321'));
-    });
-    it('should handle null input', function() {
-      assert.isFalse(util.startsWith(null, '12345'));
-      assert.isFalse(util.startsWith(undefined, '54321'));
     });
   });
 

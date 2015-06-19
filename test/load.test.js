@@ -1,7 +1,6 @@
 'use strict';
 
 var assert = require('chai').assert;
-var util = require('../src/util');
 var load = require('../src/import/load');
 
 var host = 'vega.github.io';
@@ -15,9 +14,13 @@ var file = './test/' + uri;
 var fake = 'http://globalhost/invalid.dne';
 var text = require('fs').readFileSync(file, 'utf8');
 
-global.XMLHttpRequest = require('./lib/XMLHttpRequest');
-
 describe('load', function() {
+
+  global.XMLHttpRequest = require('./lib/XMLHttpRequest');
+
+  it('should not use xhr on server', function() {
+    assert.isFalse(load.useXHR);
+  });
 
   it('should sanitize url', function() {
     assert.equal('file://a.txt', load.sanitizeUrl({
@@ -44,7 +47,7 @@ describe('load', function() {
   
   it('should handle client-side sanitization', function() {
     var host = '';
-    util.isNode = false;
+    load.useXHR = true;
     global.window = {location: {hostname: 'localhost'}};
     global.document = {
       createElement: function() {
@@ -63,7 +66,7 @@ describe('load', function() {
       domainWhiteList: ['localhost']
     }));
 
-    util.isNode = true;
+    load.useXHR = false;
     delete global.document;
     delete global.window;
   });
@@ -183,19 +186,19 @@ describe('load', function() {
   });
 
   it('should support xhr async', function(done) {
-    util.isNode = false;
+    load.useXHR = true;
     load({url: file}, function(error, data) {
-      util.isNode = true;
+      load.useXHR = false;
       assert.equal(text, data);
       done(); 
     });
   });
 
   it('should support xhr async fallbacks', function(done) {
-    util.isNode = false;
+    load.useXHR = true;
     XMLHttpRequest.prototype.type = 'data';
     load({url: file}, function(error, data) {
-      util.isNode = true;
+      load.useXHR = false;
       delete XMLHttpRequest.prototype.type;
       assert.equal(text, data);
       done(); 
@@ -203,15 +206,15 @@ describe('load', function() {
   });
 
   it('should support xhr sync', function() {
-    util.isNode = false;
+    load.useXHR = true;
     assert.equal(text, load({url: file}));    
-    util.isNode = true;
+    load.useXHR = false;
   });
 
   it('should return error on failed xhr', function(done) {
-    util.isNode = false;
+    load.useXHR = true;
     load({url: fake}, function(error, data) {
-      util.isNode = true;
+      load.useXHR = false;
       assert.isNotNull(error);
       assert.isNull(data);
       done(); 
@@ -219,10 +222,10 @@ describe('load', function() {
   });
 
   it('should use XDomainRequest for xhr if available', function(done) {
-    util.isNode = false;
+    load.useXHR = true;
     global.XDomainRequest = global.XMLHttpRequest;
     load({url: fake}, function(error, data) {
-      util.isNode = true;
+      load.useXHR = false;
       delete global.XDomainRequest;
       assert.isNotNull(error);
       done();
@@ -230,10 +233,10 @@ describe('load', function() {
   });
 
   it('should use onload for xhr if available', function(done) {
-    util.isNode = false;
+    load.useXHR = true;
     XMLHttpRequest.prototype.onload = function() {};
     load({url: fake}, function(error, data) {
-      util.isNode = true;
+      load.useXHR = false;
       delete XMLHttpRequest.prototype.onload;
       assert.isNotNull(error);
       done();

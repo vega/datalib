@@ -40,44 +40,4 @@ describe('util alternative environment', function() {
     });
   });
 
-  describe('startsWith', function() {
-    it('should check string prefixes', function() {
-      var startsWith = String.prototype.startsWith;
-      if (!startsWith) {
-        String.prototype.startsWith = function(searchString) {
-          return this.lastIndexOf(searchString, 0) === 0;
-        };
-      } else {
-        String.prototype.startsWith = undefined;
-      }
-      delete require.cache[utilpath];
-      var util = require(utilpath);
-
-      assert.isTrue(util.startsWith('1234512345', '12345'));
-      assert.isFalse(util.startsWith('1234554321', '54321'));
-
-      String.prototype.startsWith = startsWith;
-      delete require.cache[utilpath];
-    });
-
-    it('should handle null input', function() {
-      var startsWith = String.prototype.startsWith;
-      if (!startsWith) {
-        String.prototype.startsWith = function(searchString) {
-          return this.lastIndexOf(searchString, 0) === 0;
-        };
-      } else {
-        String.prototype.startsWith = undefined;
-      }
-      delete require.cache[utilpath];
-      var util = require(utilpath);
-
-      assert.isFalse(util.startsWith(null, '12345'));
-      assert.isFalse(util.startsWith(undefined, '54321'));
-
-      String.prototype.startsWith = startsWith;
-      delete require.cache[utilpath];
-    });
-  });
-
 });
