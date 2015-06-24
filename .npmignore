@@ -1,6 +1,5 @@
 test/
+scripts/
 .DS_Store
 temp
-index.html
-publish.sh
 coverage
