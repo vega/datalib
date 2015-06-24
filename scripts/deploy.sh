@@ -28,7 +28,7 @@ fi
 gitsha=$(git rev-parse HEAD)
 version=$(cat package.json | jq .version | sed -e 's/^"//'  -e 's/"$//')
 
-gulp build
+npm run build
 # swap to head so we don't commit compiled file to master along with tags
 git checkout head
 
