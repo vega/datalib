@@ -1,9 +1,11 @@
 'use strict';
 
 var assert = require('chai').assert;
-var units = require('../src/time-units');
+var time = require('../src/time');
+var units = time.utc;
+var locale = time.locale;
 
-describe('time-units', function() {
+describe('time', function() {
 
   function unitDist(name, dist, d1, d2) {
     var u = units[name],

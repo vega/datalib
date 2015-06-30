@@ -1,8 +1,8 @@
-var stats = require('../stats');
-var type = require('../import/type');
-var util = require('../util');
-var gen = require('../generate');
-var bins = require('./bins');
+var bins = require('./bins'),
+    gen  = require('../generate'),
+    type = require('../import/type'),
+    util = require('../util'),
+    stats = require('../stats');
 
 var qtype = {
   'integer': 1,

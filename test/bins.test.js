@@ -4,7 +4,8 @@ var assert = require('chai').assert;
 var bins = require('../src/bins/bins');
 var $bin = require('../src/bins/histogram').$bin;
 var histogram = require('../src/bins/histogram').histogram;
-var units = require('../src/time-units');
+var time = require('../src/time');
+var units = time.utc;
 var util = require('../src/util');
 var gen = require('../src/generate');
 
@@ -88,6 +89,17 @@ describe('binning', function() {
       });
       assert.equal(b.step, 1);
       assert.equal(b.unit.type, 'year');
+      assert.equal(+b.value(2000), +(new Date(2000,0,1)));
+    });
+
+    it('should bin across utc years', function() {
+      var b = bins.date({
+        min: Date.parse('1/1/2000'),
+        max: Date.parse('1/1/2010'),
+        utc: true
+      });
+      assert.equal(b.step, 1);
+      assert.equal(b.unit.type, 'year');
       assert.equal(+b.value(2000), Date.UTC(2000,0,1));
     });
 
@@ -161,10 +173,10 @@ describe('binning', function() {
         assert.equal(year[1], +b(year[1]));
         assert.equal(Date.UTC(2005, 0, 1), +b(Date.UTC(2005, 5, 15)));
       }
-      test($bin(year, {type:'date'}));
-      test($bin(year.map(function(d) { return new Date(d); })));
+      test($bin(year, {type:'date', utc:true}));
+      test($bin(year.map(function(d) { return new Date(d); }), {utc:true}));
       
-      var b = $bin(mon, {type:'date', unit:'month'});
+      var b = $bin(mon, {type:'date', unit:'month', utc:true});
       assert.equal(mon[0], +b(mon[0]));
       assert.equal(mon[1], +b(mon[1]));
       assert.equal(Date.UTC(2000, 4, 1), +b(Date.UTC(2000, 4, 15)));
@@ -237,7 +249,7 @@ describe('binning', function() {
         new Date(1982, 2, 19),
         new Date(1985, 4, 20)
       ];
-      var h = histogram(dates);
+      var h = histogram(dates, {utc: true});
       assert(h.bins.unit.type, 'year');
       assert.deepEqual(
         gen.range(1979, 1986).map(units.year.date),
@@ -259,7 +271,7 @@ describe('binning', function() {
       var h = histogram(dates);
       assert(h.bins.unit.type, 'year');
       assert.deepEqual(
-        gen.range(1979, 1986).map(units.year.date),
+        gen.range(1979, 1986).map(time.locale.year.date),
         h.map(util.accessor('value'))
       );
       assert.deepEqual([1,0,0,1,0,0,1], h.map(util.accessor('count')));

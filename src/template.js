@@ -1,5 +1,6 @@
-var util = require('./util');
-var d3 = require('d3');
+var util = require('./util'),
+    d3_format = require('d3-format'),
+    d3_time_format = require('d3-time-format');
 
 var context = {
   formats:    [],
@@ -84,6 +85,18 @@ function template_var(text, variable, properties) {
     return '(typeof ' + src + '==="number"?new Date('+src+'):'+src+')';
   }
 
+  function number_format(fmt, key) {
+    a = template_format(args[0], key, fmt);
+    stringCast = false;
+    src = 'this.formats['+a+']('+src+')';
+  }
+  
+  function time_format(fmt, key) {
+    a = template_format(args[0], key, fmt);
+    stringCast = false;
+    src = 'this.formats['+a+']('+date()+')';
+  }
+
   if (properties) properties[prop] = 1;
   var src = template.property(variable, prop);
 
@@ -148,14 +161,13 @@ function template_var(text, variable, properties) {
         src = 'this.pad(' + strcall() + ',' + a + ',\'' + b + '\')';
         break;
       case 'number':
-        a = template_format(args[0], d3.format);
-        stringCast = false;
-        src = 'this.formats['+a+']('+src+')';
+        number_format(d3_format.format, 'number');
         break;
       case 'time':
-        a = template_format(args[0], d3.time.format);
-        stringCast = false;
-        src = 'this.formats['+a+']('+date()+')';
+        time_format(d3_time_format.format, 'time');
+        break;
+      case 'time-utc':
+        time_format(d3_time_format.utcFormat, 'time-utc');
         break;
       default:
         throw Error('Unrecognized template filter: ' + f);
@@ -184,18 +196,19 @@ function template_escapeChar(match) {
   return '\\' + template_escapes[match];
 }
 
-function template_format(pattern, fmt) {
+function template_format(pattern, key, fmt) {
   if ((pattern[0] === '\'' && pattern[pattern.length-1] === '\'') ||
       (pattern[0] === '"'  && pattern[pattern.length-1] === '"')) {
     pattern = pattern.slice(1, -1);
   } else {
     throw Error('Format pattern must be quoted: ' + pattern);
   }
-  if (!context.format_map[pattern]) {
+  key = key + ':' + pattern;
+  if (!context.format_map[key]) {
     var f = fmt(pattern);
     var i = context.formats.length;
     context.formats.push(f);
-    context.format_map[pattern] = i;
+    context.format_map[key] = i;
   }
-  return context.format_map[pattern];
+  return context.format_map[key];
 }
