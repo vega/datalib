@@ -1,23 +1,11 @@
-var ONE_SECOND = 1e3,
-    ONE_MINUTE = 6e4,
-    ONE_HOUR = 36e5,
-    ONE_DAY = 864e5,
-    tempDate = new Date();
+var d3_time = require('d3-time');
 
-// coerce a date or timestamp to date to use for date-based calcs
-// use a temp object to avoid allocation overhead
+var tempDate = new Date(),
+    baseDate = new Date(0, 0, 1).setFullYear(0), // Jan 1, 0 AD
+    utcBaseDate = new Date(Date.UTC(0, 0, 1)).setUTCFullYear(0);
+
 function date(d) {
   return (tempDate.setTime(+d), tempDate);
-}
-
-// get timezone offset for a date, in milliseconds
-function tzo(d) {
-  return date(d).getTimezoneOffset() * ONE_MINUTE;
-}
-
-// given a UTC-mapped timestamp, recover the original date
-function offsetDate(t) {
-  return new Date(t + tzo(t + tzo(t) + ONE_HOUR));
 }
 
 // create a time unit entry
@@ -37,33 +25,21 @@ function entry(type, date, unit, step, min, max) {
   return e;
 }
 
+function create(type, unit, base, step, min, max) {
+  return entry(type,
+    function(d) { return unit.offset(base, d); },
+    function(d) { return unit.count(base, d); },
+    step, min, max);
+}
+
 var locale = [
-  entry('second',
-    function(d) { return new Date(d * ONE_SECOND); },
-    function(d) { return (+d / ONE_SECOND); }
-  ),
-  entry('minute',
-    function(d) { return new Date(d * ONE_MINUTE); },
-    function(d) { return Math.floor(+d / ONE_MINUTE); }
-  ),
-  entry('hour',
-    function(d) { return offsetDate(d * ONE_HOUR); },
-    function(d) { return Math.floor((+d - tzo(d)) / ONE_HOUR); }
-  ),
-  entry('day',
-    function(d) { return offsetDate(d * ONE_DAY); },
-    function(d) { return Math.floor((+d - tzo(d)) / ONE_DAY); },
-    [1, 7]
-  ),
-  entry('month',
-    function(d) { return new Date(Math.floor(d / 12), d % 12, 1); },
-    function(d) { return (d=date(d)).getMonth() + 12*d.getFullYear(); },
-    [1, 3, 6]
-  ),
-  entry('year',
-    function(d) { return new Date(d, 0, 1); },
-    function(d) { return date(d).getFullYear(); }
-  ),
+  create('second', d3_time.second, baseDate),
+  create('minute', d3_time.minute, baseDate),
+  create('hour',   d3_time.hour,   baseDate),
+  create('day',    d3_time.day,    baseDate, [1, 7]),
+  create('month',  d3_time.month,  baseDate, [1, 3, 6]),
+  create('year',   d3_time.year,   baseDate),
+
   // periodic units
   entry('seconds',
     function(d) { return new Date(1970, 0, 1, 0, 0, d); },
@@ -98,26 +74,13 @@ var locale = [
 ];
 
 var utc = [
-  entry('second', locale[0].date, locale[0].unit),
-  entry('minute', locale[1].date, locale[1].unit),
-  entry('hour',
-    function(d) { return new Date(d * ONE_HOUR); },
-    function(d) { return Math.floor(+d / ONE_HOUR); }
-  ),
-  entry('day',
-    function(d) { return new Date(d * ONE_DAY); },
-    function(d) { return Math.floor(+d / ONE_DAY); },
-    [1, 7]
-  ),
-  entry('month',
-    function(d) { return new Date(Date.UTC(Math.floor(d / 12), d % 12, 1)); },
-    function(d) { return (d=date(d)).getUTCMonth() + 12*d.getUTCFullYear(); },
-    [1, 3, 6]
-  ),
-  entry('year',
-    function(d) { return new Date(Date.UTC(d, 0, 1)); },
-    function(d) { return date(d).getUTCFullYear(); }
-  ),
+  create('second', d3_time.utcSecond, utcBaseDate),
+  create('minute', d3_time.utcMinute, utcBaseDate),
+  create('hour',   d3_time.utcHour,   utcBaseDate),
+  create('day',    d3_time.utcDay,    utcBaseDate, [1, 7]),
+  create('month',  d3_time.utcMonth,  utcBaseDate, [1, 3, 6]),
+  create('year',   d3_time.utcYear,   utcBaseDate),
+
   // periodic units
   entry('seconds',
     function(d) { return new Date(Date.UTC(1970, 0, 1, 0, 0, d)); },
