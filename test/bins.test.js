@@ -123,10 +123,10 @@ describe('binning', function() {
       b = bins.date({
         min:  Date.parse('1/1/2000'),
         max:  Date.parse('1/1/2010'),
-        unit: 'dayOfWeek'
+        unit: 'weekdays'
       });
       assert.equal(b.step, 1);
-      assert.equal(b.unit.type, 'dayOfWeek');
+      assert.equal(b.unit.type, 'weekdays');
     });
 
     it('should support raw values', function() {
@@ -271,7 +271,7 @@ describe('binning', function() {
       var h = histogram(dates);
       assert(h.bins.unit.type, 'year');
       assert.deepEqual(
-        gen.range(1979, 1986).map(time.locale.year.date),
+        gen.range(1979, 1986).map(time.year.date),
         h.map(util.accessor('value'))
       );
       assert.deepEqual([1,0,0,1,0,0,1], h.map(util.accessor('count')));

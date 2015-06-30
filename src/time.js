@@ -16,11 +16,8 @@ function tzo(d) {
 }
 
 // given a UTC-mapped timestamp, recover the original date
-// timezone offset may initially be incorrect, iterate until convergence
 function offsetDate(t) {
-  var a = tzo(t), b;
-  do { b = tzo(t - a); } while (a !== b);
-  return new Date(t - a);
+  return new Date(t + tzo(t + tzo(t) + ONE_HOUR));
 }
 
 // create a time unit entry
@@ -51,15 +48,15 @@ var locale = [
   ),
   entry('hour',
     function(d) { return offsetDate(d * ONE_HOUR); },
-    function(d) { return Math.floor((+d + tzo(d)) / ONE_HOUR); }
+    function(d) { return Math.floor((+d - tzo(d)) / ONE_HOUR); }
   ),
   entry('day',
     function(d) { return offsetDate(d * ONE_DAY); },
-    function(d) { return Math.floor((+d + tzo(d)) / ONE_DAY); },
+    function(d) { return Math.floor((+d - tzo(d)) / ONE_DAY); },
     [1, 7]
   ),
   entry('month',
-    function(d) { return new Date(~~(d / 12), d % 12, 1); },
+    function(d) { return new Date(Math.floor(d / 12), d % 12, 1); },
     function(d) { return (d=date(d)).getMonth() + 12*d.getFullYear(); },
     [1, 3, 6]
   ),
@@ -68,32 +65,32 @@ var locale = [
     function(d) { return date(d).getFullYear(); }
   ),
   // periodic units
-  entry('secondOfMinute',
+  entry('seconds',
     function(d) { return new Date(1970, 0, 1, 0, 0, d); },
     function(d) { return date(d).getSeconds(); },
     null, 0, 59
   ),
-  entry('minuteOfHour',
+  entry('minutes',
     function(d) { return new Date(1970, 0, 1, 0, d); },
     function(d) { return date(d).getMinutes(); },
     null, 0, 59
   ),
-  entry('hourOfDay',
+  entry('hours',
     function(d) { return new Date(1970, 0, 1, d); },
     function(d) { return date(d).getHours(); },
     null, 0, 23
   ),
-  entry('dayOfWeek',
+  entry('weekdays',
     function(d) { return new Date(1970, 0, 4+d); },
     function(d) { return date(d).getDay(); },
     [1], 0, 6
   ),
-  entry('dayOfMonth',
+  entry('dates',
     function(d) { return new Date(1970, 0, d); },
     function(d) { return date(d).getDate(); },
     [1], 1, 31
   ),
-  entry('monthOfYear',
+  entry('months',
     function(d) { return new Date(1970, d % 12, 1); },
     function(d) { return date(d).getMonth(); },
     [1], 0, 11
@@ -113,7 +110,7 @@ var utc = [
     [1, 7]
   ),
   entry('month',
-    function(d) { return new Date(Date.UTC(~~(d / 12), d % 12, 1)); },
+    function(d) { return new Date(Date.UTC(Math.floor(d / 12), d % 12, 1)); },
     function(d) { return (d=date(d)).getUTCMonth() + 12*d.getUTCFullYear(); },
     [1, 3, 6]
   ),
@@ -122,32 +119,32 @@ var utc = [
     function(d) { return date(d).getUTCFullYear(); }
   ),
   // periodic units
-  entry('secondOfMinute',
+  entry('seconds',
     function(d) { return new Date(Date.UTC(1970, 0, 1, 0, 0, d)); },
     function(d) { return date(d).getUTCSeconds(); },
     null, 0, 59
   ),
-  entry('minuteOfHour',
+  entry('minutes',
     function(d) { return new Date(Date.UTC(1970, 0, 1, 0, d)); },
     function(d) { return date(d).getUTCMinutes(); },
     null, 0, 59
   ),
-  entry('hourOfDay',
+  entry('hours',
     function(d) { return new Date(Date.UTC(1970, 0, 1, d)); },
     function(d) { return date(d).getUTCHours(); },
     null, 0, 23
   ),
-  entry('dayOfWeek',
+  entry('weekdays',
     function(d) { return new Date(Date.UTC(1970, 0, 4+d)); },
     function(d) { return date(d).getUTCDay(); },
     [1], 0, 6
   ),
-  entry('dayOfMonth',
+  entry('dates',
     function(d) { return new Date(Date.UTC(1970, 0, d)); },
     function(d) { return date(d).getUTCDate(); },
     [1], 1, 31
   ),
-  entry('monthOfYear',
+  entry('months',
     function(d) { return new Date(Date.UTC(1970, d % 12, 1)); },
     function(d) { return date(d).getUTCMonth(); },
     [1], 0, 11
@@ -205,7 +202,5 @@ function toUnitMap(units) {
   return map;
 }
 
-module.exports = {
-  locale: toUnitMap(locale),
-  utc:    toUnitMap(utc)
-};
+module.exports = toUnitMap(locale);
+module.exports.utc = toUnitMap(utc);

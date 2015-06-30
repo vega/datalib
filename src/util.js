@@ -1,6 +1,5 @@
 var buffer = require('buffer'),
     time = require('./time'),
-    locale = time.locale,
     utc = time.utc;
 
 var u = module.exports = {};
@@ -187,21 +186,21 @@ u.$in = function(f, values) {
   return function(d) { return !!map[f(d)]; };
 };
 
-u.$year   = u.$func('year', locale.year.unit);
-u.$month  = u.$func('month', locale.monthOfYear.unit);
-u.$date   = u.$func('date', locale.dayOfMonth.unit);
-u.$day    = u.$func('day', locale.dayOfWeek.unit);
-u.$hour   = u.$func('hour', locale.hourOfDay.unit);
-u.$minute = u.$func('minute', locale.minuteOfHour.unit);
-u.$second = u.$func('second', locale.secondOfMinute.unit);
+u.$year   = u.$func('year', time.year.unit);
+u.$month  = u.$func('month', time.months.unit);
+u.$date   = u.$func('date', time.dates.unit);
+u.$day    = u.$func('day', time.weekdays.unit);
+u.$hour   = u.$func('hour', time.hours.unit);
+u.$minute = u.$func('minute', time.minutes.unit);
+u.$second = u.$func('second', time.seconds.unit);
 
 u.$utcYear   = u.$func('utcYear', utc.year.unit);
-u.$utcMonth  = u.$func('utcMonth', utc.monthOfYear.unit);
-u.$utcDate   = u.$func('utcDate', utc.dayOfMonth.unit);
-u.$utcDay    = u.$func('utcDay', utc.dayOfWeek.unit);
-u.$utcHour   = u.$func('utcHour', utc.hourOfDay.unit);
-u.$utcMinute = u.$func('utcMinute', utc.minuteOfHour.unit);
-u.$utcSecond = u.$func('utcSecond', utc.secondOfMinute.unit);
+u.$utcMonth  = u.$func('utcMonth', utc.months.unit);
+u.$utcDate   = u.$func('utcDate', utc.dates.unit);
+u.$utcDay    = u.$func('utcDay', utc.weekdays.unit);
+u.$utcHour   = u.$func('utcHour', utc.hours.unit);
+u.$utcMinute = u.$func('utcMinute', utc.minutes.unit);
+u.$utcSecond = u.$func('utcSecond', utc.seconds.unit);
 
 // comparison / sorting functions
 

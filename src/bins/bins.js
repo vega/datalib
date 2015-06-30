@@ -89,7 +89,7 @@ bins.date = function(opt) {
   if (!opt) { throw Error("Missing date binning options."); }
 
   // find time step, then bin
-  var units = opt.utc ? time.utc : time.locale,
+  var units = opt.utc ? time.utc : time,
       dmin = opt.min,
       dmax = opt.max,
       maxb = opt.maxbins || 20,
