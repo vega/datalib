@@ -1,6 +1,6 @@
-var util = require('../util');
-var units = require('../time-units');
-var EPSILON = 1e-15;
+var util = require('../util'),
+    time = require('../time'),
+    EPSILON = 1e-15;
 
 function bins(opt) {
   if (!opt) { throw Error("Missing binning options."); }
@@ -89,7 +89,8 @@ bins.date = function(opt) {
   if (!opt) { throw Error("Missing date binning options."); }
 
   // find time step, then bin
-  var dmin = opt.min,
+  var units = opt.utc ? time.utc : time,
+      dmin = opt.min,
       dmax = opt.max,
       maxb = opt.maxbins || 20,
       minb = opt.minbins || 4,

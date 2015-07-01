@@ -138,6 +138,15 @@ describe('template', function() {
     assert.equal('the date: 2011-01-01', f({a: new Date(2011, 0, 1)}));
   });
 
+  it('should handle time-utc filter', function() {
+    var f = template('the date: {{a|time-utc:"%Y-%m-%d"}}');
+    assert.equal('the date: 2011-01-01',
+      f({a: new Date(Date.UTC(2011, 0, 1))}));
+    f = template("the date: {{a|time-utc:'%Y-%m-%d'}}");
+    assert.equal('the date: 2011-01-01',
+      f({a: new Date(Date.UTC(2011, 0, 1))}));
+  });
+
   it('should throw error if format pattern is unquoted', function() {
     assert.throws(function() { template('hello {{a|number:.3f}}'); });
   });
@@ -167,15 +176,16 @@ describe('template', function() {
   });
 
   it('should support clearing format cache', function() {
+    var key = 'number:.3f';
     template.clearFormatCache();
     assert.equal(0, template.context.formats.length);
-    assert.isUndefined(template.context.format_map['.3f']);
+    assert.isUndefined(template.context.format_map[key]);
     var f = template('hello {{a|number:".3f"}}');
-    assert.isDefined(template.context.format_map['.3f']);
+    assert.isDefined(template.context.format_map[key]);
     assert.equal(1, template.context.formats.length);
     template.clearFormatCache();
     assert.equal(0, template.context.formats.length);
-    assert.isUndefined(template.context.format_map['.3f']);
+    assert.isUndefined(template.context.format_map[key]);
   });
 
   function source(str, obj, p) {

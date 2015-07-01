@@ -10,7 +10,7 @@ var dl = {
   histogram: require('./bins/histogram').histogram,
   print:     require('./print'),
   template:  require('./template'),
-  timeunits: require('./time-units')
+  time:      require('./time')
 };
 
 util.extend(dl, util);

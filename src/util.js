@@ -1,5 +1,7 @@
-var buffer = require('buffer');
-var units = require('./time-units');
+var buffer = require('buffer'),
+    time = require('./time'),
+    utc = time.utc;
+
 var u = module.exports = {};
 
 // utility functions
@@ -153,6 +155,7 @@ u.accessor = function(f) {
     );
 };
 
+// short-cut for accessor
 u.$ = u.accessor;
 
 u.mutator = function(f) {
@@ -165,6 +168,7 @@ u.mutator = function(f) {
     function(x, v) { x[f] = v; };
 };
 
+
 u.$func = function(name, op) {
   return function(f) {
     f = u.$(f) || u.identity;
@@ -175,18 +179,28 @@ u.$func = function(name, op) {
 
 u.$valid  = u.$func('valid', u.isValid);
 u.$length = u.$func('length', u.length);
-u.$year   = u.$func('year', units.year.unit);
-u.$month  = u.$func('month', units.monthOfYear.unit);
-u.$date   = u.$func('date', units.dayOfMonth.unit);
-u.$day    = u.$func('day', units.dayOfWeek.unit);
-u.$hour   = u.$func('hour', units.hourOfDay.unit);
-u.$minute = u.$func('minute', units.minuteOfHour.unit);
 
 u.$in = function(f, values) {
   f = u.$(f);
   var map = u.isArray(values) ? u.toMap(values) : values;
   return function(d) { return !!map[f(d)]; };
 };
+
+u.$year   = u.$func('year', time.year.unit);
+u.$month  = u.$func('month', time.months.unit);
+u.$date   = u.$func('date', time.dates.unit);
+u.$day    = u.$func('day', time.weekdays.unit);
+u.$hour   = u.$func('hour', time.hours.unit);
+u.$minute = u.$func('minute', time.minutes.unit);
+u.$second = u.$func('second', time.seconds.unit);
+
+u.$utcYear   = u.$func('utcYear', utc.year.unit);
+u.$utcMonth  = u.$func('utcMonth', utc.months.unit);
+u.$utcDate   = u.$func('utcDate', utc.dates.unit);
+u.$utcDay    = u.$func('utcDay', utc.weekdays.unit);
+u.$utcHour   = u.$func('utcHour', utc.hours.unit);
+u.$utcMinute = u.$func('utcMinute', utc.minutes.unit);
+u.$utcSecond = u.$func('utcSecond', utc.seconds.unit);
 
 // comparison / sorting functions
 
