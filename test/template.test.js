@@ -124,6 +124,13 @@ describe('template', function() {
     assert.equal('hello 12345   ', f({a: 12345}));
   });
 
+  it('should parse arguments correctly', function() {
+    var f = f = template('hello {{a|number:",.2f"}}');
+    assert.equal('hello 1,000.00', f({a: 1000}));
+    f = template("hello {{a|number:',.2f'}}");
+    assert.equal('hello 1,000.00', f({a: 1000}));
+  });
+
   it('should handle number filter', function() {
     var f = template('hello {{a|number:".3f"}}');
     assert.equal('hello 1.000', f({a: 1}));

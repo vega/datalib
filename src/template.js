@@ -66,7 +66,7 @@ function source(text, variable, properties) {
 }
 
 function template_var(text, variable, properties) {
-  var filters = text.split('|');
+  var filters = text.match(filter_re);
   var prop = filters.shift().trim();
   var stringCast = true;
 
@@ -105,7 +105,8 @@ function template_var(text, variable, properties) {
 
     if ((pidx=f.indexOf(':')) > 0) {
       f = f.slice(0, pidx);
-      args = filters[i].slice(pidx+1).split(',')
+      args = filters[i].slice(pidx+1)
+        .match(args_re)
         .map(function(s) { return s.trim(); });
     }
     f = f.trim();
@@ -177,7 +178,9 @@ function template_var(text, variable, properties) {
   return src;
 }
 
-var template_re = /\{\{(.+?)\}\}|$/g;
+var template_re = /\{\{(.+?)\}\}|$/g,
+    filter_re = /(?:"[^"]*"|\'[^\']*\'|[^\|"]+|[^\|\']+)+/g,
+    args_re = /(?:"[^"]*"|\'[^\']*\'|[^,"]+|[^,\']+)+/g;
 
 // Certain characters need to be escaped so that they can be put into a
 // string literal.
