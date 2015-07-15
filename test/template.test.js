@@ -125,7 +125,7 @@ describe('template', function() {
   });
 
   it('should parse arguments correctly', function() {
-    var f = f = template('hello {{a|number:",.2f"}}');
+    var f = template('hello {{a|number:",.2f"}}');
     assert.equal('hello 1,000.00', f({a: 1000}));
     f = template("hello {{a|number:',.2f'}}");
     assert.equal('hello 1,000.00', f({a: 1000}));
