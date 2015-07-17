@@ -142,7 +142,9 @@ function http(url, callback) {
   if (!callback) {
     return require('sync-request')('GET', url).getBody();
   }
-  require('request')(url, function(error, response, body) {
+  
+  var options = {url: url, encoding: null, gzip: true};
+  require('request')(options, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       callback(null, body);
     } else {
