@@ -1,6 +1,8 @@
 var util = require('./util'),
     d3_format = require('d3-format'),
-    d3_time_format = require('d3-time-format');
+    d3_time_format = require('d3-time-format'),
+    numbers = d3_format, // inits to EN-US
+    times = d3_time_format;
 
 var context = {
   formats:    [],
@@ -16,6 +18,21 @@ function template(text) {
   /* jshint evil: true */
   return (new Function('d', src)).bind(context);
 }
+
+// Update formatters to use provided locale configurations.
+// If timeLocale is unspecified, numberLocale is assumed to contain all info.
+// For more about the supported locale configuration properties see:
+//  https://github.com/d3/d3-format and
+//  https://github.com/d3/d3-time-format
+template.setLocale = function(numberLocale, timeLocale) {
+  if (numberLocale) {
+    numbers = d3_format.localeFormat(numberLocale);
+  }
+  timeLocale = arguments.length < 2 ? numberLocale : timeLocale;
+  if (timeLocale) {
+    times = d3_time_format.localeFormat(timeLocale);
+  }
+};
 
 template.source = source;
 template.context = context;
@@ -162,13 +179,13 @@ function template_var(text, variable, properties) {
         src = 'this.pad(' + strcall() + ',' + a + ',\'' + b + '\')';
         break;
       case 'number':
-        number_format(d3_format.format, 'number');
+        number_format(numbers.format, 'number');
         break;
       case 'time':
-        time_format(d3_time_format.format, 'time');
+        time_format(times.format, 'time');
         break;
       case 'time-utc':
-        time_format(d3_time_format.utcFormat, 'time-utc');
+        time_format(times.utcFormat, 'time-utc');
         break;
       default:
         throw Error('Unrecognized template filter: ' + f);

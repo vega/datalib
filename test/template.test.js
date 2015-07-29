@@ -1,6 +1,7 @@
 'use strict';
 
 var assert = require('chai').assert;
+var util = require('../src/util');
 var template = require('../src/template');
 
 describe('template', function() {
@@ -156,6 +157,74 @@ describe('template', function() {
 
   it('should throw error if format pattern is unquoted', function() {
     assert.throws(function() { template('hello {{a|number:.3f}}'); });
+  });
+
+  it('should handle changing locale', function() {
+    var enUS = {
+      num: {
+        decimal: ".",
+        thousands: ",",
+        grouping: [3],
+        currency: ["$", ""]
+      },
+      time: {
+        dateTime: "%a %b %e %X %Y",
+        date: "%m/%d/%Y",
+        time: "%H:%M:%S",
+        periods: ["AM", "PM"],
+        days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+      }
+    };
+    var deDE = {
+      num: {
+        decimal: ",",
+        thousands: ".",
+        grouping: [3],
+        currency: ["", "\xa0€"]
+      },
+      time: {
+        dateTime: "%A, der %e. %B %Y, %X",
+        date: "%d.%m.%Y",
+        time: "%H:%M:%S",
+        periods: ["AM", "PM"], // unused
+        days: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
+        shortDays: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+        months: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+        shortMonths: ["Jan", "Feb", "Mrz", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
+      }
+    };
+    var t = [
+      {
+        format: 'die Nummer: {{a|number:"$,.2f"}}',
+        value:  {a: 1000},
+        text:   'die Nummer: 1.000,00 €'
+      },
+      {
+        format: 'das Datum: {{a|time-utc:"%A %B %d"}}',
+        value:  {a: new Date(Date.UTC(2011, 0, 1))},
+        text:   'das Datum: Samstag Januar 01'
+      },
+    ];
+
+    template.setLocale(deDE.num, null);
+    assert.equal(t[0].text, template(t[0].format)(t[0].value));
+
+    template.setLocale(null, deDE.time);
+    assert.equal(t[1].text, template(t[1].format)(t[1].value));
+
+    template.setLocale();
+    assert.equal(t[0].text, template(t[0].format)(t[0].value));
+    assert.equal(t[1].text, template(t[1].format)(t[1].value));
+
+    template.setLocale(enUS.num, enUS.time);
+    template.setLocale(util.extend(deDE.num, deDE.time));
+    assert.equal(t[0].text, template(t[0].format)(t[0].value));
+    assert.equal(t[1].text, template(t[1].format)(t[1].value));
+
+    template.setLocale(enUS.num, enUS.time);
   });
 
   it('should handle multiple filters', function() {
