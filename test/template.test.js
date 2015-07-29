@@ -2,6 +2,7 @@
 
 var assert = require('chai').assert;
 var util = require('../src/util');
+var format = require('../src/format');
 var template = require('../src/template');
 
 describe('template', function() {
@@ -196,35 +197,18 @@ describe('template', function() {
         shortMonths: ["Jan", "Feb", "Mrz", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
       }
     };
-    var t = [
-      {
-        format: 'die Nummer: {{a|number:"$,.2f"}}',
-        value:  {a: 1000},
-        text:   'die Nummer: 1.000,00 €'
-      },
-      {
-        format: 'das Datum: {{a|time-utc:"%A %B %d"}}',
-        value:  {a: new Date(Date.UTC(2011, 0, 1))},
-        text:   'das Datum: Samstag Januar 01'
-      },
-    ];
 
-    template.setLocale(deDE.num, null);
-    assert.equal(t[0].text, template(t[0].format)(t[0].value));
+    format.numberLocale(deDE.num);
+    assert.equal('die Nummer: 1.000,00 €',
+      template('die Nummer: {{a|number:"$,.2f"}}')({a: 1000}));
 
-    template.setLocale(null, deDE.time);
-    assert.equal(t[1].text, template(t[1].format)(t[1].value));
+    format.timeLocale(deDE.time);
+    assert.equal('das Datum: Samstag Januar 01',
+      template('das Datum: {{a|time-utc:"%A %B %d"}}')
+      ({a: new Date(Date.UTC(2011, 0, 1))}));
 
-    template.setLocale();
-    assert.equal(t[0].text, template(t[0].format)(t[0].value));
-    assert.equal(t[1].text, template(t[1].format)(t[1].value));
-
-    template.setLocale(enUS.num, enUS.time);
-    template.setLocale(util.extend(deDE.num, deDE.time));
-    assert.equal(t[0].text, template(t[0].format)(t[0].value));
-    assert.equal(t[1].text, template(t[1].format)(t[1].value));
-
-    template.setLocale(enUS.num, enUS.time);
+    format.numberLocale(enUS.num);
+    format.timeLocale(enUS.time);
   });
 
   it('should handle multiple filters', function() {

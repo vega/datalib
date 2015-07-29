@@ -10,6 +10,7 @@ var dl = {
   bins:       require('./bins/bins'),
   $bin:       require('./bins/histogram').$bin,
   histogram:  require('./bins/histogram').histogram,
+  format:     require('./format'),
   print:      require('./print'),
   template:   require('./template'),
   time:       require('./time')
