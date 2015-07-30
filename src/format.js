@@ -4,29 +4,26 @@ var d3_time = require('d3-time'),
     numberF = d3_numberF, // defaults to EN-US
     timeF = d3_timeF;     // defaults to EN-US
 
-function timeAutoFormat(utc) {
-  var f = utc ? timeF.utcFormat : timeF.format,
-      formatMillisecond = f('.%L'),
-      formatSecond = f(':%S'),
-      formatMinute = f('%I:%M'),
-      formatHour = f('%I %p'),
-      formatDay = f('%a %d'),
-      formatWeek = f('%b %d'),
-      formatMonth = f('%B'),
-      formatYear = f('%Y');
+module.exports = {
+  // Update number formatter to use provided locale configuration.
+  // For more see https://github.com/d3/d3-format
+  numberLocale: function(l) { numberF = d3_numberF.localeFormat(l); },
+  number:       function(f) { return numberF.format(f); },
+  numberPrefix: function(f, v) { return numberF.formatPrefix(f, v); },
 
-  return function(date) {
-    var d = +date;
-    return (d3_time.second(date) < d ? formatMillisecond
-        : d3_time.minute(date) < d ? formatSecond
-        : d3_time.hour(date) < d ? formatMinute
-        : d3_time.day(date) < d ? formatHour
-        : d3_time.month(date) < d ?
-          (d3_time.week(date) < d ? formatDay : formatWeek)
-        : d3_time.year(date) < d ? formatMonth
-        : formatYear)(date);
-  };
-}
+  // Update time formatter to use provided locale configuration.
+  // For more see https://github.com/d3/d3-time-format
+  timeLocale:   function(l) { timeF = d3_timeF.localeFormat(l); },
+  time:         function(f) { return timeF.format(f); },  
+  utc:          function(f) { return timeF.utcFormat(f); },
+
+  // automatic formatting functions
+  auto: {
+    number:   numberAutoFormat,
+    time:     function() { return timeAutoFormat(); },
+    utc:      function() { return utcAutoFormat(); }
+  }
+};
 
 var e10 = Math.sqrt(50),
     e5 = Math.sqrt(10),
@@ -86,23 +83,50 @@ function numberAutoFormat(domain, count, f) {
   return numberF.format(f);
 }
 
-module.exports = {
-  // Update number formatter to use provided locale configuration.
-  // For more see https://github.com/d3/d3-format
-  numberLocale: function(l) { numberF = d3_numberF.localeFormat(l); },
-  number:       function(f) { return numberF.format(f); },
-  numberPrefix: function(f) { return numberF.formatPrefix(f); },
+function timeAutoFormat() {
+  var f = timeF.format,
+      formatMillisecond = f('.%L'),
+      formatSecond = f(':%S'),
+      formatMinute = f('%I:%M'),
+      formatHour = f('%I %p'),
+      formatDay = f('%a %d'),
+      formatWeek = f('%b %d'),
+      formatMonth = f('%B'),
+      formatYear = f('%Y');
 
-  // Update time formatter to use provided locale configuration.
-  // For more see https://github.com/d3/d3-time-format
-  timeLocale:   function(l) { timeF = d3_timeF.localeFormat(l); },
-  time:         function(f) { return timeF.format(f); },  
-  utc:          function(f) { return timeF.utcFormat(f); },
+  return function(date) {
+    var d = +date;
+    return (d3_time.second(date) < d ? formatMillisecond
+        : d3_time.minute(date) < d ? formatSecond
+        : d3_time.hour(date) < d ? formatMinute
+        : d3_time.day(date) < d ? formatHour
+        : d3_time.month(date) < d ?
+          (d3_time.week(date) < d ? formatDay : formatWeek)
+        : d3_time.year(date) < d ? formatMonth
+        : formatYear)(date);
+  };
+}
 
-  // automatic formatting functions
-  auto: {
-    number:   numberAutoFormat,
-    time:     function() { return timeAutoFormat(0); },
-    utc:      function() { return timeAutoFormat(1); }
-  }
-};
+function utcAutoFormat() {
+  var f = timeF.utcFormat,
+      formatMillisecond = f('.%L'),
+      formatSecond = f(':%S'),
+      formatMinute = f('%I:%M'),
+      formatHour = f('%I %p'),
+      formatDay = f('%a %d'),
+      formatWeek = f('%b %d'),
+      formatMonth = f('%B'),
+      formatYear = f('%Y');
+
+  return function(date) {
+    var d = +date;
+    return (d3_time.utcSecond(date) < d ? formatMillisecond
+        : d3_time.utcMinute(date) < d ? formatSecond
+        : d3_time.utcHour(date) < d ? formatMinute
+        : d3_time.utcDay(date) < d ? formatHour
+        : d3_time.utcMonth(date) < d ?
+          (d3_time.utcWeek(date) < d ? formatDay : formatWeek)
+        : d3_time.utcYear(date) < d ? formatMonth
+        : formatYear)(date);
+  };
+}
