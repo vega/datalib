@@ -48,6 +48,13 @@ describe('format', function() {
     var f = format.number(',.1f');
     assert.equal(f(1000), '1.000,0');
     format.numberLocale(enUS.number);
+
+    format.numberLocale('de-DE');
+    var f = format.number(',.1f');
+    assert.equal(f(1000), '1.000,0');
+    format.locale('en-US');
+
+    assert.throws(function() { format.numberLocale('foo-bar'); });
   });
 
   it('should set time locale', function() {
@@ -55,6 +62,13 @@ describe('format', function() {
     var f = format.time('%b %Y');
     assert.equal(f(new Date(2000, 9)), 'Okt 2000');
     format.timeLocale(enUS.time);
+
+    format.timeLocale('de-DE');
+    var f = format.time('%b %Y');
+    assert.equal(f(new Date(2000, 9)), 'Okt 2000');
+    format.locale('en-US');
+
+    assert.throws(function() { format.timeLocale('foo-bar'); });
   });
 
   it('should format numbers', function() {

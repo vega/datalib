@@ -4,18 +4,33 @@ var d3_time = require('d3-time'),
     numberF = d3_numberF, // defaults to EN-US
     timeF = d3_timeF;     // defaults to EN-US
 
+function numberLocale(l) {
+  var f = d3_numberF.localeFormat(l);
+  if (f == null) throw Error('Unrecognized locale: ' + l);
+  numberF = f;
+}
+
+function timeLocale(l) {
+  var f = d3_timeF.localeFormat(l);
+  if (f == null) throw Error('Unrecognized locale: ' + l);
+  timeF = f;
+}
+
 module.exports = {
   // Update number formatter to use provided locale configuration.
   // For more see https://github.com/d3/d3-format
-  numberLocale: function(l) { numberF = d3_numberF.localeFormat(l); },
+  numberLocale: numberLocale,
   number:       function(f) { return numberF.format(f); },
   numberPrefix: function(f, v) { return numberF.formatPrefix(f, v); },
 
   // Update time formatter to use provided locale configuration.
   // For more see https://github.com/d3/d3-time-format
-  timeLocale:   function(l) { timeF = d3_timeF.localeFormat(l); },
+  timeLocale:   timeLocale,
   time:         function(f) { return timeF.format(f); },  
   utc:          function(f) { return timeF.utcFormat(f); },
+
+  // Set number and time locale simultaneously.
+  locale:       function(l) { numberLocale(l); timeLocale(l); },
 
   // automatic formatting functions
   auto: {
