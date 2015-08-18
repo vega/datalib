@@ -327,18 +327,19 @@ describe('util', function() {
   });
 
   describe('field', function() {
-    it('should treat \\. as . in field name', function() {
-      assert.deepEqual(util.field('a\\.b\\.c'), ['a.b.c' ]);
+    it('should separate fields on .', function() {
+      assert.deepEqual(util.field('a.b.c'), ['a', 'b', 'c']);
     });
 
-    it('should separate fields on .', function() {
-      assert.deepEqual(util.field('a.b.c'), ['a', 'b', 'c' ]);
+    it('should separate fields on []', function() {
+      assert.deepEqual(util.field("a[0]['1']"), ['a', '0', '1']);
     });
-    
-    it('should support mix of \\. and .', function() {
+
+    it('should support mixed delimiters and escaped strings', function() {
       assert.deepEqual(
-        util.field('a\\.b\\.c.a2\\.b2.a3\\.b3\\.c3'),
-        ['a.b.c', 'a2.b2', 'a3.b3.c3' ]);
+        util.field("foo[0].bar['baz.\\'bob\\\"'].x[\"y\"]"),
+        ['foo', '0', 'bar', 'baz.\'bob\"', 'x', 'y']
+      );
     });
   });
 
@@ -358,7 +359,7 @@ describe('util', function() {
     });
 
     it('should resolve property paths for String arguments with "."', function() {
-      assert.equal(util.accessor('a\\.b.c.d')({ 'a.b': { 'c': { 'd': 'value'}}}), 'value');
+      assert.equal(util.accessor('[\'a.b\'].c.d')({ 'a.b': { 'c': { 'd': 'value'}}}), 'value');
     });
 
     it('should handle property for number arguments', function() {
@@ -526,7 +527,7 @@ describe('util', function() {
 
     it('should resolve property paths for String arguments with "."', function() {
       var o = {'a.b': {'c': {'d': 'value'}}};
-      util.mutator('a\\.b.c.d')(o, 'hello');
+      util.mutator('["a.b"].c.d')(o, 'hello');
       assert.equal(o['a.b'].c.d, 'hello');
     });
 

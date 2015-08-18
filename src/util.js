@@ -136,14 +136,14 @@ function util_escape_str(x) {
 
 // data access functions
 
+var field_re = /\[(.*?)\]|[^.\[]+/g;
+
 u.field = function(f) {
-  return String(f).split('\\.')
-    .map(function(d) { return d.split('.'); })
-    .reduce(function(a, b) {
-      if (a.length) { a[a.length-1] += '.' + b.shift(); }
-      a.push.apply(a, b);
-      return a;
-    }, []);
+  return String(f).match(field_re).map(function(d) {
+    return d[0] !== '[' ? d :
+      d[1] !== "'" && d[1] !== '"' ? d.slice(1, -1) :
+      d.slice(2, -2).replace(/\\(["'])/g, '$1');
+  });
 };
 
 u.accessor = function(f) {
