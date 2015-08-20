@@ -112,13 +112,13 @@ proto._cellkey = function(x) {
 
 proto._cell = function(x) {
   var key = this._dims.length ? this._cellkey(x) : '';
-  return this._cells[key] || (this._cells[key] = this._newcell(x));
+  return this._cells[key] || (this._cells[key] = this._newcell(x, key));
 };
 
-proto._newcell = function(x) {
+proto._newcell = function(x, key) {
   var cell = {
     num:   0,
-    tuple: this._newtuple(x),
+    tuple: this._newtuple(x, key),
     flag:  Flags.ADD_CELL,
     aggs:  {}
   };
@@ -159,6 +159,7 @@ proto._add = function(x) {
     }
   }
   cell.flag |= Flags.MOD_CELL;
+  if (this._on_add) this._on_add(x, cell);
 };
 
 proto._rem = function(x) {
@@ -173,6 +174,7 @@ proto._rem = function(x) {
     }
   }
   cell.flag |= Flags.MOD_CELL;
+  if (this._on_rem) this._on_rem(x, cell);
 };
 
 proto._mod = function(curr, prev) {
@@ -196,6 +198,7 @@ proto._mod = function(curr, prev) {
   }
   cell0.flag |= Flags.MOD_CELL;
   cell1.flag |= Flags.MOD_CELL;
+  if (this._on_mod) this._on_mod(curr, prev, cell0, cell1);
 };
 
 proto.result = function() {
@@ -226,8 +229,8 @@ proto.result = function() {
   return result;
 };
 
-proto.changes = function() {
-  var changes = {add:[], rem:[], mod:[]},
+proto.changes = function(output) {
+  var changes = output || {add:[], rem:[], mod:[]},
       aggr = this._aggr,
       cell, flag, i, k;
 
@@ -247,12 +250,16 @@ proto.changes = function() {
 
     // organize output tuples
     if (cell.num <= 0) {
-      changes.rem.push(cell.tuple);
+      changes.rem.push(cell.tuple); // if (flag === Flags.MOD_CELL) { ??
       delete this._cells[k];
-    } else if (flag & Flags.ADD_CELL) {
-      changes.add.push(cell.tuple);
-    } else if (flag & Flags.MOD_CELL) {
-      changes.mod.push(cell.tuple);
+      if (this._on_drop) this._on_drop(cell);
+    } else {
+      if (this._on_keep) this._on_keep(cell);
+      if (flag & Flags.ADD_CELL) {
+        changes.add.push(cell.tuple);
+      } else if (flag & Flags.MOD_CELL) {
+        changes.mod.push(cell.tuple);
+      }
     }
 
     cell.flag = 0;
