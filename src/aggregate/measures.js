@@ -173,6 +173,7 @@ function create(agg, stream, accessor, mutator) {
   ctr.prototype.get = accessor;
   ctr.prototype.distinct = require('../stats').count.distinct;
   ctr.prototype.isValid = util.isValid;
+  ctr.fields = agg.map(util.$('out'));
   return ctr;
 }
 

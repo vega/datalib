@@ -246,6 +246,31 @@ describe('aggregate', function() {
       assert.strictEqual(f, agg.key());
     });
 
+    it('should support event listener extensions', function() {
+      var data = [{a:1, b:10}, {a:2, b:20}, {a:1, b:5}, {a:2, b:15}];
+      var agg = groupby('a').stream(true).summarize({'b': ['sum']});
+      var cnt = [0, 0, 0, 0, 0];
+      
+      agg._on_add  = function() { ++cnt[0]; };
+      agg._on_mod  = function() { ++cnt[1]; };
+      agg._on_rem  = function() { ++cnt[2]; };
+      agg._on_drop = function() { ++cnt[3]; };
+      agg._on_keep = function() { ++cnt[4]; };
+
+      agg.insert(data);
+      agg.changes();
+      assert.deepEqual(cnt, [4, 0, 0, 0, 2]);
+
+      data[0].a = 2;
+      agg._mod(data[0], {a:1, b:10});
+      agg.changes();
+      assert.deepEqual(cnt, [4, 1, 0, 0, 4]);
+
+      agg.remove(data.slice(2))
+      agg.changes();
+      assert.deepEqual(cnt, [4, 1, 2, 1, 5]);
+    });
+
     it('should update cells over multiple runs', function() {
       var agg = groupby('b').stream(true).summarize({'a': ['sum', 'max']});
       var r1 = agg.execute(table);
@@ -274,7 +299,7 @@ describe('aggregate', function() {
       assert.equal(4, sum[0].max_a);
     });
 
-    it('should handle an invalid input tables', function() {
+    it('should handle invalid input tables', function() {
       var values = {
         'count': 1,
         'valid': 0,
