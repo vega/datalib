@@ -63,4 +63,4 @@ To use datalib in the browser, you need to build the datalib.js and datalib.min.
 
 ## Dependencies
 
-When used in the browser, datalib has one (weak) dependency to note. The [TopoJSON library](https://github.com/mbostock/topojson)) is expected to reside in the global scope if ([dl.topojson](https://github.com/uwdata/datalib/wiki/Import#dl_topojson)) is used to parse TopoJSON data. Otherwise, errors will result.
+When used in the browser, datalib has one (weak) dependency to note. The [TopoJSON library](https://github.com/mbostock/topojson) is expected to reside in the global scope if ([dl.topojson](https://github.com/uwdata/datalib/wiki/Import#dl_topojson)) is used to parse TopoJSON data. Otherwise, errors will result.
