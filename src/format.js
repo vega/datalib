@@ -45,6 +45,7 @@ var e10 = Math.sqrt(50),
     e2 = Math.sqrt(2);
 
 function intervals(domain, count) {
+  if (!domain.length) domain = [0];
   if (count == null) count = 10;
 
   var start = domain[0],
@@ -52,7 +53,7 @@ function intervals(domain, count) {
 
   if (stop < start) { error = stop; stop = start; start = error; }
 
-  var span = stop - start,
+  var span = (stop - start) || (count = 1, start || stop || 1),
       step = Math.pow(10, Math.floor(Math.log(span / count) / Math.LN10)),
       error = span / count / step;
 
