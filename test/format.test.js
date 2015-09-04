@@ -122,6 +122,22 @@ describe('format', function() {
     assert.equal(f(10), '1000%');
     f = format.auto.number([0, 20], 10, '%');
     assert.equal(f(10), '1000%');
+
+    f = format.auto.number([]);
+    assert.equal(f(10), '10');
+    assert.equal(f(0.01), '0');
+
+    f = format.auto.number([0.01, NaN]);
+    assert.equal(f(10), '10.00');
+    assert.equal(f(0.01), '0.01');
+
+    f = format.auto.number([NaN, 0.01]);
+    assert.equal(f(10), '10.00');
+    assert.equal(f(0.01), '0.01');
+
+    f = format.auto.number([0.01, 0.01]);
+    assert.equal(f(10), '10.00');
+    assert.equal(f(0.01), '0.01');
   });
 
   it('should auto-format times', function() {

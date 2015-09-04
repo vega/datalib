@@ -45,29 +45,16 @@ var e10 = Math.sqrt(50),
     e2 = Math.sqrt(2);
 
 function intervals(domain, count) {
+  if (!domain.length) domain = [0];
   if (count == null) count = 10;
-
-  // An empty domain array will yield undefined start and stop; make it [0] instead */
-  if (domain.length === 0)
-  {
-    domain = [0];
-  }
 
   var start = domain[0],
       stop = domain[domain.length - 1];
 
   if (stop < start) { error = stop; stop = start; start = error; }
 
-  var span = stop - start;
-
-  // If span is 0 or NaN, the step calculation will yield 0 or NaN,
-  // which makes our output values all NaN.
-  if (span === 0 || Number.isNaN(span))
-  {
-    span = 1;
-  }
-
-  var step = Math.pow(10, Math.floor(Math.log(span / count) / Math.LN10)),
+  var span = (stop - start) || (count = 1, start || stop || 1),
+      step = Math.pow(10, Math.floor(Math.log(span / count) / Math.LN10)),
       error = span / count / step;
 
   // Filter ticks to get closer to the desired count.
