@@ -323,6 +323,27 @@ stats.dist = function(values, a, b, exp) {
   return L2 ? Math.sqrt(s) : Math.pow(s, 1/e);
 };
 
+// Compute the Cohen's d effect size between two arrays of numbers.
+stats.cohensd = function(values,a,b){
+    	var X = b ? values.map(util.$(a)) : values,
+	    Y = b ? values.map(util.$(b)) : a;
+	
+	var x1 = stats.mean(X),
+	    x2 = stats.mean(Y),
+	    n1 = stats.count(X),
+	    n2 = stats.count(Y);
+	if( (n1+n2-2)<=0 ){
+	//if both arrays are of size 1, or one array is empty, there's no effect size
+		return 0;
+	}  
+	
+	var s1 = stats.variance(X),
+            s2 = stats.variance(Y);
+	//s = pooled standard deviation	
+	var s = Math.sqrt( ( ((n1-1)*s1) + ((n2-1)*s2) ) / (n1+n2-2));  
+	s!=0 ? return ( (x1-x2) / s): return 0;
+} 
+
 // Construct a mean-centered distance matrix for an array of numbers.
 stats.dist.mat = function(X) {
   var n = X.length,
