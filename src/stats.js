@@ -341,8 +341,13 @@ stats.cohensd = function(values,a,b){
             s2 = stats.variance(Y);
 	//s = pooled standard deviation	
 	var s = Math.sqrt( ( ((n1-1)*s1) + ((n2-1)*s2) ) / (n1+n2-2));  
-	s!=0 ? return ( (x1-x2) / s): return 0;
-} 
+	if(s==0){
+		return 0;
+	}
+	else{
+		return (x1-x2)/s;
+	}
+}; 
 
 // Construct a mean-centered distance matrix for an array of numbers.
 stats.dist.mat = function(X) {
