@@ -1,6 +1,8 @@
 var util = require('./util');
 var type = require('./import/type');
 var gen = require('./generate');
+var distribution = require('./distribution');
+
 var stats = {};
 
 // Collect unique values.
@@ -348,6 +350,48 @@ stats.cohensd = function(values,a,b){
 		return (x1-x2)/s;
 	}
 }; 
+
+//Construct a z-confidence interval at a given significance level
+//Options: array (alpha assumed to be 0.05), array, alpha or mu,sigma,alpha
+stats.zConfidenceInterval = function(a,b,c){
+	var alpha;
+	if(c){
+		alpha = c;
+	}
+	else if(b){
+		alpha = b;
+	}
+	else{
+		alpha = 0.05;
+	}
+	var mu = c ? a : stats.mean(a);
+	var sigma = c ? b : stats.stdev(a);
+	var gaussian = new distribution.Normal(mu,sigma);
+	return [gaussian.icdf(alpha),gaussian.icdf(1-alpha)];
+};
+
+//A z-test of means
+
+//stats.zTest = function(a,b){	
+//};
+
+stats.pairedZTest = function(a,b){
+	var gaussian = new distribution.Normal(0,1);
+	var n = (stats.count.valid(a)+stats.count.valid(b))/2;
+	var meanDiff = stats.mean(a)-stats.mean(b);
+	var s = Math.sqrt( (stats.variance(a)/n) + stats.variance(b)/n);
+	//if no variance, or sample size is 1, then return 0 or 1
+	if(s==0){
+		var result = meanDiff==0 ? 1 : 0;
+		return result;
+	}
+	var z = meanDiff/s;
+	
+	//two-sided, so twice the one sided cdf
+	z = -1*Math.abs(z);
+	
+	return 2*gaussian.cdf(z);
+};
 
 // Construct a mean-centered distance matrix for an array of numbers.
 stats.dist.mat = function(X) {

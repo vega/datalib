@@ -1,8 +1,34 @@
 var distribution = {};
 //sample, pdf, cdf, ipdf, icdf
 
-//Uniform Distribution
+/*
+Usage: 
+	var foo = new distribution.Normal(0,1);
+	var bar = foo.sample();
+*/
+//GammaLn
+distribution.GammaLn = function(z){
+//Stirling's Approximation
+//Only accurate to 8ish decimal places.
+	var sinPart = z*Math.sinh(1/z)+(1/(810*Math.pow(z,6)));
+	var twoLn = Math.log(2*Math.PI) - Math.log(z) + z*( (2*Math.log(z))+Math.log(sinPart) - 2);
+	return twoLn/2;  
+};
 
+//Beta
+distribution.BetaFn = function(a,b){
+	var numerator = Math.exp(distribution.GammaLn(a))*Math.exp(distribution.GammaLn(b));
+	return numerator / Math.exp(distribution.GammaLn(a+b));
+};
+
+//IncBeta
+distribution.IncBeta = function(x,a,b){
+	//Need a better approximation for this: a work in progress!
+	return NaN;
+
+};
+
+//Uniform Distribution
 distribution.Uniform = function(a,b){
 	this.sample = function(){
 		return Math.random() * (b - a) + a;
@@ -94,6 +120,60 @@ distribution.Normal = function(mu,sigma){
 		else
 			return cd;
 	};
+	this.icdf = function(p){
+		if(p<=0 || p>=1){
+			return NaN;
+		}
+		else{
+			var ierf = function(x){
+			//Abramowitz and Stegun approximation
+				var a = (8*(Math.PI - 3))/(3 * Math.PI * (4-Math.PI));
+				var parta = ( 2 / (Math.PI*a) ) + (Math.log(1-Math.pow(x,2))/2);
+				parta = parta;
+				var partb = Math.log(1 - (x*x))/a;
+				return Math.sign(x)*Math.sqrt( Math.sqrt( (parta*parta) - partb) - parta);
+			};
+			return mu + sigma*Math.sqrt(2)*ierf(2*p - 1);
+		}
+	};
 };
 
-//module.exports = distribution;
+//Student's T distribution
+distribution.StudentsT = function(df){
+	this.pdf = function(t){
+		var gammaComponent,tcomponent,g1,g2;
+		tcomponent = Math.pow(1 + (t*t/df),-( (df+1)/2));
+		g1 = Math.exp(distribution.GammaLn( (df+1)/2));
+		g2 = Math.exp(distribution.GammaLn( df / 2));
+		gammaComponent = g1/ (g2 * Math.sqrt(df*Math.PI));
+		return tcomponent*gammaComponent;
+	};
+
+	this.cdf = function(t){
+		var x = df/(Math.pow(t,2) + df);
+		var value =  1 - (0.5*distribution.IncBeta(x,df/2,1/2));
+		var cd;
+		if(t==0){
+			cd = 0.5;
+		}
+		else if(t>0){
+			cd = value;
+		}
+		else{
+			cd = 1-value;
+		}
+		return cd;
+	};
+
+	this.sample = function(){
+	};
+}; 
+
+distribution.Beta = function(a,b){
+	this.pdf = function(x){
+		var numerator = Math.pow(x,a-1)*(Math.pow(1-x,b-1));
+		return numerator/(distribution.BetaFn(a,b));	
+	};
+};
+
+module.exports = distribution;
