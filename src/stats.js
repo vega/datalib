@@ -366,14 +366,29 @@ stats.zConfidenceInterval = function(a,b,c){
 	}
 	var mu = c ? a : stats.mean(a);
 	var sigma = c ? b : stats.stdev(a);
-	var gaussian = new distribution.Normal(mu,sigma);
-	return [gaussian.icdf(alpha),gaussian.icdf(1-alpha)];
+	var gaussian = new distribution.Normal(0,1);
+	var  z = gaussian.icdf(1-(alpha/2));
+	var SE = sigma/Math.sqrt(stats.count(a));
+	return [mu - (z*SE),mu + (z*SE)];
 };
 
 //A z-test of means
-
-//stats.zTest = function(a,b){	
-//};
+//Assuming we have a list of values, and a null hypothesis. If no null
+//hypothesis, assume our null hypothesis is 0
+stats.zTest = function(a,b){	
+	var nullH = b ? b : 0;
+	var gaussian = new distribution.Normal(0,1);
+	var xBar = stats.mean(a);
+	//standard error
+	var SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
+	if(SE==0){
+		var result = (xBar-nullH)==0 ? 1 : 0;
+	}
+	var z = (xBar-nullH)/SE;
+	z = -1*Math.abs(z);
+	//twotailed
+	return 2*gaussian.cdf(z);
+};
 
 stats.pairedZTest = function(a,b){
 	var gaussian = new distribution.Normal(0,1);
