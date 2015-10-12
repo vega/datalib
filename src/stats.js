@@ -390,11 +390,14 @@ stats.zTest = function(a,b){
 	return 2*gaussian.cdf(z);
 };
 
-stats.pairedZTest = function(a,b){
+stats.pairedZTest = function(values,a,b){
+	var X = b ? values.map(util.$(a)) : values,
+	var Y = b ? values.map(util.$(b)) : a;
+
 	var gaussian = new distribution.Normal(0,1);
-	var n = (stats.count.valid(a)+stats.count.valid(b))/2;
-	var meanDiff = stats.mean(a)-stats.mean(b);
-	var s = Math.sqrt( (stats.variance(a)/n) + stats.variance(b)/n);
+	var n = (stats.count.valid(X)+stats.count.valid(Y))/2;
+	var meanDiff = stats.mean(X)-stats.mean(Y);
+	var s = Math.sqrt( (stats.variance(X)/n) + stats.variance(Y)/n);
 	//if no variance, or sample size is 1, then return 0 or 1
 	if(s==0){
 		var result = meanDiff==0 ? 1 : 0;
@@ -407,6 +410,67 @@ stats.pairedZTest = function(a,b){
 	
 	return 2*gaussian.cdf(z);
 };
+
+
+//Construct a t-confidence interval at a given significance level
+stats.tConfidenceInterval = function(a,b,c){
+	var alpha;
+	if(c){
+		alpha = c;
+	}
+	else if(b){
+		alpha = b;
+	}
+	else{
+		alpha = 0.05;
+	}
+     var mu = c ? a : stats.mean(a);
+     var sigma = c ? b : stats.stdev(a);
+     var t = new distribution.StudentsT(stats.count(a)-1);
+     var  A = t.icdf(1-(alpha/2));
+     var SE = sigma/Math.sqrt(stats.count(a));
+     return [mu - (A*SE),mu + (A*SE)];
+
+};
+
+//Perform a two tailed, one sample Student's t test.
+stats.tTest = function(a,b){
+	var nullH = b ? b : 0;
+        var tdist = new distribution.StudentsT(stats.count.valid(a)-1);
+        var xBar = stats.mean(a);
+       //standard error
+        var SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
+        if(SE==0){
+                 var result = (xBar-nullH)==0 ? 1 : 0;
+        }
+        var t = (xBar-nullH)/SE;
+        t = -1*Math.abs(t);
+         //twotailed
+         return 2*tdist.cdf(t);
+};
+
+//Two independent sample t test with assumed equal population variance
+stats.twoSampleTTest = function(values,a,b){
+         var X = b ? values.map(util.$(a)) : values,
+         var Y = b ? values.map(util.$(b)) : a;
+         var n1 = stats.count.valid(X);
+	 var n2 = stats.count.valid(Y);
+         var tdist = new distribution.StudentsT(n1+n2-2);
+         var meanDiff = stats.mean(X)-stats.mean(Y);
+
+//have to pool variance differently than in z tests
+         var s = Math.sqrt( ((n1-1)*stats.variance(X) + (n2-1)*stats.variance(Y))/(n1+n2-2));
+         //if no variance, or sample size is 1, then return 0 or 1
+         if(s==0){
+                 var result = meanDiff==0 ? 1 : 0;
+                 return result;
+         }
+         var t = meanDiff/(s*Math.sqrt((1/n1) + (1/n2)));
+         
+         //two-sided, so twice the one sided cdf
+         t = -1*Math.abs(t);
+         return 2*tdist.cdf(t);
+ }
 
 // Construct a mean-centered distance matrix for an array of numbers.
 stats.dist.mat = function(X) {
