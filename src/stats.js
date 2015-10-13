@@ -391,7 +391,7 @@ stats.zTest = function(a,b){
 };
 
 stats.pairedZTest = function(values,a,b){
-	var X = b ? values.map(util.$(a)) : values,
+	var X = b ? values.map(util.$(a)) : values;
 	var Y = b ? values.map(util.$(b)) : a;
 
 	var gaussian = new distribution.Normal(0,1);
@@ -451,7 +451,7 @@ stats.tTest = function(a,b){
 
 //Two independent sample t test with assumed equal population variance
 stats.twoSampleTTest = function(values,a,b){
-         var X = b ? values.map(util.$(a)) : values,
+         var X = b ? values.map(util.$(a)) : values;
          var Y = b ? values.map(util.$(b)) : a;
          var n1 = stats.count.valid(X);
 	 var n2 = stats.count.valid(Y);
