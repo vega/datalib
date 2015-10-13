@@ -327,8 +327,8 @@ stats.dist = function(values, a, b, exp) {
 
 // Compute the Cohen's d effect size between two arrays of numbers.
 stats.cohensd = function(values,a,b){
-    	var X = b ? values.map(util.$(a)) : values,
-	    Y = b ? values.map(util.$(b)) : a;
+    	var X = b ? values.map(util.$(a)) : values;
+	var Y = b ? values.map(util.$(b)) : a;
 	
 	var x1 = stats.mean(X),
 	    x2 = stats.mean(Y),
@@ -350,6 +350,53 @@ stats.cohensd = function(values,a,b){
 		return (x1-x2)/s;
 	}
 }; 
+
+// Computer the covariance between two arrays of numbers
+stats.covariance = function(values,a,b){
+	var X = b ? values.map(util.$(a)) : values;
+	var Y = b ? values.map(util.$(b)) : a;
+
+	var n = stats.count(X);
+	var x1 = stats.mean(X);
+	var y1 = stats.mean(Y);
+	if(n!= stats.count(Y)){
+		//covariance not defined when cardinalities of two sets aren't equal
+		return NaN;
+	}
+	var sum = 0;
+	for(var i = 0;i<n;i++){
+		sum+=(X[i]-x1)*(Y[i]-y1);
+	}
+	return sum/(n-1);
+};
+
+//Simple linear regression. Returns a "fit" object with slope m, intercept, r value, sum squared residual error.
+stats.linearRegression = function(values,a,b){
+	var X = b ? values.map(util.$(a)) : values;
+  	var Y = b ? values.map(util.$(b)) : a;
+	
+
+	if(stats.count(X)!=stats.count(Y)){
+		//can't perform simple linear regression with different cardinalities
+		throw Error("Array lengths  must match"); 
+	}
+	var sx = stats.stdev(X);
+	var sy = stats.stdev(Y);
+
+	var fit = {};
+	fit.m = stats.covariance(X,Y)/stats.variance(X);
+	fit.b = stats.mean(Y) - fit.m*stats.mean(X);
+	//if this doesn't equal stats.cor(X,Y) then we're in biiiiig trouble
+	fit.r = fit.m*sx/sy;		
+	var sum = 0;
+	var predicted;
+	for(var i = 0;i<stats.count(X);i++){
+		predicted = fit.m*X[i] + fit.b;
+		sum+= Math.pow(predicted-Y[i],2);
+	}
+	fit.rss = sum;
+	return fit;
+};
 
 //Construct a z-confidence interval at a given significance level
 //Options: array (alpha assumed to be 0.05), array, alpha or mu,sigma,alpha
