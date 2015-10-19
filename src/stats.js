@@ -327,197 +327,237 @@ stats.dist = function(values, a, b, exp) {
 
 // Compute the Cohen's d effect size between two arrays of numbers.
 stats.cohensd = function(values,a,b){
-    	var X = b ? values.map(util.$(a)) : values;
-	var Y = b ? values.map(util.$(b)) : a;
-	
-	var x1 = stats.mean(X),
-	    x2 = stats.mean(Y),
-	    n1 = stats.count(X),
-	    n2 = stats.count(Y);
-	if( (n1+n2-2)<=0 ){
-	//if both arrays are of size 1, or one array is empty, there's no effect size
-		return 0;
-	}  
-	
-	var s1 = stats.variance(X),
-            s2 = stats.variance(Y);
-	//s = pooled standard deviation	
-	var s = Math.sqrt( ( ((n1-1)*s1) + ((n2-1)*s2) ) / (n1+n2-2));  
-	if(s==0){
-		return 0;
-	}
-	else{
-		return (x1-x2)/s;
-	}
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a;
+      x1 = stats.mean(X),
+      x2 = stats.mean(Y),
+      n1 = stats.count(X),
+      n2 = stats.count(Y);
+  if( (n1+n2-2)<=0 ){
+  //if both arrays are of size 1, or one array is empty, there's no effect size
+    return 0;
+  }
+  //pool standard deviation
+  var s1 = stats.variance(X),
+      s2 = stats.variance(Y),    
+      s = Math.sqrt( ( ((n1-1)*s1) + ((n2-1)*s2) ) / (n1+n2-2));  
+  if(s==0){
+  //if there is no variance, there's no effect size
+    return 0;
+  }
+  else{
+    return (x1-x2)/s;
+  }
 }; 
 
-// Computer the covariance between two arrays of numbers
+// Computes the covariance between two arrays of numbers
 stats.covariance = function(values,a,b){
-	var X = b ? values.map(util.$(a)) : values;
-	var Y = b ? values.map(util.$(b)) : a;
-
-	var n = stats.count(X);
-	var x1 = stats.mean(X);
-	var y1 = stats.mean(Y);
-	if(n!= stats.count(Y)){
-		//covariance not defined when cardinalities of two sets aren't equal
-		return NaN;
-	}
-	var sum = 0;
-	for(var i = 0;i<n;i++){
-		sum+=(X[i]-x1)*(Y[i]-y1);
-	}
-	return sum/(n-1);
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a;
+      n = stats.count(X),
+      x1 = stats.mean(X),
+      y1 = stats.mean(Y);
+  if(n!= stats.count(Y)){
+  // Covariance not defined when cardinalities of two sets aren't equal.
+    throw Error('Array lengths must match.');
+  }
+  var sum = 0;
+  for(var i = 0;i<n;i++){
+    sum+=(X[i]-x1)*(Y[i]-y1);
+  }
+  return sum/(n-1);
 };
 
-//Simple linear regression. Returns a "fit" object with slope m, intercept, r value, sum squared residual error.
+// Simple linear regression. Returns a "fit" object with slope m, intercept, r value, sum squared residual error.
 stats.linearRegression = function(values,a,b){
-	var X = b ? values.map(util.$(a)) : values;
-  	var Y = b ? values.map(util.$(b)) : a;
-	
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a;
+  if(stats.count(X)!=stats.count(Y)){
+  // Can't perform simple linear regression with different cardinalities.
+    throw Error('Array lengths  must match.'); 
+  }
+  var sx = stats.stdev(X),
+      sy = stats.stdev(Y),
+      fit = {};
 
-	if(stats.count(X)!=stats.count(Y)){
-		//can't perform simple linear regression with different cardinalities
-		throw Error("Array lengths  must match"); 
-	}
-	var sx = stats.stdev(X);
-	var sy = stats.stdev(Y);
-
-	var fit = {};
-	fit.m = stats.covariance(X,Y)/stats.variance(X);
-	fit.b = stats.mean(Y) - fit.m*stats.mean(X);
-	//if this doesn't equal stats.cor(X,Y) then we're in biiiiig trouble
-	fit.r = fit.m*sx/sy;		
-	var sum = 0;
-	var predicted;
-	for(var i = 0;i<stats.count(X);i++){
-		predicted = fit.m*X[i] + fit.b;
-		sum+= Math.pow(predicted-Y[i],2);
-	}
-	fit.rss = sum;
-	return fit;
+  fit.m = stats.covariance(X,Y)/stats.variance(X);
+  fit.b = stats.mean(Y) - fit.m*stats.mean(X);
+  fit.r = fit.m*sx/sy;        
+  var sum = 0,
+  predicted;
+  for(var i = 0;i<stats.count(X);i++){
+    predicted = fit.m*X[i] + fit.b;
+    sum+= Math.pow(predicted-Y[i],2);
+  }
+  fit.rss = sum;
+  return fit;
 };
 
-//Construct a z-confidence interval at a given significance level
-//Options: array (alpha assumed to be 0.05), array, alpha or mu,sigma,alpha
-stats.zConfidenceInterval = function(a,b,c){
-	var alpha;
-	if(c){
-		alpha = c;
-	}
-	else if(b){
-		alpha = b;
-	}
-	else{
-		alpha = 0.05;
-	}
-	var mu = c ? a : stats.mean(a);
-	var sigma = c ? b : stats.stdev(a);
-	var gaussian = new distribution.Normal(0,1);
-	var  z = gaussian.icdf(1-(alpha/2));
-	var SE = sigma/Math.sqrt(stats.count(a));
-	return [mu - (z*SE),mu + (z*SE)];
+// Name spaces for the inferential distributions we'll be using.
+stats.z = {};
+stats.t = {};
+
+// Construct a z-confidence interval at a given significance level
+// Arguments are an  array (alpha assumed to be 0.05), {array, alpha} or {mu,sigma,alpha}.
+stats.z.ci = function(a,b,c){
+  var alpha;
+  if(c){
+    alpha = c;
+  }
+  else if(b){
+    alpha = b;
+  }
+  else{
+    alpha = 0.05;
+  }
+  var mu = c ? a : stats.mean(a),
+      sigma = c ? b : stats.stdev(a);
+      gaussian = new distribution.Normal(0,1);
+      z = gaussian.icdf(1-(alpha/2));
+      SE = sigma/Math.sqrt(stats.count(a));
+  return [mu - (z*SE),mu + (z*SE)];
 };
 
-//A z-test of means
-//Assuming we have a list of values, and a null hypothesis. If no null
-//hypothesis, assume our null hypothesis is 0
-stats.zTest = function(a,b){	
-	var nullH = b ? b : 0;
-	var gaussian = new distribution.Normal(0,1);
-	var xBar = stats.mean(a);
-	//standard error
-	var SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
-	if(SE==0){
-		var result = (xBar-nullH)==0 ? 1 : 0;
-	}
-	var z = (xBar-nullH)/SE;
-	z = -1*Math.abs(z);
-	//twotailed
-	return 2*gaussian.cdf(z);
+// Perform a z test of means.
+// Assuming we have a list of values, and a null hypothesis. If no null
+// hypothesis, assume our null hypothesis is mu=0.
+stats.z.test = function(a,b){    
+  var nullH = b ? b : 0,
+      gaussian = new distribution.Normal(0,1),
+      xBar = stats.mean(a),
+      SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
+  if(SE==0){
+    // Test not well defined when standard error is 0.
+    var result = (xBar-nullH)==0 ? 1 : 0;
+    return result;
+  }
+  var z = (xBar-nullH)/SE;
+  z = -1*Math.abs(z);
+  // Two-sided, so twice the one-sided cdf.
+  return 2*gaussian.cdf(z);
 };
 
-stats.pairedZTest = function(values,a,b){
-	var X = b ? values.map(util.$(a)) : values;
-	var Y = b ? values.map(util.$(b)) : a;
-
-	var gaussian = new distribution.Normal(0,1);
-	var n = (stats.count.valid(X)+stats.count.valid(Y))/2;
-	var meanDiff = stats.mean(X)-stats.mean(Y);
-	var s = Math.sqrt( (stats.variance(X)/n) + stats.variance(Y)/n);
-	//if no variance, or sample size is 1, then return 0 or 1
-	if(s==0){
-		var result = meanDiff==0 ? 1 : 0;
-		return result;
-	}
-	var z = meanDiff/s;
-	
-	//two-sided, so twice the one sided cdf
-	z = -1*Math.abs(z);
-	
-	return 2*gaussian.cdf(z);
+// Perform a two sample paired z test of means.
+stats.z.pairedTest = function(values,a,b){
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a,
+      gaussian = new distribution.Normal(0,1),
+      n = (stats.count.valid(X)+stats.count.valid(Y))/2,
+      meanDiff = stats.mean(X)-stats.mean(Y),
+      s = Math.sqrt( (stats.variance(X)/n) + stats.variance(Y)/n);
+  if(s==0){  
+// Test not well defined when pooled standard deviation is 0.
+        var result = meanDiff==0 ? 1 : 0;
+        return result;
+  }
+  var z = meanDiff/s;
+  // Two-sided, so twice the one-sided cdf.
+  z = -1*Math.abs(z);  
+  return 2*gaussian.cdf(z);
 };
 
-
-//Construct a t-confidence interval at a given significance level
-stats.tConfidenceInterval = function(a,b,c){
-	var alpha;
-	if(c){
-		alpha = c;
-	}
-	else if(b){
-		alpha = b;
-	}
-	else{
-		alpha = 0.05;
-	}
-     var mu = c ? a : stats.mean(a);
-     var sigma = c ? b : stats.stdev(a);
-     var t = new distribution.StudentsT(stats.count(a)-1);
-     var  A = t.icdf(1-(alpha/2));
-     var SE = sigma/Math.sqrt(stats.count(a));
-     return [mu - (A*SE),mu + (A*SE)];
-
+// Perform a two sample z test of means. 
+stats.z.twoSampleTest = function(values,a,b){
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a,
+      n1 = stats.count.valid(X),
+      n2 = stats.count.valid(Y),
+      gaussian = new distribution.Normal(),
+      meanDiff = stats.mean(X)-stats.mean(Y),
+      SE = Math.sqrt( stats.variance(X)/n1 + stats.variance(Y)/n1);
+  if(SE==0){
+  // Not well defined when pooled standard error is 0.   
+    var result = meanDiff==0 ? 1 : 0;
+    return result;
+  }
+  var z = meanDiff/SE;
+  // Two-tailed, so twice the one-sided cdf.
+  z = -1*Math.abs(z);
+  return 2*gaussian.cdf(z);
 };
 
-//Perform a two tailed, one sample Student's t test.
-stats.tTest = function(a,b){
-	var nullH = b ? b : 0;
-        var tdist = new distribution.StudentsT(stats.count.valid(a)-1);
-        var xBar = stats.mean(a);
-       //standard error
-        var SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
-        if(SE==0){
-                 var result = (xBar-nullH)==0 ? 1 : 0;
-        }
-        var t = (xBar-nullH)/SE;
-        t = -1*Math.abs(t);
-         //twotailed
-         return 2*tdist.cdf(t);
+// Construct a t-confidence interval at a given significance level.
+// As with z-confidence, arguments are either an array, an array and an alpha, or a mu, sigma, and alpha. 
+stats.t.ci = function(a,b,c){
+  var alpha;
+  if(c){
+    alpha = c;
+  }
+  else if(b){
+    alpha = b;
+  }
+  else{
+    alpha = 0.05;
+  }
+  var mu = c ? a : stats.mean(a),
+      sigma = c ? b : stats.stdev(a),
+      t = new distribution.StudentsT(stats.count(a)-1),
+      A = t.icdf(1-(alpha/2)),
+      SE = sigma/Math.sqrt(stats.count(a));
+  return [mu - (A*SE),mu + (A*SE)];
 };
 
-//Two independent sample t test with assumed equal population variance
-stats.twoSampleTTest = function(values,a,b){
-         var X = b ? values.map(util.$(a)) : values;
-         var Y = b ? values.map(util.$(b)) : a;
-         var n1 = stats.count.valid(X);
-	 var n2 = stats.count.valid(Y);
-         var tdist = new distribution.StudentsT(n1+n2-2);
-         var meanDiff = stats.mean(X)-stats.mean(Y);
+// Perform a two tailed, one sample Student's t test.
+stats.t.test = function(a,b){
+ var nullH = b ? b : 0,
+     tdist = new distribution.StudentsT(stats.count.valid(a)-1),
+     xBar = stats.mean(a),
+     SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
+  if(SE==0){
+  // Not well defined when standard error is 0. 
+    var result = (xBar-nullH)==0 ? 1 : 0;
+    return result;
+  }
+  var t = (xBar-nullH)/SE;
+  t = -1*Math.abs(t);
+  // Two-tailed, so twice the one-sided cdf.
+  return 2*tdist.cdf(t);
+};
 
-//have to pool variance differently than in z tests
-         var s = Math.sqrt( ((n1-1)*stats.variance(X) + (n2-1)*stats.variance(Y))/(n1+n2-2));
-         //if no variance, or sample size is 1, then return 0 or 1
-         if(s==0){
-                 var result = meanDiff==0 ? 1 : 0;
-                 return result;
-         }
-         var t = meanDiff/(s*Math.sqrt((1/n1) + (1/n2)));
-         
-         //two-sided, so twice the one sided cdf
-         t = -1*Math.abs(t);
-         return 2*tdist.cdf(t);
- }
+// Perform a two independent sample t test with assumed equal population variance
+stats.t.twoSampleTest = function(values,a,b){
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a,
+      n1 = stats.count.valid(X),
+      n2 = stats.count.valid(Y),
+      tdist = new distribution.StudentsT(n1+n2-2),
+      meanDiff = stats.mean(X)-stats.mean(Y),
+      s = Math.sqrt( ((n1-1)*stats.variance(X) + (n2-1)*stats.variance(Y))/(n1+n2-2));
+  if(s==0){
+  // Not well defined when pooled standard deviation is 0.   
+    var result = meanDiff==0 ? 1 : 0;
+    return result;
+  }
+  var t = meanDiff/(s*Math.sqrt((1/n1) + (1/n2)));       
+  // Two-tailed, so twice the one-sided cdf.
+  t = -1*Math.abs(t);
+  return 2*tdist.cdf(t);
+};
+
+// Perform a two sample paired t test with assumed equal population variance.
+stats.t.pairedTest = function(values,a,b){
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a,
+      n1 = stats.count.valid(X),
+      n2 = stats.count.valid(Y);
+
+  if(n1!=n2){
+  //Must have the same number of values!
+    throw Error('Array lengths must match.');
+  }
+  var tdist = new distribution.StudentsT(n1+n2-2),
+      meanDiff = stats.mean(X)-stats.mean(Y),
+      s = Math.sqrt(stats.variance(X) + stats.variance(Y));
+  if(s==0){
+  // Test not well defined when pooled standard error is 0.
+    var result = meanDiff==0 ? 1 : 0;
+    return result;
+  }
+  var t = meanDiff/(s*Math.sqrt(1/n1));
+  // Two-sided, so twice the one-sided cdf.
+  t = -1*Math.abs(t);
+  return 2*tdist.cdf(t);
+};
 
 // Construct a mean-centered distance matrix for an array of numbers.
 stats.dist.mat = function(X) {
