@@ -31,36 +31,39 @@ distribution.BetaFn = function(a,b){
 // A simplified version of DiDonato & Jarnagin (1967) The Efficient Calculation of Incomplete Beta-Function Ratio for Half-Integer Values of the Parameters a,b
 distribution.IncBeta = function(x,a,b){
   var ai = function(x,a,i){
-             return (distribution.Gamma(a + i - 1)/(distribution.Gamma(a)*distribution.Gamma(i)))*Math.pow(x,a)*Math.pow(1-x,i-1); 
-           },
-      bi = function(x,b,i){
-             return ( distribution.Gamma(b+i-1)/(distribution.Gamma(b)*distribution.Gamma(i)))*Math.pow(x,i-1)*Math.pow(1-x,b);
-           }; 
+    return (distribution.Gamma(a + i - 1)/(distribution.Gamma(a)*distribution.Gamma(i)))*Math.pow(x,a)*Math.pow(1-x,i-1); 
+  };
+
+  var bi = function(x,b,i){
+    return ( distribution.Gamma(b+i-1)/(distribution.Gamma(b)*distribution.Gamma(i)))*Math.pow(x,i-1)*Math.pow(1-x,b);
+  }; 
   //Three cases: a is an integer, b is an integer, or a and b are half-integers.   
-  if(b===parseInt(b,10)){
-    var sum = 0;
-    for(var i = 1;i<b;i++){
+ var sum = 0,
+     i=1; 
+ if(b===parseInt(b,10)){
+    sum = 0;
+    for(i = 1;i<b;i++){
       sum+= ai(x,a,i);
     }
       return sum;
   }
   else if(a==parseInt(a,10)){
-    var sum = 0;
-    for(var i = 1;i<a;i++){
+    sum = 0;
+    for(i = 1;i<a;i++){
       sum+= bi(x,b,i);
     }
     return 1-sum;
   }
   else{
     var halfI = (2/Math.PI)*Math.atan(Math.sqrt(x/(1-x))),
-    sum = 0,
     halfAI;
-    for(var i = 1;i<Math.floor(a)-1;i++){
+    sum = 0;
+    for(i = 1;i<Math.floor(a)-1;i++){
       sum+=(distribution.Gamma(i)/(distribution.Gamma(i+0.5)*distribution.Gamma(1/2)))*Math.pow(x,i-1);
     }        
     halfAI = halfI - Math.sqrt(x*(1-x))*sum;
     sum  = 0;
-    for(var i = 1;i<Math.floor(b)-1;i++){
+    for(i = 1;i<Math.floor(b)-1;i++){
       sum+=(distribution.Gamma(a+i-0.5)/(distribution.Gamma(a)*distribution.Gamma(i+0.5)))*Math.pow(x,a)*Math.pow(1-x,i-0.5);
     }        
     return halfAI + sum;
@@ -70,8 +73,7 @@ distribution.IncBeta = function(x,a,b){
 // Uniform Distribution
 distribution.Uniform = function(a,b){
   this.pdf = function(x){
-    var pd;
-    x>=a && x<=b ? pd= 1/(b-a) : pd=0;
+    var pd = (x>=a && x<=b) ? 1/(b-a) : 0;
     return pd; 
   };
   this.cdf = function(x){
@@ -86,16 +88,15 @@ distribution.Uniform = function(a,b){
     }
   };
   this.icdf = function(p){
-    var id=0;
-    p>0 && p<1 ? id= a+p(b-a) : id= NaN;
+    var id= (p>0 && p<1) ? a+p(b-a) : NaN;
     return id; 
   };
 };
 
 // Normal Distribution
 distribution.Normal = function(mu,sigma){
-  !mu ? this.mu = 0 : this.mu = mu;
-  !sigma ? this.sigma = 1 : this.sigma = sigma;
+  this.mu = !mu ? 0 : mu;
+  this.sigma = !sigma ? 1 : sigma;
   this.pdf = function(x){
     var exponential = Math.exp(-1 * Math.pow(x-this.mu,2) / (2 * Math.pow(this.sigma,2) ) );
     return (1/ (this.sigma * Math.sqrt(2*Math.PI)) ) * exponential; 
@@ -103,7 +104,7 @@ distribution.Normal = function(mu,sigma){
   this.cdf = function(x){
   // Approximation from West (2009) Better Approximations to Cumulative Normal Functions
     var cd,
-        z = (x - this.mu) / this.sigma ;
+        z = (x - this.mu) / this.sigma,
         Z = Math.abs(z);
     if(Z>37){
       cd = 0;
@@ -173,7 +174,7 @@ distribution.StudentsT = function(df){
     var x = df/(Math.pow(t,2) + df),
         value =  1 - (0.5*distribution.IncBeta(x,df/2,1/2)),
         cd;
-    if(t==0){
+    if(t===0){
       cd = 0.5;
     }
     else if(t>0){

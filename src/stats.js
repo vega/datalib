@@ -328,11 +328,11 @@ stats.dist = function(values, a, b, exp) {
 // Compute the Cohen's d effect size between two arrays of numbers.
 stats.cohensd = function(values,a,b){
   var X = b ? values.map(util.$(a)) : values,
-      Y = b ? values.map(util.$(b)) : a;
+      Y = b ? values.map(util.$(b)) : a,
       x1 = stats.mean(X),
       x2 = stats.mean(Y),
-      n1 = stats.count(X),
-      n2 = stats.count(Y);
+      n1 = stats.count.valid(X),
+      n2 = stats.count.valid(Y);
   if( (n1+n2-2)<=0 ){
   //if both arrays are of size 1, or one array is empty, there's no effect size
     return 0;
@@ -341,7 +341,7 @@ stats.cohensd = function(values,a,b){
   var s1 = stats.variance(X),
       s2 = stats.variance(Y),    
       s = Math.sqrt( ( ((n1-1)*s1) + ((n2-1)*s2) ) / (n1+n2-2));  
-  if(s==0){
+  if(s===0){
   //if there is no variance, there's no effect size
     return 0;
   }
@@ -353,11 +353,11 @@ stats.cohensd = function(values,a,b){
 // Computes the covariance between two arrays of numbers
 stats.covariance = function(values,a,b){
   var X = b ? values.map(util.$(a)) : values,
-      Y = b ? values.map(util.$(b)) : a;
-      n = stats.count(X),
+      Y = b ? values.map(util.$(b)) : a,
+      n = stats.count.valid(X),
       x1 = stats.mean(X),
       y1 = stats.mean(Y);
-  if(n!= stats.count(Y)){
+  if(n!= stats.count.valid(Y)){
   // Covariance not defined when cardinalities of two sets aren't equal.
     throw Error('Array lengths must match.');
   }
@@ -411,9 +411,9 @@ stats.z.ci = function(a,b,c){
     alpha = 0.05;
   }
   var mu = c ? a : stats.mean(a),
-      sigma = c ? b : stats.stdev(a);
-      gaussian = new distribution.Normal(0,1);
-      z = gaussian.icdf(1-(alpha/2));
+      sigma = c ? b : stats.stdev(a),
+      gaussian = new distribution.Normal(0,1),
+      z = gaussian.icdf(1-(alpha/2)),
       SE = sigma/Math.sqrt(stats.count(a));
   return [mu - (z*SE),mu + (z*SE)];
 };
@@ -426,9 +426,9 @@ stats.z.test = function(a,b){
       gaussian = new distribution.Normal(0,1),
       xBar = stats.mean(a),
       SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
-  if(SE==0){
+  if(SE===0){
     // Test not well defined when standard error is 0.
-    var result = (xBar-nullH)==0 ? 1 : 0;
+    var result = (xBar-nullH)===0 ? 1 : 0;
     return result;
   }
   var z = (xBar-nullH)/SE;
@@ -445,9 +445,9 @@ stats.z.pairedTest = function(values,a,b){
       n = (stats.count.valid(X)+stats.count.valid(Y))/2,
       meanDiff = stats.mean(X)-stats.mean(Y),
       s = Math.sqrt( (stats.variance(X)/n) + stats.variance(Y)/n);
-  if(s==0){  
+  if(s===0){  
 // Test not well defined when pooled standard deviation is 0.
-        var result = meanDiff==0 ? 1 : 0;
+        var result = meanDiff===0 ? 1 : 0;
         return result;
   }
   var z = meanDiff/s;
@@ -464,10 +464,10 @@ stats.z.twoSampleTest = function(values,a,b){
       n2 = stats.count.valid(Y),
       gaussian = new distribution.Normal(),
       meanDiff = stats.mean(X)-stats.mean(Y),
-      SE = Math.sqrt( stats.variance(X)/n1 + stats.variance(Y)/n1);
-  if(SE==0){
+      SE = Math.sqrt( stats.variance(X)/n1 + stats.variance(Y)/n2);
+  if(SE===0){
   // Not well defined when pooled standard error is 0.   
-    var result = meanDiff==0 ? 1 : 0;
+    var result = meanDiff===0 ? 1 : 0;
     return result;
   }
   var z = meanDiff/SE;
@@ -503,9 +503,9 @@ stats.t.test = function(a,b){
      tdist = new distribution.StudentsT(stats.count.valid(a)-1),
      xBar = stats.mean(a),
      SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
-  if(SE==0){
+  if(SE===0){
   // Not well defined when standard error is 0. 
-    var result = (xBar-nullH)==0 ? 1 : 0;
+    var result = (xBar-nullH)===0 ? 1 : 0;
     return result;
   }
   var t = (xBar-nullH)/SE;
@@ -523,9 +523,9 @@ stats.t.twoSampleTest = function(values,a,b){
       tdist = new distribution.StudentsT(n1+n2-2),
       meanDiff = stats.mean(X)-stats.mean(Y),
       s = Math.sqrt( ((n1-1)*stats.variance(X) + (n2-1)*stats.variance(Y))/(n1+n2-2));
-  if(s==0){
+  if(s===0){
   // Not well defined when pooled standard deviation is 0.   
-    var result = meanDiff==0 ? 1 : 0;
+    var result = meanDiff===0 ? 1 : 0;
     return result;
   }
   var t = meanDiff/(s*Math.sqrt((1/n1) + (1/n2)));       
@@ -548,9 +548,9 @@ stats.t.pairedTest = function(values,a,b){
   var tdist = new distribution.StudentsT(n1+n2-2),
       meanDiff = stats.mean(X)-stats.mean(Y),
       s = Math.sqrt(stats.variance(X) + stats.variance(Y));
-  if(s==0){
+  if(s===0){
   // Test not well defined when pooled standard error is 0.
-    var result = meanDiff==0 ? 1 : 0;
+    var result = meanDiff===0 ? 1 : 0;
     return result;
   }
   var t = meanDiff/(s*Math.sqrt(1/n1));
