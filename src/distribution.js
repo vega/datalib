@@ -1,3 +1,5 @@
+var util = require("./util");
+
 var distribution = {};
 // Each distribution needs a pdf, cdf and icdf
 
@@ -14,11 +16,11 @@ distribution.GammaLn = function(z){
 // Simplified Stirling's Approximation
   var sinPart = z*Math.sinh(1/z)+(1/(810*Math.pow(z,6))),
   twoLn = Math.log(2*Math.PI) - Math.log(z) + z*( (2*Math.log(z))+Math.log(sinPart) - 2);
-  return (twoLn/2).toPrecision(6);  
+  return util.number((twoLn/2).toPrecision(6));  
 };
 
 distribution.Gamma = function(z){
-  return Math.exp(distribution.GammaLn(z)).toPrecision(4);
+  return util.number(Math.exp(distribution.GammaLn(z)).toPrecision(4));
 };
 
 // Beta

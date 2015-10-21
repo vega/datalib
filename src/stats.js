@@ -398,23 +398,14 @@ stats.z = {};
 stats.t = {};
 
 // Construct a z-confidence interval at a given significance level
-// Arguments are an  array (alpha assumed to be 0.05), {array, alpha} or {mu,sigma,alpha}.
-stats.z.ci = function(a,b,c){
-  var alpha;
-  if(c){
-    alpha = c;
-  }
-  else if(b){
-    alpha = b;
-  }
-  else{
-    alpha = 0.05;
-  }
-  var mu = c ? a : stats.mean(a),
-      sigma = c ? b : stats.stdev(a),
-      gaussian = new distribution.Normal(0,1),
+// Arguments are an  array and an optional alpha (defaults to 0.05).
+stats.z.ci = function(a,b){
+  var alpha = b ? b : 0.05;
+  var mu = stats.mean(a),
+      sigma = stats.stdev(a),
+      gaussian = new distribution.Normal(),
       z = gaussian.icdf(1-(alpha/2)),
-      SE = sigma/Math.sqrt(stats.count(a));
+      SE = sigma/Math.sqrt(stats.count.valid(a));
   return [mu - (z*SE),mu + (z*SE)];
 };
 
@@ -441,19 +432,19 @@ stats.z.test = function(a,b){
 stats.z.pairedTest = function(values,a,b){
   var X = b ? values.map(util.$(a)) : values,
       Y = b ? values.map(util.$(b)) : a,
-      gaussian = new distribution.Normal(0,1),
-      n = (stats.count.valid(X)+stats.count.valid(Y))/2,
-      meanDiff = stats.mean(X)-stats.mean(Y),
-      s = Math.sqrt( (stats.variance(X)/n) + stats.variance(Y)/n);
-  if(s===0){  
-// Test not well defined when pooled standard deviation is 0.
-        var result = meanDiff===0 ? 1 : 0;
-        return result;
+      n1 = stats.count(X),
+      n2 = stats.count(Y),
+      diffs = Array();
+  if(n1!=n2){
+    throw Error('Array lengths must match.');
   }
-  var z = meanDiff/s;
-  // Two-sided, so twice the one-sided cdf.
-  z = -1*Math.abs(z);  
-  return 2*gaussian.cdf(z);
+  for(var i = 0;i<stats.count(X);i++){
+  //Only valid differences should contribute to the test statistics.
+    if(util.isValid(X[i]) && util.isValid(Y[i])){
+      diffs.push(X[i]-Y[i]);
+    }
+  }
+  return stats.z.test(diffs);
 };
 
 // Perform a two sample z test of means. 
@@ -477,7 +468,7 @@ stats.z.twoSampleTest = function(values,a,b){
 };
 
 // Construct a t-confidence interval at a given significance level.
-// As with z-confidence, arguments are either an array, an array and an alpha, or a mu, sigma, and alpha. 
+// As with z-confidence, arguments are either an array,or an array and an alpha. 
 stats.t.ci = function(a,b,c){
   var alpha;
   if(c){
