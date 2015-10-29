@@ -121,10 +121,10 @@ function xhr(url, callback) {
       };
     }
   }
-  
+
   request.open('GET', url, async);
   request.send();
-  
+
   if (!async && xhrHasResponse(request)) {
     return request.responseText;
   }
@@ -142,7 +142,7 @@ function http(url, callback) {
   if (!callback) {
     return require('sync-request')('GET', url).getBody();
   }
-  
+
   var options = {url: url, encoding: null, gzip: true};
   require('request')(options, function(error, response, body) {
     if (!error && response.statusCode === 200) {

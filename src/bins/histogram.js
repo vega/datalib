@@ -43,7 +43,7 @@ function options() {
       values = util.isArray(a[i]) ? a[i++] : null,
       f = util.isFunction(a[i]) || util.isString(a[i]) ? util.$(a[i++]) : null,
       opt = util.extend({}, a[i]);
-  
+
   if (values) {
     opt.type = opt.type || type(values, f);
     if (qtype[opt.type]) {

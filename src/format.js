@@ -26,7 +26,7 @@ module.exports = {
   // Update time formatter to use provided locale configuration.
   // For more see https://github.com/d3/d3-time-format
   timeLocale:   timeLocale,
-  time:         function(f) { return timeF.format(f); },  
+  time:         function(f) { return timeF.format(f); },
   utc:          function(f) { return timeF.utcFormat(f); },
 
   // Set number and time locale simultaneously.

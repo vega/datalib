@@ -89,7 +89,7 @@ function template_var(text, variable, properties) {
     stringCast = false;
     src = 'this.formats['+a+']('+src+')';
   }
-  
+
   function time_format(fmt, key) {
     a = template_format(args[0], key, fmt);
     stringCast = false;

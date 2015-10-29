@@ -9,7 +9,7 @@ function bins(opt) {
   var maxb = opt.maxbins || 15,
       base = opt.base || 10,
       logb = Math.log(base),
-      div = opt.div || [5, 2],      
+      div = opt.div || [5, 2],
       min = opt.min,
       max = opt.max,
       span = max - min,
@@ -32,7 +32,7 @@ function bins(opt) {
       minstep,
       Math.pow(base, Math.round(Math.log(span) / logb) - level)
     );
-    
+
     // increase step size if too many bins
     do { step *= base; } while (Math.ceil(span/step) > maxb);
 

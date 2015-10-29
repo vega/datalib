@@ -373,7 +373,7 @@ stats.entropy = function(counts, f) {
 };
 
 // Compute the mutual information between two discrete variables.
-// Returns an array of the form [MI, MI_distance] 
+// Returns an array of the form [MI, MI_distance]
 // MI_distance is defined as 1 - I(a,b) / H(a,b).
 // http://en.wikipedia.org/wiki/Mutual_information
 stats.mutual = function(values, a, b, counts) {

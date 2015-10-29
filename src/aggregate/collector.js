@@ -70,7 +70,7 @@ proto.extent = function(get) {
     var v = this.values(),
         i = stats.extent.index(v, get);
     this._ext = [v[i[0]], v[i[1]]];
-    this._get = get;    
+    this._get = get;
   }
   return this._ext;
 };
@@ -96,7 +96,7 @@ proto.max = function(get) {
 proto.quartile = function(get) {
   if (this._get !== get || !this._q) {
     this._q = stats.quartile(this.values(), get);
-    this._get = get;    
+    this._get = get;
   }
   return this._q;
 };
