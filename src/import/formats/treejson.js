@@ -8,7 +8,7 @@ module.exports = function(data, format) {
 function toTable(root, childrenField) {
   childrenField = childrenField || 'children';
   var table = [];
-  
+
   function visit(node) {
     table.push(node);
     var children = node[childrenField];
@@ -18,7 +18,7 @@ function toTable(root, childrenField) {
       }
     }
   }
-  
+
   visit(root, null);
   return (table.root = root, table);
 }

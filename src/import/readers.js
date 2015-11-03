@@ -28,7 +28,7 @@ module.exports = util
           callback(e, null);
         }
       } : undefined);
-      
+
       // data loaded, now parse it (sync)
       if (!callback) return read(data, format);
     };
