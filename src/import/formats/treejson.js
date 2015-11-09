@@ -1,15 +1,16 @@
 var json = require('./json');
 
-module.exports = function(data, format) {
-  data = json(data, format);
-  return toTable(data, (format && format.children));
+module.exports = function(tree, format) {
+  return toTable(json(tree, format), format);
 };
 
-function toTable(root, childrenField) {
-  childrenField = childrenField || 'children';
-  var table = [];
+function toTable(root, fields) {
+  var childrenField = fields && fields.children || 'children',
+      parentField = fields && fields.parent || '_parent',
+      table = [];
 
-  function visit(node) {
+  function visit(node, parent) {
+    node[parentField] = parent;
     table.push(node);
     var children = node[childrenField];
     if (children) {

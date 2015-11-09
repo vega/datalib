@@ -257,6 +257,8 @@ describe('read', function() {
       var data = null;
       assert.doesNotThrow(function() { data = read(flare, {type:'treejson'}); });
       assert.equal(json.name, data[0].name);
+      assert.equal(data[0].hasOwnProperty('_parent'), true);
+      assert.equal(data[0]._parent, null);
     });
   });
 });
