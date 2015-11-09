@@ -70,6 +70,19 @@ function intervals(domain, count) {
   ];
 }
 
+function significantDigits(domain) {
+  return domain.map(function(x) {
+    // determine significant digits based on exponential format
+    var s = x.toExponential(),
+        e = s.indexOf('e'),
+        d = s.indexOf('.');
+    return d < 0 ? 1 : (e-d);
+  }).reduce(function(max, p) {
+    // return the maximum sig digit count
+    return Math.max(max, p);
+  }, 0);
+}
+
 function numberAutoFormat(domain, count, f) {
   var range = intervals(domain, count);
   if (f == null) {
@@ -77,9 +90,8 @@ function numberAutoFormat(domain, count, f) {
   } else {
     switch (f = d3_numberF.formatSpecifier(f), f.type) {
       case 's': {
-        var value = Math.max(Math.abs(range[0]), Math.abs(range[1]));
-        if (f.precision == null) f.precision = d3_numberF.precisionPrefix(range[2], value);
-        return numberF.formatPrefix(f, value);
+        if (f.precision == null) f.precision = significantDigits(domain);
+        return numberF.format(f);
       }
       case '':
       case 'e':

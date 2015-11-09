@@ -93,6 +93,9 @@ describe('format', function() {
   });
 
   it('should auto-format numbers', function() {
+    var a = [0, 1, 10, 100, 1000, 10000, 100000, 1000000];
+    var b = [0, 1, 15, 150, 1500, 15000, 150000, 1500000];
+
     var f = format.auto.number([0.0, 0.1]);
     assert.equal(f(0.01), '0.01');
     assert.equal(f(0.05), '0.05');
@@ -109,8 +112,13 @@ describe('format', function() {
 
     f = format.auto.number([0, 20], 10, 's');
     assert.equal(f(10), '10');
-    f = format.auto.number([0, 20], 10, '.1s');
+    f = format.auto.number([0, 20], 10, '.3s');
     assert.equal(f(10), '10.0');
+
+    f = format.auto.number(a, 10, 's');
+    assert.deepEqual(a.map(f), ['0', '1', '10', '100', '1k', '10k', '100k', '1M']);
+    f = format.auto.number(b, 10, 's');
+    assert.deepEqual(b.map(f), ['0.0', '1.0', '15', '150', '1.5k', '15k', '150k', '1.5M']);
 
     f = format.auto.number([0, 20], 10, '');
     assert.equal(f(10), '10');
