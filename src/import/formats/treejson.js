@@ -6,7 +6,7 @@ module.exports = function(tree, format) {
 
 function toTable(root, fields) {
   var childrenField = fields && fields.children || 'children',
-      parentField = fields && fields.parent || '_parent',
+      parentField = fields && fields.parent || 'parent',
       table = [];
 
   function visit(node, parent) {
