@@ -1,5 +1,3 @@
-var util = require("./util");
-
 var distribution = {};
 // Each distribution needs a pdf, cdf and icdf
 

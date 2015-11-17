@@ -1,0 +1,223 @@
+//STATS.JS
+
+stats.t = {};
+
+
+// Construct a t-confidence interval at a given significance level.
+// As with z-confidence, arguments are either an array,or an array and an alpha. 
+stats.t.ci = function(a,b,c){
+  var alpha;
+  if(c){
+    alpha = c;
+  }
+  else if(b){
+    alpha = b;
+  }
+  else{
+    alpha = 0.05;
+  }
+  var mu = c ? a : stats.mean(a),
+      sigma = c ? b : stats.stdev(a),
+      t = new distribution.StudentsT(stats.count(a)-1),
+      A = t.icdf(1-(alpha/2)),
+      SE = sigma/Math.sqrt(stats.count(a));
+  return [mu - (A*SE),mu + (A*SE)];
+};
+
+// Perform a two tailed, one sample Student's t test.
+stats.t.test = function(a,b){
+ var nullH = b ? b : 0,
+     tdist = new distribution.StudentsT(stats.count.valid(a)-1),
+     xBar = stats.mean(a),
+     SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
+  if(SE===0){
+  // Not well defined when standard error is 0. 
+    var result = (xBar-nullH)===0 ? 1 : 0;
+    return result;
+  }
+  var t = (xBar-nullH)/SE;
+  t = -1*Math.abs(t);
+  // Two-tailed, so twice the one-sided cdf.
+  return 2*tdist.cdf(t);
+};
+
+// Perform a two independent sample t test with assumed equal population variance
+stats.t.twoSampleTest = function(values,a,b){
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a,
+      n1 = stats.count.valid(X),
+      n2 = stats.count.valid(Y),
+      tdist = new distribution.StudentsT(n1+n2-2),
+      meanDiff = stats.mean(X)-stats.mean(Y),
+      s = Math.sqrt( ((n1-1)*stats.variance(X) + (n2-1)*stats.variance(Y))/(n1+n2-2));
+  if(s===0){
+  // Not well defined when pooled standard deviation is 0.   
+    var result = meanDiff===0 ? 1 : 0;
+    return result;
+  }
+  var t = meanDiff/(s*Math.sqrt((1/n1) + (1/n2)));       
+  // Two-tailed, so twice the one-sided cdf.
+  t = -1*Math.abs(t);
+  return 2*tdist.cdf(t);
+};
+
+// Perform a two sample paired t test with assumed equal population variance.
+stats.t.pairedTest = function(values,a,b){
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a,
+      n1 = stats.count.valid(X),
+      n2 = stats.count.valid(Y);
+
+  if(n1!=n2){
+  //Must have the same number of values!
+    throw Error('Array lengths must match.');
+  }
+  var tdist = new distribution.StudentsT(n1+n2-2),
+      meanDiff = stats.mean(X)-stats.mean(Y),
+      s = Math.sqrt(stats.variance(X) + stats.variance(Y));
+  if(s===0){
+  // Test not well defined when pooled standard error is 0.
+    var result = meanDiff===0 ? 1 : 0;
+    return result;
+  }
+  var t = meanDiff/(s*Math.sqrt(1/n1));
+  // Two-sided, so twice the one-sided cdf.
+  t = -1*Math.abs(t);
+  return 2*tdist.cdf(t);
+};
+
+
+//DISTRIBUTION.JS
+//Euler Functions and Distributions.
+
+// GammaLn
+distribution.GammaLn = function(z){
+// Simplified Stirling's Approximation
+  var sinPart = z*Math.sinh(1/z)+(1/(810*Math.pow(z,6))),
+  twoLn = Math.log(2*Math.PI) - Math.log(z) + z*( (2*Math.log(z))+Math.log(sinPart) - 2);
+  return util.number((twoLn/2).toPrecision(6));  
+};
+
+distribution.Gamma = function(z){
+  return util.number(Math.exp(distribution.GammaLn(z)).toPrecision(4));
+};
+
+// Beta
+distribution.BetaFn = function(a,b){
+  var numerator = Math.exp(distribution.GammaLn(a))*Math.exp(distribution.GammaLn(b));
+  return util.number((numerator / Math.exp(distribution.GammaLn(a+b))).toPrecision(4));
+};
+
+// IncBeta
+// A simplified version of DiDonato & Jarnagin (1967) The Efficient Calculation of Incomplete Beta-Function Ratio for Half-Integer Values of the Parameters a,b
+distribution.IncBeta = function(x,a,b){
+  var ai = function(x,a,i){
+    return (distribution.Gamma(a + i - 1)/(distribution.Gamma(a)*distribution.Gamma(i)))*Math.pow(x,a)*Math.pow(1-x,i-1); 
+  };
+
+  var bi = function(x,b,i){
+    return ( distribution.Gamma(b+i-1)/(distribution.Gamma(b)*distribution.Gamma(i)))*Math.pow(x,i-1)*Math.pow(1-x,b);
+  }; 
+  //Three cases: a is an integer, b is an integer, or a and b are half-integers.   
+ var sum = 0,
+     i=1; 
+ if(b===parseInt(b,10)){
+    sum = 0;
+    for(i = 1;i<b;i++){
+      sum+= ai(x,a,i);
+    }
+      return sum;
+  }
+  else if(a==parseInt(a,10)){
+    sum = 0;
+    for(i = 1;i<a;i++){
+      sum+= bi(x,b,i);
+    }
+    return 1-sum;
+  }
+  else{
+    var halfI = (2/Math.PI)*Math.atan(Math.sqrt(x/(1-x))),
+    halfAI;
+    sum = 0;
+    for(i = 1;i<Math.floor(a)-1;i++){
+      sum+=(distribution.Gamma(i)/(distribution.Gamma(i+0.5)*distribution.Gamma(1/2)))*Math.pow(x,i-1);
+    }        
+    halfAI = halfI - Math.sqrt(x*(1-x))*sum;
+    sum  = 0;
+    for(i = 1;i<Math.floor(b)-1;i++){
+      sum+=(distribution.Gamma(a+i-0.5)/(distribution.Gamma(a)*distribution.Gamma(i+0.5)))*Math.pow(x,a)*Math.pow(1-x,i-0.5);
+    }        
+    return halfAI + sum;
+  }
+};
+
+
+// Student's T distribution
+distribution.StudentsT = function(df){
+  this.pdf = function(t){
+    var tcomponent = Math.pow(1 + (t*t/df),-( (df+1)/2)),
+        g1 = distribution.Gamma( (df+1)/2),
+        g2 = distribution.Gamma( df / 2),
+        gammaComponent = g1/ (g2 * Math.sqrt(df*Math.PI));
+    return util.number((tcomponent*gammaComponent).toPrecision(4));
+   };
+  this.cdf = function(t){
+  // Analytic definition of cdf, but errors from the regularized incomplete beta function accumulate.
+    var x = df/(Math.pow(t,2) + df),
+        value =  1 - (0.5*distribution.IncBeta(x,df/2,1/2)),
+        cd;
+    if(t===0){
+      cd = 0.5;
+    }
+    else if(t>0){
+      cd = value;
+    }
+    else{
+      cd = 1-value;
+    }
+    return util.number(cd.toPrecision(3));
+  };
+  this.icdf = function(u){
+  // Power series expansion from Shaw (2006) New Methods for Managing Student's T Distribution. I only use the first 6 constants for readability, and the errors from the gamma function approximation accumulate, so consider this a placeholder for now.
+    if(u<=0 || u>=1){
+      return NaN;
+    }
+    else if(u==0.5){
+      return 0;
+    }
+    else if(df>150){
+      return util.number(new distribution.Normal().icdf(u).toPrecision(4));
+    }    
+    var v = (u-0.5)*Math.sqrt(df*Math.PI)*(distribution.Gamma(df/2)/distribution.Gamma((df+1)/2)),
+    c = 
+    [(1/6) + (1/(6*df)),
+     (7/120)+(1/(15*df))+(1/(120*Math.pow(df,2))),
+     127/5040 + (3/(112*df)) + (1/(560*Math.pow(df,2))) + (1/(5040*Math.pow(df,3))),
+     4369/362880 + 479/(45360*df) - 67/(60480*df*df) + 17/(45360*Math.pow(df,3)) + 1/(362880*Math.pow(df,4)),
+     34807/5702400 + 153161/(39916800*df) - 1285/(798336*df*df) + 11867/(19958400*Math.pow(df,3)) - 2503/(39916800*Math.pow(df,4)) + 1/(39916800*Math.pow(df,5)),
+     20036983/6227020800 + 70691/(64864800*df) - 870341/(69191200*df*df) + 67217/(97297200*Math.pow(df,3)) - 339929/(2075673600*Math.pow(df,4)) + 37/(2402400*Math.pow(df,5)) + 1/(6227020800*Math.pow(df,6))
+     ],
+     sum = 0;
+     for(var i = 0;i<c.length;i++){
+       sum+=c[i]*Math.pow(v,2*(i+1)+1);
+     }
+     return v + sum;
+  };
+}; 
+
+//DISTRIBUTION.TEST.JS
+
+
+  describe('GammaLn', function() {
+    it('should be undefined when z<=0', function() {
+      assert.ok(isNaN(distribution.GammaLn(0)));
+    });
+  });
+
+  describe('Gamma', function() {
+    it('should give reasonable approximations for known values', function() {
+      assert.equal(1,distribution.Gamma(1));
+      assert.equal(1,distribution.Gamma(2));
+      assert.equal(5040,distribution.Gamma(8));
+    });
+  });
