@@ -469,6 +469,7 @@ describe('stats', function() {
     it('should return 0 for empty arrays, or arrays with no variance',function() {
       assert.equal(0,stats.cohensd([],[]));
       assert.equal(0,stats.cohensd([1],[2]));
+	  assert.equal(0,stats.cohensd([1,1],[1,1]));
     });
   });
 
@@ -500,13 +501,13 @@ describe('stats', function() {
 
     it('should accept object array and accessors',function() {
       assert.equal(-1,stats.linearRegression(table,a,b).m);
-      assert.equal(1,stats.linearRegression(table,a,a).r);
+      assert.equal(1,stats.linearRegression(table,a,a).R);
       assert.equal(4,stats.linearRegression(table,b,a).b);
     });
 
     it('should accept two arrays',function() {
       assert.equal(-1,stats.linearRegression(g1,g2).m);
-      assert.equal(1,stats.linearRegression(g1,g1).r);
+      assert.equal(1,stats.linearRegression(g1,g1).R);
       assert.equal(0,stats.linearRegression(g1,g2).rss);
     });
 
@@ -515,8 +516,8 @@ describe('stats', function() {
     });
     
     it('should agree with pearsons r calculation',function() {
-      assert.equal(stats.cor(g1,g2),stats.linearRegression(g1,g2).r);
-      assert.equal(stats.cor(g2,g1),stats.linearRegression(g2,g1).r);
+      assert.equal(stats.cor(g1,g2),stats.linearRegression(g1,g2).R);
+      assert.equal(stats.cor(g2,g1),stats.linearRegression(g2,g1).R);
     });
   });
   

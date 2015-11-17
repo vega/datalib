@@ -382,7 +382,7 @@ stats.linearRegression = function(values,a,b){
 
   fit.m = stats.covariance(X,Y)/stats.variance(X);
   fit.b = stats.mean(Y) - fit.m*stats.mean(X);
-  fit.r = fit.m*sx/sy;        
+  fit.R = stats.covariance(X,Y) / (sx*sy);        
   var sum = 0,
   predicted;
   for(var i = 0;i<stats.count(X);i++){
@@ -395,7 +395,6 @@ stats.linearRegression = function(values,a,b){
 
 // Name spaces for the inferential distributions we'll be using.
 stats.z = {};
-stats.t = {};
 
 // Construct a z-confidence interval at a given significance level
 // Arguments are an  array and an optional alpha (defaults to 0.05).
@@ -465,89 +464,6 @@ stats.z.twoSampleTest = function(values,a,b){
   // Two-tailed, so twice the one-sided cdf.
   z = -1*Math.abs(z);
   return 2*gaussian.cdf(z);
-};
-
-// Construct a t-confidence interval at a given significance level.
-// As with z-confidence, arguments are either an array,or an array and an alpha. 
-stats.t.ci = function(a,b,c){
-  var alpha;
-  if(c){
-    alpha = c;
-  }
-  else if(b){
-    alpha = b;
-  }
-  else{
-    alpha = 0.05;
-  }
-  var mu = c ? a : stats.mean(a),
-      sigma = c ? b : stats.stdev(a),
-      t = new distribution.StudentsT(stats.count(a)-1),
-      A = t.icdf(1-(alpha/2)),
-      SE = sigma/Math.sqrt(stats.count(a));
-  return [mu - (A*SE),mu + (A*SE)];
-};
-
-// Perform a two tailed, one sample Student's t test.
-stats.t.test = function(a,b){
- var nullH = b ? b : 0,
-     tdist = new distribution.StudentsT(stats.count.valid(a)-1),
-     xBar = stats.mean(a),
-     SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
-  if(SE===0){
-  // Not well defined when standard error is 0. 
-    var result = (xBar-nullH)===0 ? 1 : 0;
-    return result;
-  }
-  var t = (xBar-nullH)/SE;
-  t = -1*Math.abs(t);
-  // Two-tailed, so twice the one-sided cdf.
-  return 2*tdist.cdf(t);
-};
-
-// Perform a two independent sample t test with assumed equal population variance
-stats.t.twoSampleTest = function(values,a,b){
-  var X = b ? values.map(util.$(a)) : values,
-      Y = b ? values.map(util.$(b)) : a,
-      n1 = stats.count.valid(X),
-      n2 = stats.count.valid(Y),
-      tdist = new distribution.StudentsT(n1+n2-2),
-      meanDiff = stats.mean(X)-stats.mean(Y),
-      s = Math.sqrt( ((n1-1)*stats.variance(X) + (n2-1)*stats.variance(Y))/(n1+n2-2));
-  if(s===0){
-  // Not well defined when pooled standard deviation is 0.   
-    var result = meanDiff===0 ? 1 : 0;
-    return result;
-  }
-  var t = meanDiff/(s*Math.sqrt((1/n1) + (1/n2)));       
-  // Two-tailed, so twice the one-sided cdf.
-  t = -1*Math.abs(t);
-  return 2*tdist.cdf(t);
-};
-
-// Perform a two sample paired t test with assumed equal population variance.
-stats.t.pairedTest = function(values,a,b){
-  var X = b ? values.map(util.$(a)) : values,
-      Y = b ? values.map(util.$(b)) : a,
-      n1 = stats.count.valid(X),
-      n2 = stats.count.valid(Y);
-
-  if(n1!=n2){
-  //Must have the same number of values!
-    throw Error('Array lengths must match.');
-  }
-  var tdist = new distribution.StudentsT(n1+n2-2),
-      meanDiff = stats.mean(X)-stats.mean(Y),
-      s = Math.sqrt(stats.variance(X) + stats.variance(Y));
-  if(s===0){
-  // Test not well defined when pooled standard error is 0.
-    var result = meanDiff===0 ? 1 : 0;
-    return result;
-  }
-  var t = meanDiff/(s*Math.sqrt(1/n1));
-  // Two-sided, so twice the one-sided cdf.
-  t = -1*Math.abs(t);
-  return 2*tdist.cdf(t);
 };
 
 // Construct a mean-centered distance matrix for an array of numbers.
