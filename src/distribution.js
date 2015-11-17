@@ -88,8 +88,9 @@ distribution.Normal = function(mu,sigma){
       var ierf = function(x){
         var a = (8*(Math.PI - 3))/(3 * Math.PI * (4-Math.PI)),
             parta = ( 2 / (Math.PI*a) ) + (Math.log(1-Math.pow(x,2))/2),
-            partb = Math.log(1 - (x*x))/a;
-        return Math.sign(x)*Math.sqrt( Math.sqrt( (parta*parta) - partb) - parta);
+            partb = Math.log(1 - (x*x))/a,
+            signx = (x>0) ? 1 : -1;
+        return signx*Math.sqrt( Math.sqrt( (parta*parta) - partb) - parta);
       };
       return this.mu + this.sigma*Math.sqrt(2)*ierf(2*p - 1);
     }
