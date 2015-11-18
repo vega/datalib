@@ -71,7 +71,7 @@ describe('aggregate', function() {
       assert.equal(4, groupby('a').execute(data).length);
     });
   });
-  
+
   describe('summarize', function() {
     var values = [1, 2, 3, null, 4, 5, 6, undefined, NaN, 7, 8, 9];
     var table = values.map(function(x) { return {a:x}; });
@@ -155,7 +155,7 @@ describe('aggregate', function() {
     it('should compute q3', function() {
       assert.equal(stats.quartile(values)[2], run({'a':'q3'}).q3_a);
     });
-    
+
     it('should compute quartiles', function() {
       var r = run({'a':['q1', 'median', 'q3']});
       var q = stats.quartile(values);
@@ -250,7 +250,7 @@ describe('aggregate', function() {
       var data = [{a:1, b:10}, {a:2, b:20}, {a:1, b:5}, {a:2, b:15}];
       var agg = groupby('a').stream(true).summarize({'b': ['sum']});
       var cnt = [0, 0, 0, 0, 0];
-      
+
       agg._on_add  = function() { ++cnt[0]; };
       agg._on_mod  = function() { ++cnt[1]; };
       agg._on_rem  = function() { ++cnt[2]; };
@@ -269,6 +269,12 @@ describe('aggregate', function() {
       agg.remove(data.slice(2))
       agg.changes();
       assert.deepEqual(cnt, [4, 1, 2, 1, 5]);
+
+      agg._markMod(data[0], {a:1, b:10});
+      var cs = agg.changes();
+      assert.equal(cs.mod.length, 1);
+      assert.equal(cs.add.length, 0);
+      assert.equal(cs.rem.length, 0);
     });
 
     it('should update cells over multiple runs', function() {
@@ -342,7 +348,7 @@ describe('aggregate', function() {
       var fields = ['sum', 'mean', 'variance', 'stdev'];
       var agg = groupby().stream(true).summarize({'a': fields});
       var f = util.$('a');
-      
+
       agg.execute(data);
       do {
         var t = data.pop();
@@ -482,11 +488,11 @@ describe('aggregate', function() {
       var agg = groupby('x').stream(true).summarize({'*': 'count'});
       var r = agg.insert(init).changes();
       assert.equal(5, r.add[0].count);
-      
+
       r = agg.remove([init[0]]).insert(add).changes();
       assert.equal(4, r.mod[0].count);
       assert.equal(1, r.add[0].count);
-      
+
       for (var i=0; i<mod.length; ++i) {
         var prev = util.duplicate(init[i+1]);
         init[i+1].x = mod[i].x;
@@ -495,7 +501,7 @@ describe('aggregate', function() {
       r = agg.changes();
       assert.equal(1, r.mod[0].count);
       assert.equal(4, r.mod[1].count);
-      
+
       r = agg.remove([init[4]]).changes();
       assert.equal(0, r.rem[0].count);
     });
@@ -589,7 +595,7 @@ describe('aggregate', function() {
       assert.equal(0, set3.add.length);
       assert.equal(1, set3.rem.length);
       assert.equal(0, set3.mod.length);
-      
+
       assert.strictEqual(set1.add[0], set2.mod[0]);
       assert.strictEqual(set1.add[0], set3.rem[0]);
     });
