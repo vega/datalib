@@ -201,6 +201,11 @@ proto._mod = function(curr, prev) {
   if (this._on_mod) this._on_mod(curr, prev, cell0, cell1);
 };
 
+proto._markMod = function(x) {
+  var cell0 = this._cell(x);
+  cell0.flag |= Flags.MOD_CELL;
+};
+
 proto.result = function() {
   var result = [],
       aggr = this._aggr,
