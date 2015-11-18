@@ -201,15 +201,8 @@ proto._mod = function(curr, prev) {
   if (this._on_mod) this._on_mod(curr, prev, cell0, cell1);
 };
 
-proto._markMod = function(curr, prev) {
-  var cell0 = this._cell(prev),
-      cell1 = this._cell(curr);
-
-  if (cell0 !== cell1) {
-    throw new Error('Current and previous cells differ. ' +
-      'Full mod operation required.');
-  }
-
+proto._markMod = function(x) {
+  var cell0 = this._cell(x);
   cell0.flag |= Flags.MOD_CELL;
 };
 
