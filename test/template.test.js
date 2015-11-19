@@ -11,7 +11,7 @@ describe('template', function() {
     var f = template('hello');
     assert.equal('hello', f({}));
   });
-  
+
   it('should handle a single interpolant', function() {
     var f = template('{{a}}');
     assert.equal('hello', f({a: 'hello'}));
@@ -22,7 +22,7 @@ describe('template', function() {
     f = template('{{a}} there');
     assert.equal('hello there', f({a: 'hello'}));
   });
-  
+
   it('should handle nested property interpolants', function() {
     var f = template('hello {{a.b}}');
     assert.equal('hello there', f({a: {b:'there'}}));
@@ -121,7 +121,7 @@ describe('template', function() {
 
     f = template('{{a|pad:8,middle}}');
     assert.equal(' hello  ', f({a: 'hello'}));
-    
+
     f = template('hello {{a|pad:8}}');
     assert.equal('hello 12345   ', f({a: 12345}));
   });
@@ -154,6 +154,26 @@ describe('template', function() {
     f = template("the date: {{a|time-utc:'%Y-%m-%d'}}");
     assert.equal('the date: 2011-01-01',
       f({a: new Date(Date.UTC(2011, 0, 1))}));
+  });
+
+  it('should handle month name filter', function() {
+    var f = template('month: {{a|month}}');
+    assert.equal('month: March',
+      f({a: 2}));
+
+    f = template('month: {{a|abbrev-month}}');
+    assert.equal('month: Mar',
+      f({a: 2}));
+  });
+
+  it('should handle weekday name filter', function() {
+    var f = template('day: {{a|weekday}}');
+    assert.equal('day: Tuesday',
+      f({a: 2}));
+
+    f = template('day: {{a|abbrev-weekday}}');
+    assert.equal('day: Tue',
+      f({a: 2}));
   });
 
   it('should throw error if format pattern is unquoted', function() {
@@ -230,7 +250,7 @@ describe('template', function() {
 
     f = template('{{a | lower }}');
     assert.equal('hello', f({a: 'HELLO'}));
-    
+
     f = template('{{a | lower | mid : 3, 5 }}');
     assert.equal('hello', f({a: '---HELLO---'}));
   });
