@@ -172,4 +172,64 @@ describe('format', function() {
     assert.equal(f(new Date(Date.UTC(2000, 0, 1))), '2000');
   });
 
+  it('should format full month names', function() {
+    var f = format.monthName.full;
+    for (var i = 0; i < 12; i++) {
+      var expected = enUS.time.months[i];
+      assert.equal(f(i), expected);
+    }
+
+    format.timeLocale('de-DE');
+    for (var i = 0; i < 12; i++) {
+      var expected = deDE.time.months[i];
+      assert.equal(f(i), expected);
+    }
+    format.locale('en-US');
+  });
+
+  it('should format abbreviated month names', function() {
+    var f = format.monthName.abbreviated;
+    for (var i = 0; i < 12; i++) {
+      var expected = enUS.time.shortMonths[i];
+      assert.equal(f(i), expected);
+    }
+
+    format.timeLocale('de-DE');
+    for (var i = 0; i < 12; i++) {
+      var expected = deDE.time.shortMonths[i];
+      assert.equal(f(i), expected);
+    }
+    format.locale('en-US');
+  });
+
+  it('should format full weekday names', function() {
+    var f = format.weekdayName.full;
+    for (var i = 0; i < 7; i++) {
+      var expected = enUS.time.days[i];
+      assert.equal(f(i), expected);
+    }
+
+    format.timeLocale('de-DE');
+    for (var i = 0; i < 7; i++) {
+      var expected = deDE.time.days[i];
+      assert.equal(f(i), expected);
+    }
+    format.locale('en-US');
+  });
+
+  it('should format abbreviated weekday names', function() {
+    var f = format.weekdayName.abbreviated;
+    for (var i = 0; i < 7; i++) {
+      var expected = enUS.time.shortDays[i];
+      assert.equal(f(i), expected);
+    }
+
+    format.timeLocale('de-DE');
+    for (var i = 0; i < 7; i++) {
+      var expected = deDE.time.shortDays[i];
+      assert.equal(f(i), expected);
+    }
+    format.locale('en-US');
+  });
+
 });

@@ -37,6 +37,18 @@ module.exports = {
     number:   numberAutoFormat,
     time:     function() { return timeAutoFormat(); },
     utc:      function() { return utcAutoFormat(); }
+  },
+
+  // get abbreaviated and full month names
+  monthName: {
+    abbreviated:  monthNameFunc(true),
+    full:         monthNameFunc(false)
+  },
+
+  // get abbreaviated and full weekday names
+  weekdayName: {
+    abbreviated:  weekdayNameFunc(true),
+    full:         weekdayNameFunc(false)
   }
 };
 
@@ -156,5 +168,19 @@ function utcAutoFormat() {
           (d3_time.utcWeek(date) < d ? formatDay : formatWeek)
         : d3_time.utcYear(date) < d ? formatMonth
         : formatYear)(date);
+  };
+}
+
+function monthNameFunc(abbreviated) {
+  var f = abbreviated ? '%b' : '%B';
+  return function(m) {
+    return timeF.format(f)(new Date(2000, m));
+  };
+}
+
+function weekdayNameFunc(abbreviated) {
+  var f = abbreviated ? '%a' : '%A';
+  return function(d) {
+    return timeF.format(f)(new Date(2000, 1, d + 6));
   };
 }
