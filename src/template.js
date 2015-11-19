@@ -6,8 +6,8 @@ var context = {
   format_map: {},
   truncate:   util.truncate,
   pad:        util.pad,
-  monthName:  format.monthName,
-  weekdayName:format.weekdayName
+  day:        format.day,
+  month:      format.month
 };
 
 function template(text) {
@@ -172,16 +172,16 @@ function template_var(text, variable, properties) {
         time_format(format.utc, 'time-utc');
         break;
       case 'month':
-        src = 'this.monthName.full(' + src + ')';
+        src = 'this.month(' + src + ')';
         break;
-      case 'abbrev-month':
-        src = 'this.monthName.abbreviated(' + src + ')';
+      case 'month-abbrev':
+        src = 'this.month(' + src + ',true)';
         break;
-      case 'weekday':
-        src = 'this.weekdayName.full(' + src + ')';
+      case 'day':
+        src = 'this.day(' + src + ')';
         break;
-      case 'abbrev-weekday':
-        src = 'this.weekdayName.abbreviated(' + src + ')';
+      case 'day-abbrev':
+        src = 'this.day(' + src + ',true)';
         break;
       default:
         throw Error('Unrecognized template filter: ' + f);

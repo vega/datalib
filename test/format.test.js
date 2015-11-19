@@ -173,34 +173,30 @@ describe('format', function() {
   });
 
   it('should format full month names', function() {
-    var f = format.monthName.full;
     for (var i = 0; i < 12; i++) {
       var expected = enUS.time.months[i];
-      assert.equal(f(i), expected);
+      assert.equal(format.month(i), expected);
     }
   });
 
   it('should format abbreviated month names', function() {
-    var f = format.monthName.abbreviated;
     for (var i = 0; i < 12; i++) {
       var expected = enUS.time.shortMonths[i];
-      assert.equal(f(i), expected);
+      assert.equal(format.month(i, true), expected);
     }
   });
 
-  it('should format full weekday names', function() {
-    var f = format.weekdayName.full;
+  it('should format full day names', function() {
     for (var i = 0; i < 7; i++) {
       var expected = enUS.time.days[i];
-      assert.equal(f(i), expected);
+      assert.equal(format.day(i), expected);
     }
   });
 
-  it('should format abbreviated weekday names', function() {
-    var f = format.weekdayName.abbreviated;
+  it('should format abbreviated day names', function() {
     for (var i = 0; i < 7; i++) {
       var expected = enUS.time.shortDays[i];
-      assert.equal(f(i), expected);
+      assert.equal(format.day(i, true), expected);
     }
   });
 

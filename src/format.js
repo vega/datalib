@@ -2,7 +2,9 @@ var d3_time = require('d3-time'),
     d3_timeF = require('d3-time-format'),
     d3_numberF = require('d3-format'),
     numberF = d3_numberF, // defaults to EN-US
-    timeF = d3_timeF;     // defaults to EN-US
+    timeF = d3_timeF,     // defaults to EN-US
+    tmpDate = new Date(2000, 0, 1),
+    monthFull, monthAbbr, dayFull, dayAbbr;
 
 function numberLocale(l) {
   var f = d3_numberF.localeFormat(l);
@@ -14,6 +16,7 @@ function timeLocale(l) {
   var f = d3_timeF.localeFormat(l);
   if (f == null) throw Error('Unrecognized locale: ' + l);
   timeF = f;
+  monthFull = monthAbbr = dayFull = dayAbbr = null;
 }
 
 module.exports = {
@@ -39,17 +42,8 @@ module.exports = {
     utc:      function() { return utcAutoFormat(); }
   },
 
-  // get abbreviated and full month names
-  monthName: {
-    abbreviated:  monthNameFunc(true),
-    full:         monthNameFunc(false)
-  },
-
-  // get abbreviated and full weekday names
-  weekdayName: {
-    abbreviated:  weekdayNameFunc(true),
-    full:         weekdayNameFunc(false)
-  }
+  month: monthFormat, // format month name from integer code
+  day:   dayFormat    // format week day name from integer code
 };
 
 var e10 = Math.sqrt(50),
@@ -171,16 +165,16 @@ function utcAutoFormat() {
   };
 }
 
-function monthNameFunc(abbreviated) {
-  var f = abbreviated ? '%b' : '%B';
-  return function(m) {
-    return timeF.format(f)(new Date(2000, m));
-  };
+function monthFormat(month, abbreviate) {
+  var f = abbreviate ?
+    (monthAbbr || (monthAbbr = timeF.format('%b'))) :
+    (monthFull || (monthFull = timeF.format('%B')));
+  return (tmpDate.setMonth(month), f(tmpDate));
 }
 
-function weekdayNameFunc(abbreviated) {
-  var f = abbreviated ? '%a' : '%A';
-  return function(d) {
-    return timeF.format(f)(new Date(2000, 1, d + 6));
-  };
+function dayFormat(day, abbreviate) {
+  var f = abbreviate ?
+    (dayAbbr || (dayAbbr = timeF.format('%a'))) :
+    (dayFull || (dayFull = timeF.format('%A')));
+  return (tmpDate.setMonth(0), tmpDate.setDate(2 + day), f(tmpDate));
 }

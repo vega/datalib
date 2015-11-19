@@ -156,24 +156,20 @@ describe('template', function() {
       f({a: new Date(Date.UTC(2011, 0, 1))}));
   });
 
-  it('should handle month name filter', function() {
+  it('should handle month format filter', function() {
     var f = template('month: {{a|month}}');
-    assert.equal('month: March',
-      f({a: 2}));
+    assert.equal('month: March', f({a: 2}));
 
-    f = template('month: {{a|abbrev-month}}');
-    assert.equal('month: Mar',
-      f({a: 2}));
+    f = template('month: {{a|month-abbrev}}');
+    assert.equal('month: Mar', f({a: 2}));
   });
 
-  it('should handle weekday name filter', function() {
-    var f = template('day: {{a|weekday}}');
-    assert.equal('day: Tuesday',
-      f({a: 2}));
+  it('should handle day format filter', function() {
+    var f = template('day: {{a|day}}');
+    assert.equal('day: Tuesday', f({a: 2}));
 
-    f = template('day: {{a|abbrev-weekday}}');
-    assert.equal('day: Tue',
-      f({a: 2}));
+    f = template('day: {{a|day-abbrev}}');
+    assert.equal('day: Tue', f({a: 2}));
   });
 
   it('should throw error if format pattern is unquoted', function() {
