@@ -39,13 +39,13 @@ module.exports = {
     utc:      function() { return utcAutoFormat(); }
   },
 
-  // get abbreaviated and full month names
+  // get abbreviated and full month names
   monthName: {
     abbreviated:  monthNameFunc(true),
     full:         monthNameFunc(false)
   },
 
-  // get abbreaviated and full weekday names
+  // get abbreviated and full weekday names
   weekdayName: {
     abbreviated:  weekdayNameFunc(true),
     full:         weekdayNameFunc(false)
