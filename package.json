@@ -1,6 +1,6 @@
 {
   "name": "datalib",
-  "version": "1.4.11",
+  "version": "1.4.12",
   "description": "JavaScript utilites for loading, summarizing and working with data.",
   "keywords": [
     "data",
@@ -32,7 +32,6 @@
   },
   "devDependencies": {
     "browserify": "^10.2.6",
-    "browserify-shim": "^3.8.9",
     "browserify-versionify": "^1.0.4",
     "chai": "^3.0.0",
     "istanbul": "latest",
@@ -51,12 +50,8 @@
   },
   "browserify": {
     "transform": [
-      "browserify-shim",
       "browserify-versionify"
     ]
-  },
-  "browserify-shim": {
-    "topojson": "global:topojson"
   },
   "browser": {
     "buffer": false,
