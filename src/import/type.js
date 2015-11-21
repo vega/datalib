@@ -23,6 +23,7 @@ function annotation(data, types) {
 }
 
 function type(values, f) {
+  values = util.array(values);
   f = util.$(f);
   var v, i, n;
 
@@ -51,6 +52,7 @@ function typeAll(data, fields) {
 }
 
 function infer(values, f) {
+  values = util.array(values);
   f = util.$(f);
   var i, j, v;
 

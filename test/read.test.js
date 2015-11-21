@@ -89,6 +89,7 @@ describe('read', function() {
     it('should parse numbers', function() {
       assert.equal(1, p.number('1'));
       assert.equal(3.14, p.number('3.14'));
+      assert.equal(100, p.number('1e2'));
       assert.equal(null, p.number(null));
     });
     it('should parse date', function() {
