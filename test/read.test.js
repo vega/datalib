@@ -105,6 +105,10 @@ describe('read', function() {
       assert.equal(+(new Date(2000, 0, 1)), +p.date('1/1/2000'));
       assert.equal(null, p.date(null));
     });
+    it('should parse date with format', function() {
+      assert.equal(+(new Date(2000, 0, 1)), +p.date('Sun 01/01/2000', '%a %m/%d/%Y'));
+      assert.equal(null, p.date(null, '%a %m/%d/%Y'));
+    });
     it('should parse strings', function() {
       assert.equal('a', p.string('a'));
       assert.equal('bb', p.string('bb'));
