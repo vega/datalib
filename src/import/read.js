@@ -14,12 +14,22 @@ function parse(data, types) {
 
   types = (types==='auto') ? type.inferAll(data) : util.duplicate(types);
   cols = util.keys(types);
-  parsers = cols.map(function(c) { return type.parsers[types[c]]; });
+  parsers = cols.map(function(c) {
+    if (types[c]) {
+      var a = types[c].split(':', 2);
+      return {
+        parser: type.parsers[a[0]],
+        // optional arguments to be passed to the parser
+        opt: a.length > 1 ? a[1] : null
+      };
+    }
+  });
 
   for (i=0, clen=cols.length; i<len; ++i) {
     d = data[i];
     for (j=0; j<clen; ++j) {
-      d[cols[j]] = parsers[j](d[cols[j]]);
+      var obj = parsers[j];
+      d[cols[j]] = obj.parser(d[cols[j]], obj.opt);
     }
   }
   type.annotation(data, types);

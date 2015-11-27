@@ -171,6 +171,18 @@ describe('read', function() {
       var json = JSON.stringify({foo: data});
       assert.deepEqual(read(json, {type:'json', property:'foo'}), data);
     });
+    it('should parse date with format', function() {
+      var json = [{foo: '18/07/1990'}];
+
+      assert.deepEqual(
+        read(json, {type:'json', parse: {foo: 'date:%d/%m/%Y'}})[0],
+        {foo: new Date(1990, 6, 18)});
+
+      json = [{foo: '07/18/1990'}];
+      assert.deepEqual(
+        read(json, {type:'json', parse: {foo: 'date:%m/%d/%Y'}})[0],
+        {foo: new Date(1990, 6, 18)});
+    });
   });
 
   describe('csv', function() {
