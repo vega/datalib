@@ -106,8 +106,9 @@ describe('read', function() {
       assert.equal(null, p.date(null));
     });
     it('should parse date with format', function() {
-      assert.equal(+(new Date(2000, 0, 1)), +p.date('Sun 01/01/2000', '%a %m/%d/%Y'));
-      assert.equal(null, p.date(null, '%a %m/%d/%Y'));
+      assert.equal(+(new Date(1990, 6, 18)), +p.date('18/07/1990', '%d/%m/%Y'));
+      assert.equal(+(new Date(1990, 6, 18)), +p.date('07/18/1990', '%m/%d/%Y'));
+      assert.equal(null, p.date(null, '%d/%m/%Y'));
     });
     it('should parse strings', function() {
       assert.equal('a', p.string('a'));
