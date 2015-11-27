@@ -174,17 +174,24 @@ describe('read', function() {
       var json = JSON.stringify({foo: data});
       assert.deepEqual(read(json, {type:'json', property:'foo'}), data);
     });
-    it('should parse date with format', function() {
+
+    it('should parse date with format %d/%m/%Y', function() {
+      var expected = [{foo: new Date(1990, 6, 18)}];
       var json = [{foo: '18/07/1990'}];
-
+      var types = {foo: 'date:%d/%m/%Y'};
+      type.annotation(expected, types);
       assert.deepEqual(
-        read(json, {type:'json', parse: {foo: 'date:%d/%m/%Y'}})[0],
-        {foo: new Date(1990, 6, 18)});
-
-      json = [{foo: '07/18/1990'}];
+        read(json, {type:'json', parse: types}),
+        expected);
+    });
+    it('should parse date with format %m/%d/%Y', function() {
+      var expected = [{foo: new Date(1990, 6, 18)}];
+      var json = [{foo: '07/18/1990'}];
+      var types = {foo: 'date:%m/%d/%Y'};
+      type.annotation(expected, types);
       assert.deepEqual(
-        read(json, {type:'json', parse: {foo: 'date:%m/%d/%Y'}})[0],
-        {foo: new Date(1990, 6, 18)});
+        read(json, {type:'json', parse: types}),
+        expected);
     });
   });
 
