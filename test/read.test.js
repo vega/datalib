@@ -1,9 +1,12 @@
 'use strict';
 
+var chai = require('chai');
 var assert = require('chai').assert;
 var util = require('../src/util');
 var read = require('../src/import/read');
 var type = require('../src/import/type');
+
+chai.config.truncateThreshold = 0;
 
 var fs = require('fs');
 var topojson = require('topojson');
