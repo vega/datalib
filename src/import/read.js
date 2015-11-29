@@ -1,6 +1,7 @@
-var util = require('../util');
-var type = require('./type');
-var formats = require('./formats');
+var util = require('../util'),
+  type = require('./type'),
+  formats = require('./formats'),
+  d3_timeF = require('d3-time-format');
 
 function read(data, format) {
   var type = (format && format.type) || 'json';
@@ -16,11 +17,26 @@ function parse(data, types) {
   cols = util.keys(types);
   parsers = cols.map(function(c) {
     if (types[c]) {
-      var a = types[c].split(':', 2);
+      var t = types[c];
+      var opt = null;  // optional format argument
+
+      if (t.startsWith('date:')) {
+        var parts = t.split(':', 2);
+        var pattern = parts[1];
+        if ((pattern[0] === '\'' && pattern[pattern.length-1] === '\'') ||
+            (pattern[0] === '"'  && pattern[pattern.length-1] === '"')) {
+          pattern = pattern.slice(1, -1);
+        } else {
+          throw Error('Format pattern must be quoted: ' + pattern);
+        }
+
+        t = parts[0];
+        opt = d3_timeF.format(pattern);
+      }
+
       return {
-        parser: type.parsers[a[0]],
-        // optional arguments to be passed to the parser
-        opt: a.length > 1 ? a[1] : null
+        parser: type.parsers[t],
+        opt: opt
       };
     }
   });

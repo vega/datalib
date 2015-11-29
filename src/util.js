@@ -1,6 +1,5 @@
 var buffer = require('buffer'),
     time = require('./time'),
-    d3_timeF = require('d3-time-format'),
     utc = time.utc;
 
 var u = module.exports = {};
@@ -115,9 +114,9 @@ u.boolean = function(s) {
   return s == null || s === '' ? null : s==='false' ? false : !!s;
 };
 
-// parse a date with optional format
+// parse a date with optional d3.time-format format
 u.date = function(s, format) {
-  var d = format ? d3_timeF.format(format) : Date;
+  var d = format ? format : Date;
   return s == null || s === '' ? null : d.parse(s);
 };
 
