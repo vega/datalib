@@ -1,12 +1,16 @@
 'use strict';
 
-var assert = require('chai').assert;
+var chai = require('chai');
+var assert = chai.assert;
 var util = require('../src/util');
 var read = require('../src/import/read');
 var type = require('../src/import/type');
 
 var fs = require('fs');
 var topojson = require('topojson');
+var d3_timeF = require('d3-time-format');
+
+chai.config.truncateThreshold = 0;
 
 var fields = ['a', 'b', 'c', 'd', 'e'];
 var data = [
@@ -105,6 +109,13 @@ describe('read', function() {
       assert.equal(+(new Date(2000, 0, 1)), +p.date('1/1/2000'));
       assert.equal(null, p.date(null));
     });
+    it('should parse date with format', function() {
+      assert.equal(+(new Date(1990, 6, 18)),
+        +p.date('18.07.1990', d3_timeF.format('%d.%m.%Y')));
+      assert.equal(+(new Date(1990, 6, 18)),
+        +p.date('07.18.1990', d3_timeF.format('%m.%d.%Y')));
+      assert.equal(null, p.date(null, '%d.%m.%Y'));
+    });
     it('should parse strings', function() {
       assert.equal('a', p.string('a'));
       assert.equal('bb', p.string('bb'));
@@ -165,6 +176,57 @@ describe('read', function() {
     it('should read json from property', function() {
       var json = JSON.stringify({foo: data});
       assert.deepEqual(read(json, {type:'json', property:'foo'}), data);
+    });
+
+    it('should parse date with format %d.%m.%Y', function() {
+      var expected = [{foo: new Date(1990, 6, 18)}];
+      var json = [{foo: '18.07.1990'}];
+      var types = {foo: 'date:"%d.%m.%Y"'};
+      type.annotation(expected, types);
+      assert.deepEqual(
+        read(json, {type:'json', parse: types}),
+        expected);
+
+      // repeat with single quoted pattern
+      expected = [{foo: new Date(1990, 6, 18)}];
+      json = [{foo: '18.07.1990'}];
+      types = {foo: "date:'%d.%m.%Y'"};
+      type.annotation(expected, types);
+      assert.deepEqual(
+        read(json, {type:'json', parse: types}),
+        expected);
+    });
+    it('should parse date with format %m.%d.%Y', function() {
+      var expected = [{foo: new Date(1990, 6, 18)}];
+      var json = [{foo: '07.18.1990'}];
+      var types = {foo: 'date:"%m.%d.%Y"'};
+      type.annotation(expected, types);
+      assert.deepEqual(
+        read(json, {type:'json', parse: types}),
+        expected);
+
+      // repeat with single quoted pattern
+      expected = [{foo: new Date(1990, 6, 18)}];
+      json = [{foo: '07.18.1990'}];
+      types = {foo: "date:'%m.%d.%Y'"};
+      type.annotation(expected, types);
+      assert.deepEqual(
+        read(json, {type:'json', parse: types}),
+        expected);
+    });
+    it('should throw error if format is not escaped', function() {
+      var json = [{foo: '18.07.1990'}];
+      var types = {foo: 'date:%d.%m.%Y'};
+      assert.throws(function() {
+        read(json, {type:'json', parse: types});
+      });
+    });
+    it('should throw error if format is unrecognized', function() {
+      var json = [{foo: '18.07.1990'}];
+      var types = {foo: 'notAType'};
+      assert.throws(function() {
+        read(json, {type:'json', parse: types});
+      });
     });
   });
 

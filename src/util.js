@@ -114,8 +114,10 @@ u.boolean = function(s) {
   return s == null || s === '' ? null : s==='false' ? false : !!s;
 };
 
-u.date = function(s) {
-  return s == null || s === '' ? null : Date.parse(s);
+// parse a date with optional d3.time-format format
+u.date = function(s, format) {
+  var d = format ? format : Date;
+  return s == null || s === '' ? null : d.parse(s);
 };
 
 u.array = function(x) {
