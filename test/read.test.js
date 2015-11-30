@@ -18,16 +18,25 @@ var data = [
 var strings = data.map(function(x) {
   return {a:String(x.a), b:x.b, c:String(x.c), d:x.d, e:String(x.e)};
 });
+strings.columns = fields;
+
+// d3-dsv includes "columns" annotation, json parse does not
+// so create two versions of parsed columns for testing
 var parsed = data.map(function(x) {
   return {a:x.a, b:x.b, c:x.c, d:Date.parse(x.d), e:x.e};
 });
-type.annotation(parsed, {
+var parsedNoColumns = util.duplicate(parsed);
+parsed.columns = fields;
+
+var typeAnnotations = {
   a: 'integer',
   b: 'string',
   c: 'boolean',
   d: 'date',
   e: 'number'
-});
+};
+type.annotation(parsed, typeAnnotations);
+type.annotation(parsedNoColumns, typeAnnotations);
 
 function toDelimitedText(data, delimiter) {
   var head = fields.join(delimiter);
@@ -148,10 +157,10 @@ describe('read', function() {
       assert.deepEqual(read(json, {type:'json'}), data);
     });
     it('should parse json fields', function() {
-      assert.deepEqual(read(json, {type:'json', parse: type.annotation(parsed)}), parsed);
+      assert.deepEqual(read(json, {type:'json', parse: type.annotation(parsed)}), parsedNoColumns);
     });
     it('should auto-parse json fields', function() {
-      assert.deepEqual(read(json, {type:'json', parse:'auto'}), parsed);
+      assert.deepEqual(read(json, {type:'json', parse:'auto'}), parsedNoColumns);
     });
     it('should read json from property', function() {
       var json = JSON.stringify({foo: data});
