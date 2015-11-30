@@ -1,7 +1,7 @@
 var util = require('../util'),
   type = require('./type'),
   formats = require('./formats'),
-  d3_timeF = require('d3-time-format');
+  timeF = require('../format').time;
 
 function read(data, format) {
   var type = (format && format.type) || 'json';
@@ -16,36 +16,29 @@ function parse(data, types) {
   types = (types==='auto') ? type.inferAll(data) : util.duplicate(types);
   cols = util.keys(types);
   parsers = cols.map(function(c) {
-    if (types[c]) {
-      var t = types[c];
-      var opt = null;  // optional format argument
-
-      if (t.startsWith('date:')) {
-        var parts = t.split(':', 2);
-        var pattern = parts[1];
-        if ((pattern[0] === '\'' && pattern[pattern.length-1] === '\'') ||
-            (pattern[0] === '"'  && pattern[pattern.length-1] === '"')) {
-          pattern = pattern.slice(1, -1);
-        } else {
-          throw Error('Format pattern must be quoted: ' + pattern);
-        }
-
-        t = parts[0];
-        opt = d3_timeF.format(pattern);
+    var t = types[c];
+    if (t && t.indexOf('date:') === 0) {
+      var parts = t.split(':', 2),
+          pattern = parts[1];
+      if ((pattern[0] === '\'' && pattern[pattern.length-1] === '\'') ||
+          (pattern[0] === '"'  && pattern[pattern.length-1] === '"')) {
+        pattern = pattern.slice(1, -1);
+      } else {
+        throw Error('Format pattern must be quoted: ' + pattern);
       }
-
-      return {
-        parser: type.parsers[t],
-        opt: opt
-      };
+      pattern = timeF(pattern);
+      return function(v) { return pattern.parse(v); };
     }
+    if (!type.parsers[t]) {
+      throw Error('Illegal format pattern: ' + c + ':' + t);
+    }
+    return type.parsers[t];
   });
 
   for (i=0, clen=cols.length; i<len; ++i) {
     d = data[i];
     for (j=0; j<clen; ++j) {
-      var obj = parsers[j];
-      d[cols[j]] = obj.parser(d[cols[j]], obj.opt);
+      d[cols[j]] = parsers[j](d[cols[j]]);
     }
   }
   type.annotation(data, types);
