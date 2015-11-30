@@ -6,13 +6,7 @@ function dsv(data, format) {
     var h = format.header;
     data = (h ? h.join(format.delimiter) + '\n' : '') + data;
   }
-  var parsed = d3_dsv.dsv(format.delimiter).parse(data);
-
-  // since dsv has on order in the columns, export a property fields
-  parsed.fields = parsed.columns;
-  delete parsed.columns;
-
-  return parsed;
+  return d3_dsv.dsv(format.delimiter).parse(data);
 }
 
 dsv.delimiter = function(delim) {
