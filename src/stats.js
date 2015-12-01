@@ -1,7 +1,6 @@
 var util = require('./util');
 var type = require('./import/type');
 var gen = require('./generate');
-var distribution = require('./distribution');
 
 var stats = {};
 
@@ -221,6 +220,73 @@ stats.dot = function(values, a, b) {
   return sum;
 };
 
+// Compute the vector distance between two arrays of numbers.
+// Default is Euclidean (exp=2) distance, configurable via exp argument.
+stats.dist = function(values, a, b, exp) {
+  var f = util.isFunction(b) || util.isString(b),
+      X = values,
+      Y = f ? values : a,
+      e = f ? exp : b,
+      L2 = e === 2 || e == null,
+      n = values.length, s = 0, d, i;
+  if (f) {
+    a = util.$(a);
+    b = util.$(b);
+  }
+  for (i=0; i<n; ++i) {
+    d = f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]);
+    s += L2 ? d*d : Math.pow(Math.abs(d), e);
+  }
+  return L2 ? Math.sqrt(s) : Math.pow(s, 1/e);
+};
+
+// Compute the Cohen's d effect size between two arrays of numbers.
+stats.cohensd = function(values, a, b) {
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a,
+      x1 = stats.mean(X),
+      x2 = stats.mean(Y),
+      n1 = stats.count.valid(X),
+      n2 = stats.count.valid(Y);
+
+  if ((n1+n2-2) <= 0) {
+    // if both arrays are size 1, or one is empty, there's no effect size
+    return 0;
+  }
+  // pool standard deviation
+  var s1 = stats.variance(X),
+      s2 = stats.variance(Y),
+      s = Math.sqrt((((n1-1)*s1) + ((n2-1)*s2)) / (n1+n2-2));
+  // if there is no variance, there's no effect size
+  return s===0 ? 0 : (x1 - x2) / s;
+};
+
+// Computes the covariance between two arrays of numbers
+stats.covariance = function(values, a, b) {
+  var X = b ? values.map(util.$(a)) : values,
+      Y = b ? values.map(util.$(b)) : a,
+      n = X.length,
+      xm = stats.mean(X),
+      ym = stats.mean(Y),
+      sum = 0, c = 0, i, x, y, vx, vy;
+
+  if (n !== Y.length) {
+    throw Error('Input lengths must match.');
+  }
+
+  for (i=0; i<n; ++i) {
+    x = X[i]; vx = util.isValid(x);
+    y = Y[i]; vy = util.isValid(y);
+    if (vx && vy) {
+      sum += (x-xm) * (y-ym);
+      ++c;
+    } else if (vx || vy) {
+      throw Error('Valid values must align.');
+    }
+  }
+  return sum / (c-1);
+};
+
 // Compute ascending rank scores for an array of values.
 // Ties are assigned their collective mean rank.
 stats.rank = function(values, f) {
@@ -305,165 +371,108 @@ stats.cor.dist = function(values, a, b) {
   return Math.sqrt(ab / Math.sqrt(aa*bb));
 };
 
-// Compute the vector distance between two arrays of numbers.
-// Default is Euclidean (exp=2) distance, configurable via exp argument.
-stats.dist = function(values, a, b, exp) {
-  var f = util.isFunction(b) || util.isString(b),
-      X = values,
-      Y = f ? values : a,
-      e = f ? exp : b,
-      L2 = e === 2 || e == null,
-      n = values.length, s = 0, d, i;
-  if (f) {
-    a = util.$(a);
-    b = util.$(b);
-  }
-  for (i=0; i<n; ++i) {
-    d = f ? (a(X[i])-b(Y[i])) : (X[i]-Y[i]);
-    s += L2 ? d*d : Math.pow(Math.abs(d), e);
-  }
-  return L2 ? Math.sqrt(s) : Math.pow(s, 1/e);
-};
-
-// Compute the Cohen's d effect size between two arrays of numbers.
-stats.cohensd = function(values,a,b){
+// Simple linear regression.
+// Returns a "fit" object with slope (m), intercept (b),
+// r value (R), and sum-squared residual error (rss).
+stats.linearRegression = function(values, a, b) {
   var X = b ? values.map(util.$(a)) : values,
       Y = b ? values.map(util.$(b)) : a,
-      x1 = stats.mean(X),
-      x2 = stats.mean(Y),
-      n1 = stats.count.valid(X),
-      n2 = stats.count.valid(Y);
-  if( (n1+n2-2)<=0 ){
-  //if both arrays are of size 1, or one array is empty, there's no effect size
-    return 0;
-  }
-  //pool standard deviation
-  var s1 = stats.variance(X),
-      s2 = stats.variance(Y),    
-      s = Math.sqrt( ( ((n1-1)*s1) + ((n2-1)*s2) ) / (n1+n2-2));  
-  if(s===0){
-  //if there is no variance, there's no effect size
-    return 0;
-  }
-  else{
-    return (x1-x2)/s;
-  }
-}; 
+      n = stats.count.valid(X), p, i;
 
-// Computes the covariance between two arrays of numbers
-stats.covariance = function(values,a,b){
-  var X = b ? values.map(util.$(a)) : values,
-      Y = b ? values.map(util.$(b)) : a,
-      n = stats.count.valid(X),
-      x1 = stats.mean(X),
-      y1 = stats.mean(Y);
-  if(n!= stats.count.valid(Y)){
-  // Covariance not defined when cardinalities of two sets aren't equal.
-    throw Error('Array lengths must match.');
+  if (n !== stats.count.valid(Y)) {
+    // Can't perform linear regression with different cardinalities.
+    throw Error('Array lengths  must match.');
   }
-  var sum = 0;
-  for(var i = 0;i<n;i++){
-    sum+=(X[i]-x1)*(Y[i]-y1);
-  }
-  return sum/(n-1);
-};
 
-// Simple linear regression. Returns a "fit" object with slope m, intercept, r value, sum squared residual error.
-stats.linearRegression = function(values,a,b){
-  var X = b ? values.map(util.$(a)) : values,
-      Y = b ? values.map(util.$(b)) : a;
-  if(stats.count(X)!=stats.count(Y)){
-  // Can't perform simple linear regression with different cardinalities.
-    throw Error('Array lengths  must match.'); 
-  }
   var sx = stats.stdev(X),
       sy = stats.stdev(Y),
-      fit = {};
+      xy = stats.covariance(X, Y),
+      m  = xy / (sx*sx),
+      fit = {
+        m:   m,
+        b:   stats.mean(Y) - m * stats.mean(X),
+        R:   xy / (sx*sy),
+        rss: 0
+      };
 
-  fit.m = stats.covariance(X,Y)/stats.variance(X);
-  fit.b = stats.mean(Y) - fit.m*stats.mean(X);
-  fit.R = stats.covariance(X,Y) / (sx*sy);        
-  var sum = 0,
-  predicted;
-  for(var i = 0;i<stats.count(X);i++){
-    predicted = fit.m*X[i] + fit.b;
-    sum+= Math.pow(predicted-Y[i],2);
+  for (i=0; i<n; ++i) {
+    p = (fit.m * X[i] + fit.b) - Y[i];
+    fit.rss += p*p;
   }
-  fit.rss = sum;
+
   return fit;
 };
 
-// Name spaces for the inferential distributions we'll be using.
+// Namespace for z-tests
 stats.z = {};
 
 // Construct a z-confidence interval at a given significance level
-// Arguments are an  array and an optional alpha (defaults to 0.05).
-stats.z.ci = function(a,b){
-  var alpha = b ? b : 0.05;
-  var mu = stats.mean(a),
-      sigma = stats.stdev(a),
-      gaussian = new distribution.Normal(),
-      z = gaussian.icdf(1-(alpha/2)),
-      SE = sigma/Math.sqrt(stats.count.valid(a));
-  return [mu - (z*SE),mu + (z*SE)];
+// Arguments are an array and an optional alpha (defaults to 0.05).
+stats.z.ci = function(a, alpha) {
+  var z = alpha ? gen.random.normal(0, 1).icdf(1-(alpha/2)) : 1.96,
+      mu = stats.mean(a),
+      SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
+  return [mu - (z*SE), mu + (z*SE)];
 };
 
-// Perform a z test of means.
+// Perform a z-test of means. Returns the p-value.
 // Assuming we have a list of values, and a null hypothesis. If no null
 // hypothesis, assume our null hypothesis is mu=0.
-stats.z.test = function(a,b){    
+// http://en.wikipedia.org/wiki/Z-test
+stats.z.test = function(a, b) {
   var nullH = b ? b : 0,
-      gaussian = new distribution.Normal(0,1),
-      xBar = stats.mean(a),
+      gaussian = gen.random.normal(0, 1),
+      mu = stats.mean(a),
       SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
-  if(SE===0){
+
+  if (SE===0) {
     // Test not well defined when standard error is 0.
-    var result = (xBar-nullH)===0 ? 1 : 0;
-    return result;
+    return (mu - nullH) === 0 ? 1 : 0;
   }
-  var z = (xBar-nullH)/SE;
-  z = -1*Math.abs(z);
   // Two-sided, so twice the one-sided cdf.
-  return 2*gaussian.cdf(z);
+  var z = (mu - nullH) / SE;
+  return 2 * gaussian.cdf(-Math.abs(z));
 };
 
-// Perform a two sample paired z test of means.
-stats.z.pairedTest = function(values,a,b){
+// Perform a two sample paired z-test of means. Returns the p-value.
+// http://en.wikipedia.org/wiki/Paired_difference_test
+stats.z.pairedTest = function(values, a, b) {
   var X = b ? values.map(util.$(a)) : values,
       Y = b ? values.map(util.$(b)) : a,
       n1 = stats.count(X),
       n2 = stats.count(Y),
-      diffs = Array();
-  if(n1!=n2){
+      diffs = Array(), i;
+
+  if (n1 !== n2) {
     throw Error('Array lengths must match.');
   }
-  for(var i = 0;i<stats.count(X);i++){
-  //Only valid differences should contribute to the test statistics.
-    if(util.isValid(X[i]) && util.isValid(Y[i])){
-      diffs.push(X[i]-Y[i]);
+  for (i=0; i<n1; ++i) {
+    // Only valid differences should contribute to the test statistic
+    if (util.isValid(X[i]) && util.isValid(Y[i])) {
+      diffs.push(X[i] - Y[i]);
     }
   }
   return stats.z.test(diffs);
 };
 
-// Perform a two sample z test of means. 
-stats.z.twoSampleTest = function(values,a,b){
+// Perform a two sample z-test of means. Returns the p-value.
+// http://en.wikipedia.org/wiki/Z-test
+stats.z.twoSampleTest = function(values, a, b) {
   var X = b ? values.map(util.$(a)) : values,
       Y = b ? values.map(util.$(b)) : a,
       n1 = stats.count.valid(X),
       n2 = stats.count.valid(Y),
-      gaussian = new distribution.Normal(),
-      meanDiff = stats.mean(X)-stats.mean(Y),
-      SE = Math.sqrt( stats.variance(X)/n1 + stats.variance(Y)/n2);
-  if(SE===0){
-  // Not well defined when pooled standard error is 0.   
-    var result = meanDiff===0 ? 1 : 0;
-    return result;
+      gaussian = gen.random.normal(0, 1),
+      meanDiff = stats.mean(X) - stats.mean(Y),
+      SE = Math.sqrt(stats.variance(X)/n1 + stats.variance(Y)/n2);
+
+  if (SE===0) {
+    // Not well defined when pooled standard error is 0.
+    return meanDiff===0 ? 1 : 0;
   }
-  var z = meanDiff/SE;
   // Two-tailed, so twice the one-sided cdf.
-  z = -1*Math.abs(z);
-  return 2*gaussian.cdf(z);
+  var z = meanDiff / SE;
+  return 2 * gaussian.cdf(-Math.abs(z));
 };
 
 // Construct a mean-centered distance matrix for an array of numbers.
