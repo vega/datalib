@@ -96,7 +96,7 @@ function numberAutoFormat(domain, count, f) {
   } else {
     switch (f = d3_numberF.formatSpecifier(f), f.type) {
       case 's': {
-        if (f.precision == null) f.precision = significantDigits(domain);
+        if (f.precision == null) f.precision = significantDigits(range);
         return numberF.format(f);
       }
       case '':
