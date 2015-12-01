@@ -1,4 +1,5 @@
-var d3_time = require('d3-time'),
+var util = require('./util'),
+    d3_time = require('d3-time'),
     d3_timeF = require('d3-time-format'),
     d3_numberF = require('d3-format'),
     numberF = d3_numberF, // defaults to EN-US
@@ -6,14 +7,22 @@ var d3_time = require('d3-time'),
     tmpDate = new Date(2000, 0, 1),
     monthFull, monthAbbr, dayFull, dayAbbr;
 
+// transform 'en-US' style locale string to match d3-format v0.4+ convention
+function localeRef(l) {
+  return l.length > 4 && 'locale' + (
+    l[0].toUpperCase() + l[1].toLowerCase() +
+    l[3].toUpperCase() + l[4].toLowerCase()
+  );
+}
+
 function numberLocale(l) {
-  var f = d3_numberF.localeFormat(l);
+  var f = util.isString(l) ? d3_numberF[localeRef(l)] : d3_numberF.locale(l);
   if (f == null) throw Error('Unrecognized locale: ' + l);
   numberF = f;
 }
 
 function timeLocale(l) {
-  var f = d3_timeF.localeFormat(l);
+  var f = util.isString(l) ? d3_timeF[localeRef(l)] : d3_timeF.locale(l);
   if (f == null) throw Error('Unrecognized locale: ' + l);
   timeF = f;
   monthFull = monthAbbr = dayFull = dayAbbr = null;
