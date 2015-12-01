@@ -508,15 +508,19 @@ describe('stats', function() {
         g2 = [3,2,1];
 
     it('should accept object array and accessors', function() {
-      assert.equal(-1, stats.linearRegression(table,a,b).m);
-      assert.equal(1, stats.linearRegression(table,a,a).R);
-      assert.equal(4, stats.linearRegression(table,b,a).b);
+      assert.equal(-1, stats.linearRegression(table, a, b).slope);
+      assert.equal(1, stats.linearRegression(table, a, a).R);
+      assert.equal(4, stats.linearRegression(table, b, a).intercept);
     });
 
     it('should accept two arrays', function() {
-      assert.equal(-1, stats.linearRegression(g1,g2).m);
-      assert.equal(1, stats.linearRegression(g1,g1).R);
-      assert.equal(0, stats.linearRegression(g1,g2).rss);
+      assert.equal(-1, stats.linearRegression(g1, g2).slope);
+      assert.equal(1, stats.linearRegression(g1, g1).R);
+      assert.equal(0, stats.linearRegression(g1, g2).rss);
+    });
+
+    it('should ignore aligned invalid values', function() {
+      assert.equal(-1, stats.linearRegression([1,2,NaN,3], [3,2,null,1]).slope);
     });
 
     it('should throw error with inputs of unequal length', function() {
@@ -526,8 +530,8 @@ describe('stats', function() {
     });
 
     it('should agree with pearsons r calculation', function() {
-      assert.equal(stats.cor(g1,g2), stats.linearRegression(g1,g2).R);
-      assert.equal(stats.cor(g2,g1), stats.linearRegression(g2,g1).R);
+      assert.equal(stats.cor(g1, g2), stats.linearRegression(g1, g2).R);
+      assert.equal(stats.cor(g2, g1), stats.linearRegression(g2, g1).R);
     });
   });
 

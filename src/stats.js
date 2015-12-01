@@ -377,27 +377,20 @@ stats.cor.dist = function(values, a, b) {
 stats.linearRegression = function(values, a, b) {
   var X = b ? values.map(util.$(a)) : values,
       Y = b ? values.map(util.$(b)) : a,
-      n = stats.count.valid(X), p, i;
-
-  if (n !== stats.count.valid(Y)) {
-    // Can't perform linear regression with different cardinalities.
-    throw Error('Array lengths  must match.');
-  }
-
-  var sx = stats.stdev(X),
+      n = X.length,
+      xy = stats.covariance(X, Y), // will throw err if valid vals don't align
+      sx = stats.stdev(X),
       sy = stats.stdev(Y),
-      xy = stats.covariance(X, Y),
-      m  = xy / (sx*sx),
-      fit = {
-        m:   m,
-        b:   stats.mean(Y) - m * stats.mean(X),
-        R:   xy / (sx*sy),
-        rss: 0
-      };
+      slope = xy / (sx*sx),
+      icept = stats.mean(Y) - slope * stats.mean(X),
+      fit = {slope: slope, intercept: icept, R: xy / (sx*sy), rss: 0},
+      res, i;
 
   for (i=0; i<n; ++i) {
-    p = (fit.m * X[i] + fit.b) - Y[i];
-    fit.rss += p*p;
+    if (util.isValid(X[i]) && util.isValid(Y[i])) {
+      res = (slope*X[i] + icept) - Y[i];
+      fit.rss += res * res;
+    }
   }
 
   return fit;
