@@ -447,6 +447,186 @@ describe('stats', function() {
     });
   });
 
+  describe('cohensd', function() {
+    var g1 = [1,2,3],
+        g2 = [2,1,0],
+        table = [ {a:1,b:2}, {a:2,b:1}, {a:3,b:0} ];
+
+    it('should accept object array and accessors', function() {
+      assert.equal(0, stats.cohensd(table,a,a));
+      assert.equal(0, stats.cohensd(table,b,b));
+      assert.equal(1, stats.cohensd(table,a,b));
+      assert.equal(-1, stats.cohensd(table,b,a));
+    });
+
+    it('should accept two arrays', function() {
+      assert.equal(0, stats.cohensd(g1,g1));
+      assert.equal(0, stats.cohensd(g2,g2));
+      assert.equal(1, stats.cohensd(g1,g2));
+      assert.equal(-1, stats.cohensd(g2,g1));
+    });
+
+    it('should return 0 for empty arrays, or arrays with no variance', function() {
+      assert.equal(0, stats.cohensd([],[]));
+      assert.equal(0, stats.cohensd([1],[2]));
+      assert.equal(0, stats.cohensd([1,1],[1,1]));
+    });
+  });
+
+  describe('covariance', function() {
+    var table = [{a:1,b:2}, {a:2,b:1}, {a:3,b:0}],
+        g1 = [1,2,3],
+        g2 = [3,2,1];
+
+    it('should accept object array and accessors', function() {
+      assert.equal(-1,stats.covariance(table, a, b));
+      assert.equal(-1,stats.covariance(table, b, a));
+    });
+
+    it('should accept two arrays', function() {
+      assert.equal(-1, stats.covariance(g1, g2));
+      assert.equal(1, stats.covariance(g1, g1));
+    });
+
+    it('should throw error with inputs of unequal length', function() {
+      assert.throws(function() {
+        stats.covariance(g1, [1,2]);
+      });
+    });
+
+    it('should throw error with unmatched invalid values', function() {
+      assert.throws(function() { stats.covariance(g1, [1,null,2]); });
+      assert.throws(function() { stats.covariance([1,null,2], g1); });
+      assert.equal(0, stats.covariance([null,null], [null,null]));
+    });
+
+  });
+
+  describe('linearRegression', function() {
+    var table = [{a:1,b:3}, {a:2,b:2}, {a:3,b:1}],
+        g1 = [1,2,3],
+        g2 = [3,2,1];
+
+    it('should accept object array and accessors', function() {
+      assert.equal(-1, stats.linearRegression(table, a, b).slope);
+      assert.equal(1, stats.linearRegression(table, a, a).R);
+      assert.equal(4, stats.linearRegression(table, b, a).intercept);
+    });
+
+    it('should accept two arrays', function() {
+      assert.equal(-1, stats.linearRegression(g1, g2).slope);
+      assert.equal(1, stats.linearRegression(g1, g1).R);
+      assert.equal(0, stats.linearRegression(g1, g2).rss);
+    });
+
+    it('should ignore aligned invalid values', function() {
+      assert.equal(-1, stats.linearRegression([1,2,NaN,3], [3,2,null,1]).slope);
+    });
+
+    it('should throw error with inputs of unequal length', function() {
+      assert.throws(function() {
+        stats.linearRegression(g1,[1,2]);
+      });
+    });
+
+    it('should agree with pearsons r calculation', function() {
+      assert.equal(stats.cor(g1, g2), stats.linearRegression(g1, g2).R);
+      assert.equal(stats.cor(g2, g1), stats.linearRegression(g2, g1).R);
+    });
+  });
+
+  describe('stats.z.ci', function() {
+    var g1 = [1,2,3,4,5],
+        g2 = [1,1,1];
+
+    it('should accept an array', function() {
+      assert.deepEqual([1,1], stats.z.ci(g2));
+    });
+
+    it('should accept an array and an alpha', function() {
+      assert.ok(
+        stats.z.ci(g1)[0] < stats.z.ci(g1, 0.1)[0] &&
+        stats.z.ci(g1)[1] > stats.z.ci(g1, 0.1)[1]
+      );
+      assert.equal(3, stats.z.ci(g1, 1)[0]);
+      assert.equal(3, stats.z.ci(g1, 1)[1]);
+    });
+
+  });
+
+  describe('stats.z.test', function() {
+    var g1 = [1,2,3,4,5];
+
+    it('should accept an array', function() {
+      assert.ok(stats.z.test(g1) < 0.05);
+    });
+
+    it('should accept an array and a null hypothesis', function() {
+      assert.equal(1, stats.z.test(g1,3));
+    });
+
+    it('should degrade gracefully if there is no variation', function() {
+      assert.equal(0, stats.z.test([1]));
+      assert.equal(1, stats.z.test([1],1));
+    });
+  });
+
+  describe('stats.z.pairedTest', function() {
+    var g1 = [2, 4, 6, 8, 10],
+        g2 = [0, 1, 2, 3, 4],
+        table = [{a:2,b:0}, {a:4,b:1}, {a:6,b:2}, {a:8,b:3}, {a:10,b:4}];
+
+    it('should accept an array and accessors', function() {
+      assert.ok(stats.z.pairedTest(table,a,b) < 0.05);
+      assert.equal(stats.z.pairedTest(table,a,b), stats.z.pairedTest(table,b,a));
+    });
+
+    it('should accept two arrays', function() {
+      assert.ok(stats.z.pairedTest(g1,g2) < 0.05);
+      assert.equal(stats.z.pairedTest(g1,g2), stats.z.pairedTest(g2,g1));
+    });
+
+    it('should throw an error if arrays are of unequal size', function() {
+      assert.throws(function() {
+        stats.z.pairedTest([1,2,3],[1,2]);
+      });
+    });
+
+    it('should ignore non-valid values', function() {
+      assert.equal(
+        stats.z.pairedTest([1,2,3],  [3,4,5]),
+        stats.z.pairedTest([1,2,3,4],[3,4,5,NaN])
+      );
+    });
+  });
+
+  describe('stats.z.twoSampleTest', function() {
+    var g1 = [2, 4, 6, 8, 10],
+        g2 = [0, 1, 2, 3, 4],
+        table = [{a:2,b:0}, {a:4,b:1}, {a:6,b:2}, {a:8,b:3}, {a:10,b:4}];
+
+    it('should accept an array and accessors', function() {
+      assert.ok(stats.z.twoSampleTest(table,a,b) < 0.05);
+      assert.equal(
+        stats.z.twoSampleTest(table,a,b),
+        stats.z.twoSampleTest(table,b,a)
+      );
+    });
+
+    it('should accept two arrays', function() {
+      assert.ok(stats.z.twoSampleTest(g1,g2) < 0.05);
+      assert.equal(
+        stats.z.twoSampleTest(g1,g2),
+        stats.z.twoSampleTest(g2,g1)
+      );
+    });
+
+    it('should devolve gracefully when there is no variance', function() {
+      assert.equal(0, stats.z.twoSampleTest([0,0],[1,1]));
+      assert.equal(1, stats.z.twoSampleTest([1,1],[1,1]));
+    });
+  });
+
   describe('entropy', function() {
     var even = [1, 1, 1, 1, 1, 1], ee = -Math.log(1/6)/Math.LN2;
     var skew = [6, 0, 0, 0, 0, 0], se = 0;
@@ -523,7 +703,7 @@ describe('stats', function() {
       assert.equal(5.50, stats.profile([1,2,3,4,5,6,7]).q3);
       assert.equal(6.25, stats.profile([1,2,3,4,5,6,7,8]).q3);
     });
-    
+
     it('should match stand-alone statistics', function() {
       var v = [1, 1, 3, 4, 20, null, undefined, NaN];
       var p = stats.profile(v);
@@ -552,5 +732,6 @@ describe('stats', function() {
       assert.equal(p.max, 9);
     });
   });
+
 
 });
