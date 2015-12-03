@@ -7,26 +7,6 @@ var util = require('./util'),
     tmpDate = new Date(2000, 0, 1),
     monthFull, monthAbbr, dayFull, dayAbbr;
 
-// transform 'en-US' style locale string to match d3-format v0.4+ convention
-function localeRef(l) {
-  return l.length > 4 && 'locale' + (
-    l[0].toUpperCase() + l[1].toLowerCase() +
-    l[3].toUpperCase() + l[4].toLowerCase()
-  );
-}
-
-function numberLocale(l) {
-  var f = util.isString(l) ? d3_numberF[localeRef(l)] : d3_numberF.locale(l);
-  if (f == null) throw Error('Unrecognized locale: ' + l);
-  numberF = f;
-}
-
-function timeLocale(l) {
-  var f = util.isString(l) ? d3_timeF[localeRef(l)] : d3_timeF.locale(l);
-  if (f == null) throw Error('Unrecognized locale: ' + l);
-  timeF = f;
-  monthFull = monthAbbr = dayFull = dayAbbr = null;
-}
 
 module.exports = {
   // Update number formatter to use provided locale configuration.
@@ -55,6 +35,31 @@ module.exports = {
   month: monthFormat, // format month name from integer code
   day:   dayFormat    // format week day name from integer code
 };
+
+// -- Locales ----
+
+// transform 'en-US' style locale string to match d3-format v0.4+ convention
+function localeRef(l) {
+  return l.length > 4 && 'locale' + (
+    l[0].toUpperCase() + l[1].toLowerCase() +
+    l[3].toUpperCase() + l[4].toLowerCase()
+  );
+}
+
+function numberLocale(l) {
+  var f = util.isString(l) ? d3_numberF[localeRef(l)] : d3_numberF.locale(l);
+  if (f == null) throw Error('Unrecognized locale: ' + l);
+  numberF = f;
+}
+
+function timeLocale(l) {
+  var f = util.isString(l) ? d3_timeF[localeRef(l)] : d3_timeF.locale(l);
+  if (f == null) throw Error('Unrecognized locale: ' + l);
+  timeF = f;
+  monthFull = monthAbbr = dayFull = dayAbbr = null;
+}
+
+// -- Number Formatting ----
 
 var e10 = Math.sqrt(50),
     e5 = Math.sqrt(10),
@@ -150,6 +155,8 @@ function linearNumberFormat(domain, count, f) {
   }
   return numberF.format(f);
 }
+
+// -- Datetime Formatting ----
 
 function timeAutoFormat() {
   var f = timeF.format,

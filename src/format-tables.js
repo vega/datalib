@@ -1,7 +1,12 @@
-var util = require('./util');
-var type = require('./import/type');
-var stats = require('./stats');
-var template = require('./template');
+var util = require('./util'),
+    type = require('./import/type'),
+    stats = require('./stats'),
+    template = require('./template');
+
+module.exports = {
+  table:   formatTable,  // format a data table
+  summary: formatSummary // format a data table summary
+};
 
 var FMT = {
   'date':    '|time:"%m/%d/%Y %H:%M:%S"',
@@ -14,7 +19,7 @@ var POS = {
   'integer': 'left'
 };
 
-module.exports.table = function(data, opt) {
+function formatTable(data, opt) {
   opt = util.extend({separator:' ', minwidth: 8, maxwidth: 15}, opt);
   var fields = opt.fields || util.keys(data[0]),
       types = type.all(data);
@@ -51,9 +56,9 @@ module.exports.table = function(data, opt) {
 
   // print table
   return head + "\n" + data.map(tmpl).join('\n');
-};
+}
 
-module.exports.summary = function(s) {
+function formatSummary(s) {
   s = s ? s.__summary__ ? s : stats.summary(s) : this;
   var str = [], i, n;
   for (i=0, n=s.length; i<n; ++i) {
@@ -66,7 +71,7 @@ module.exports.summary = function(s) {
     str.push('');
   }
   return str.join('\n');
-};
+}
 
 function printQuantitativeProfile(p) {
   return [

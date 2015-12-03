@@ -1,10 +1,12 @@
 'use strict';
 
 var assert = require('chai').assert;
-var print = require('../src/print');
+var tables = require('../src/format-tables');
 var stats = require('../src/stats');
 
-describe('print', function() {
+describe('format tables', function() {
+
+  // format tables
   var table = [
     {symbol:'DATA', value: 300.57},
     {symbol:'DATA', value: 12.3},
@@ -17,35 +19,35 @@ describe('print', function() {
                'DATA    27.0000';
 
   describe('table', function() {
-    it('should print table', function() {
-      var s = print.table(table);
+    it('should format table', function() {
+      var s = tables.table(table);
       assert.equal(string, s);
     });
 
     it('should respect limit option', function() {
-      var s = print.table(table, {limit:2});
+      var s = tables.table(table, {limit:2});
       assert.equal(3, s.split('\n').length);
     });
 
     it('should respect start option', function() {
-      var s = print.table(table, {start:2});
+      var s = tables.table(table, {start:2});
       assert.equal(2, s.split('\n').length);
     });
 
     it('should respect minwidth option', function() {
-      var s = print.table(table, {minwidth:4});
+      var s = tables.table(table, {minwidth:4});
       assert.equal(0, s.indexOf('sym\u2026'));
     });
 
     it('should respect maxwidth option', function() {
-      var s = print.table(table, {maxwidth:4});
+      var s = tables.table(table, {maxwidth:4});
       assert.equal(0, s.indexOf('sym\u2026'));
-      s = print.table(table, {maxwidth:-1});
+      s = tables.table(table, {maxwidth:-1});
       assert.equal(-1, s.indexOf('\u2026'));
     });
 
     it('should respect separator option', function() {
-      var s = print.table(table, {separator:'\t'});
+      var s = tables.table(table, {separator:'\t'});
       assert.equal(table.length+2, s.split('\t').length);
     });
   });
@@ -75,11 +77,11 @@ describe('print', function() {
       {symbol:'ATAD', value: 0},
     ];
 
-    it('should print summary', function() {
+    it('should format summary', function() {
       var summary = stats.summary(data);
-      var s1 = print.summary(data);
-      var s2 = print.summary(summary);
-      var s3 = (summary.toString = print.summary, summary.toString());
+      var s1 = tables.summary(data);
+      var s2 = tables.summary(summary);
+      var s3 = (summary.toString = tables.summary, summary.toString());
       assert.strictEqual(s1, s2);
       assert.strictEqual(s1, s3);
       assert.equal(2, count(s1, '-- '));
