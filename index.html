@@ -35,7 +35,7 @@
       + "// Load a CSV file. Datalib does type inference for you.\n"
       + "var data = dl.csv('data/stocks.csv');\n\n"
       + "// Show summary statistics for each column of the data table.\n"
-      + "console.log(dl.print.summary(data));\n\n"
+      + "console.log(dl.format.summary(data));\n\n"
       + "// Compute correlation measures between price and date.\n"
       + "dl.cor(data, 'price', 'date') // Pearson product-moment correlation\n"
       + "dl.cor.rank(data, 'price', 'date') // Spearman rank correlation\n\n";
@@ -67,14 +67,14 @@
         </ul>
       </div>
       <div class="content">
-        While created to power <a href="http://vega.github.io">Vega</a> and related projects, 
-        datalib is a standalone library useful for data-driven JavaScript applications on 
-        both the client (web browser) and server (e.g., node.js). 
-        For use in node.js, simply <span class="code">npm install datalib</span> or 
-        include datalib as a dependency in your package.json file. 
+        While created to power <a href="http://vega.github.io">Vega</a> and related projects,
+        datalib is a standalone library useful for data-driven JavaScript applications on
+        both the client (web browser) and server (e.g., node.js).
+        For use in node.js, simply <span class="code">npm install datalib</span> or
+        include datalib as a dependency in your package.json file.
         For use on the client, import <a href="datalib.min.js">datalib.min.js</a> within your web page
         or install it via Bower (<span class="code">bower install datalib</span>).
-      </div> 
+      </div>
       <div class="content">
         For more, see the <a href="https://github.com/vega/datalib">GitHub repo</a>.
         For documentation, see the <a href="https://github.com/vega/datalib/wiki/API-Reference">API Reference</a>.
