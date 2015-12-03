@@ -46,7 +46,8 @@ module.exports = {
 
   // automatic formatting functions
   auto: {
-    number:   numberAutoFormat,
+    number:   autoNumberFormat,
+    linear:   linearNumberFormat,
     time:     function() { return timeAutoFormat(); },
     utc:      function() { return utcAutoFormat(); }
   },
@@ -59,7 +60,7 @@ var e10 = Math.sqrt(50),
     e5 = Math.sqrt(10),
     e2 = Math.sqrt(2);
 
-function intervals(domain, count) {
+function linearRange(domain, count) {
   if (!domain.length) domain = [0];
   if (count == null) count = 10;
 
@@ -85,42 +86,66 @@ function intervals(domain, count) {
   ];
 }
 
-function significantDigits(domain) {
-  return domain.map(function(x) {
-    // determine significant digits based on exponential format
-    var s = x.toExponential(),
-        e = s.indexOf('e'),
-        d = s.indexOf('.');
-    return d < 0 ? 1 : (e-d);
-  }).reduce(function(max, p) {
-    // return the maximum sig digit count
-    return Math.max(max, p);
-  }, 0);
+function trimZero(f, decimal) {
+  return function(x) {
+    var s = f(x),
+        n = s.indexOf(decimal);
+    if (n < 0) return s;
+
+    var idx = rightmostDigit(s, n),
+        end = idx < s.length ? s.slice(idx) : '';
+
+    while (--idx > n) {
+      if (s[idx] !== '0') { ++idx; break; }
+    }
+    return s.slice(0, idx) + end;
+  };
 }
 
-function numberAutoFormat(domain, count, f) {
-  var range = intervals(domain, count);
-  if (f == null) {
-    f = ',.' + d3_numberF.precisionFixed(range[2]) + 'f';
-  } else {
-    switch (f = d3_numberF.formatSpecifier(f), f.type) {
-      case 's': {
-        if (f.precision == null) f.precision = significantDigits(domain);
-        return numberF.format(f);
-      }
-      case '':
-      case 'e':
-      case 'g':
-      case 'p':
-      case 'r': {
-        if (f.precision == null) f.precision = d3_numberF.precisionRound(range[2], Math.max(Math.abs(range[0]), Math.abs(range[1]))) - (f.type === 'e');
-        break;
-      }
-      case 'f':
-      case '%': {
-        if (f.precision == null) f.precision = d3_numberF.precisionFixed(range[2]) - (f.type === '%') * 2;
-        break;
-      }
+function rightmostDigit(s, n) {
+  var i = s.lastIndexOf('e'), c;
+  if (i > 0) return i;
+  for (i=s.length; --i > n;) {
+    c = s.charCodeAt(i);
+    if (c >= 48 && c <= 57) return i+1; // is digit
+  }
+}
+
+function autoNumberFormat(f) {
+  var decimal = numberF.format('.1f')(1)[1]; // get decimal char
+  if (f == null) f = ',';
+  f = d3_numberF.formatSpecifier(f);
+  if (f.precision == null) f.precision = 12;
+  switch (f.type) {
+    case '%': f.precision -= 2; break;
+    case 'e': f.precision -= 1; break;
+  }
+  return trimZero(numberF.format(f), decimal);
+}
+
+function linearNumberFormat(domain, count, f) {
+  var range = linearRange(domain, count);
+
+  if (f == null) f = ',f';
+
+  switch (f = d3_numberF.formatSpecifier(f), f.type) {
+    case 's': {
+      var value = Math.max(Math.abs(range[0]), Math.abs(range[1]));
+      if (f.precision == null) f.precision = d3_numberF.precisionPrefix(range[2], value);
+      return numberF.formatPrefix(f, value);
+    }
+    case '':
+    case 'e':
+    case 'g':
+    case 'p':
+    case 'r': {
+      if (f.precision == null) f.precision = d3_numberF.precisionRound(range[2], Math.max(Math.abs(range[0]), Math.abs(range[1]))) - (f.type === 'e');
+      break;
+    }
+    case 'f':
+    case '%': {
+      if (f.precision == null) f.precision = d3_numberF.precisionFixed(range[2]) - 2 * (f.type === '%');
+      break;
     }
   }
   return numberF.format(f);
