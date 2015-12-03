@@ -409,11 +409,28 @@ stats.z.ci = function(a, alpha) {
 };
 
 // Perform a z-test of means. Returns the p-value.
+// If a single array is provided, performs a one-sample location test.
+// If two arrays or a table and two accessors are provided, performs
+// a two-sample location test. A paired test is performed if specified
+// by the options hash.
+// The options hash format is: {paired: boolean, nullh: number}.
+// http://en.wikipedia.org/wiki/Z-test
+// http://en.wikipedia.org/wiki/Paired_difference_test
+stats.z.test = function(values, a, b, opt) {
+  if (util.isFunction(b) || util.isString(b)) { // table and accessors
+    return (opt && opt.paired ? ztestP : ztest2)(opt, values, a, b);
+  } else if (util.isArray(a)) { // two arrays
+    return (b && b.paired ? ztestP : ztest2)(b, values, a);
+  } else { // one array
+    return ztest1(a, values);
+  }
+};
+
+// Perform a z-test of means. Returns the p-value.
 // Assuming we have a list of values, and a null hypothesis. If no null
 // hypothesis, assume our null hypothesis is mu=0.
-// http://en.wikipedia.org/wiki/Z-test
-stats.z.test = function(a, b) {
-  var nullH = b ? b : 0,
+function ztest1(opt, a) {
+  var nullH = opt && opt.nullh || 0,
       gaussian = gen.random.normal(0, 1),
       mu = stats.mean(a),
       SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
@@ -425,11 +442,10 @@ stats.z.test = function(a, b) {
   // Two-sided, so twice the one-sided cdf.
   var z = (mu - nullH) / SE;
   return 2 * gaussian.cdf(-Math.abs(z));
-};
+}
 
 // Perform a two sample paired z-test of means. Returns the p-value.
-// http://en.wikipedia.org/wiki/Paired_difference_test
-stats.z.pairedTest = function(values, a, b) {
+function ztestP(opt, values, a, b) {
   var X = b ? values.map(util.$(a)) : values,
       Y = b ? values.map(util.$(b)) : a,
       n1 = stats.count(X),
@@ -445,18 +461,17 @@ stats.z.pairedTest = function(values, a, b) {
       diffs.push(X[i] - Y[i]);
     }
   }
-  return stats.z.test(diffs);
-};
+  return stats.z.test(diffs, opt && opt.nullh || 0);
+}
 
 // Perform a two sample z-test of means. Returns the p-value.
-// http://en.wikipedia.org/wiki/Z-test
-stats.z.twoSampleTest = function(values, a, b) {
+function ztest2(opt, values, a, b) {
   var X = b ? values.map(util.$(a)) : values,
       Y = b ? values.map(util.$(b)) : a,
       n1 = stats.count.valid(X),
       n2 = stats.count.valid(Y),
       gaussian = gen.random.normal(0, 1),
-      meanDiff = stats.mean(X) - stats.mean(Y),
+      meanDiff = stats.mean(X) - stats.mean(Y) - (opt && opt.nullh || 0),
       SE = Math.sqrt(stats.variance(X)/n1 + stats.variance(Y)/n2);
 
   if (SE===0) {
@@ -466,7 +481,7 @@ stats.z.twoSampleTest = function(values, a, b) {
   // Two-tailed, so twice the one-sided cdf.
   var z = meanDiff / SE;
   return 2 * gaussian.cdf(-Math.abs(z));
-};
+}
 
 // Construct a mean-centered distance matrix for an array of numbers.
 stats.dist.mat = function(X) {

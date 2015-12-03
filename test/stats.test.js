@@ -558,72 +558,78 @@ describe('stats', function() {
     var g1 = [1,2,3,4,5];
 
     it('should accept an array', function() {
-      assert.ok(stats.z.test(g1) < 0.05);
+      assert.ok(stats.z.test(g1, 0) < 0.05);
     });
 
     it('should accept an array and a null hypothesis', function() {
-      assert.equal(1, stats.z.test(g1,3));
+      assert.equal(1, stats.z.test(g1, {nullh:3}));
     });
 
     it('should degrade gracefully if there is no variation', function() {
       assert.equal(0, stats.z.test([1]));
-      assert.equal(1, stats.z.test([1],1));
+      assert.equal(1, stats.z.test([1], {nullh: 1}));
     });
   });
 
-  describe('stats.z.pairedTest', function() {
+  describe('stats.z.test paired', function() {
     var g1 = [2, 4, 6, 8, 10],
         g2 = [0, 1, 2, 3, 4],
+        o = {paired: true},
         table = [{a:2,b:0}, {a:4,b:1}, {a:6,b:2}, {a:8,b:3}, {a:10,b:4}];
 
     it('should accept an array and accessors', function() {
-      assert.ok(stats.z.pairedTest(table,a,b) < 0.05);
-      assert.equal(stats.z.pairedTest(table,a,b), stats.z.pairedTest(table,b,a));
+      assert.ok(stats.z.test(table,a,b,o) < 0.05);
+      assert.equal(
+        stats.z.test(table, a, b, o),
+        stats.z.test(table, b, a, o)
+      );
     });
 
     it('should accept two arrays', function() {
-      assert.ok(stats.z.pairedTest(g1,g2) < 0.05);
-      assert.equal(stats.z.pairedTest(g1,g2), stats.z.pairedTest(g2,g1));
+      assert.ok(stats.z.test(g1, g2, o) < 0.05);
+      assert.equal(stats.z.test(g1, g2, o), stats.z.test(g2, g1, o));
     });
 
     it('should throw an error if arrays are of unequal size', function() {
       assert.throws(function() {
-        stats.z.pairedTest([1,2,3],[1,2]);
+        stats.z.test([1,2,3], [1,2],o);
       });
     });
 
     it('should ignore non-valid values', function() {
       assert.equal(
-        stats.z.pairedTest([1,2,3],  [3,4,5]),
-        stats.z.pairedTest([1,2,3,4],[3,4,5,NaN])
+        stats.z.test([1,2,3],  [3,4,5], o),
+        stats.z.test([1,2,3,4],[3,4,5,NaN], o)
       );
     });
   });
 
-  describe('stats.z.twoSampleTest', function() {
+  describe('stats.z.test two-sample', function() {
     var g1 = [2, 4, 6, 8, 10],
         g2 = [0, 1, 2, 3, 4],
         table = [{a:2,b:0}, {a:4,b:1}, {a:6,b:2}, {a:8,b:3}, {a:10,b:4}];
 
     it('should accept an array and accessors', function() {
-      assert.ok(stats.z.twoSampleTest(table,a,b) < 0.05);
+      assert.ok(stats.z.test(table, a, b) < 0.05);
       assert.equal(
-        stats.z.twoSampleTest(table,a,b),
-        stats.z.twoSampleTest(table,b,a)
+        stats.z.test(table, a, b),
+        stats.z.test(table, b, a)
       );
     });
 
     it('should accept two arrays', function() {
-      assert.ok(stats.z.twoSampleTest(g1,g2) < 0.05);
+      assert.ok(stats.z.test(g1, g2) < 0.05);
       assert.equal(
-        stats.z.twoSampleTest(g1,g2),
-        stats.z.twoSampleTest(g2,g1)
+        stats.z.test(g1, g2),
+        stats.z.test(g2, g1)
       );
+      assert.equal(1, stats.z.test(g1, [2,3,4,5,6], {nullh:2}));
+      assert.equal(1, stats.z.test([2,3,4,5,6], g1, {nullh:-2}));
     });
 
     it('should devolve gracefully when there is no variance', function() {
-      assert.equal(0, stats.z.twoSampleTest([0,0],[1,1]));
-      assert.equal(1, stats.z.twoSampleTest([1,1],[1,1]));
+      assert.equal(0, stats.z.test([0,0], [1,1]));
+      assert.equal(1, stats.z.test([1,1], [1,1]));
     });
   });
 
