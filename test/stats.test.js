@@ -535,6 +535,21 @@ describe('stats', function() {
     });
   });
 
+  describe('stats.bootstrap.ci',function() {
+    it('should accept an array',function() {
+      assert.deepEqual([1,1],stats.bootstrap.ci([1,1]));
+    });
+    it('should accept an array and a number of samples',function() {
+      assert.deepEqual([1,1],stats.bootstrap.ci([1,1],100));
+    });
+    it('should accept an array, a number of samples, and an alpha',function(){
+      assert.deepEqual([1,1],stats.bootstrap.ci([1,1],100,0.1));
+    });
+    it('should accept an array, a number of samples, an alpha, and a smoothing parameter', function() {
+      assert.notEqual(stats.bootstrap.ci([1,1],100,0.1),stats.bootstrap.ci([1,1],100,0.1,5));
+    });
+  });
+
   describe('stats.z.ci', function() {
     var g1 = [1,2,3,4,5],
         g2 = [1,1,1];

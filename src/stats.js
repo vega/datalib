@@ -396,6 +396,23 @@ stats.linearRegression = function(values, a, b) {
   return fit;
 };
 
+// Namespace for bootstrapping
+stats.bootstrap = {};
+
+// Construct a bootstrapped confidence interval at a given percentile level
+// Arguments are an array, an optional alpha (defaults to 0.05), an optional n
+// (defaults to 1000), and an optional smoothing parameter  
+stats.bootstrap.ci = function(a,samples,alpha,smoothing){
+  var means = [],
+      n = samples ? samples : 1000,
+      quantile = alpha ? alpha : 0.05;
+  for(var i = 0;i<n;i++){
+    means[i] = smoothing ? stats.mean(gen.random.bootstrap(a,smoothing)) : stats.mean(gen.random.bootstrap(a));
+  }
+  means = means.filter(util.isValid).sort(util.cmp);
+  return [ stats.quantile(means,quantile/2),stats.quantile(means,1-(quantile/2))];
+};
+
 // Namespace for z-tests
 stats.z = {};
 
