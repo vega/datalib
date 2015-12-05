@@ -1,3 +1,5 @@
+var util = require('../util');
+
 // Matches absolute URLs with optional protocol
 //   https://...    file://...    //...
 var protocol_re = /^([A-Za-z]+:)?\/\//;
@@ -75,7 +77,7 @@ function load(opt, callback) {
     error('Invalid URL: ' + opt.url);
   } else if (load.useXHR) {
     // on client, use xhr
-    return xhr(url, callback);
+    return xhr(url, opt, callback);
   } else if (startsWith(url, fileProtocol)) {
     // on server, if url starts with 'file://', strip it and load from file
     return file(url.slice(fileProtocol.length), callback);
@@ -84,7 +86,7 @@ function load(opt, callback) {
     return file(url, callback);
   } else {
     // for regular URLs on server
-    return http(url, callback);
+    return http(url, opt, callback);
   }
 }
 
@@ -95,7 +97,7 @@ function xhrHasResponse(request) {
     request.responseText; // '' on error
 }
 
-function xhr(url, callback) {
+function xhr(url, opt, callback) {
   var async = !!callback;
   var request = new XMLHttpRequest();
   // If IE does not support CORS, use XDomainRequest (copied from d3.xhr)
@@ -123,6 +125,13 @@ function xhr(url, callback) {
   }
 
   request.open('GET', url, async);
+  /* istanbul ignore else */
+  if (request.setRequestHeader) {
+    var headers = util.extend({}, load.headers, opt.headers);
+    for (var name in headers) {
+      request.setRequestHeader(name, headers[name]);
+    }
+  }
   request.send();
 
   if (!async && xhrHasResponse(request)) {
@@ -138,12 +147,14 @@ function file(filename, callback) {
   fs.readFile(filename, callback);
 }
 
-function http(url, callback) {
+function http(url, opt, callback) {
+  var headers = util.extend({}, load.headers, opt.headers);
+
   if (!callback) {
-    return require('sync-request')('GET', url).getBody();
+    return require('sync-request')('GET', url, {headers: headers}).getBody();
   }
 
-  var options = {url: url, encoding: null, gzip: true};
+  var options = {url: url, encoding: null, gzip: true, headers: headers};
   require('request')(options, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       callback(null, body);
@@ -160,7 +171,6 @@ function startsWith(string, searchString) {
 }
 
 load.sanitizeUrl = sanitizeUrl;
-
 load.useXHR = (typeof XMLHttpRequest !== 'undefined');
-
+load.headers = {};
 module.exports = load;
