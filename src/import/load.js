@@ -95,13 +95,22 @@ function xhrHasResponse(request) {
     request.responseText; // '' on error
 }
 
-function xhr(url, callback) {
+function xhrSetHeader(request, headers) {
+  if (headers && request.setRequestHeader) {
+    for (var name in headers) {
+      request.setRequestHeader(name, headers[name]);
+    }
+  }
+}
+
+function xhr(opts, callback) {
+  opts = typeof opts === 'string' ? { url: opts } : opts;
   var async = !!callback;
   var request = new XMLHttpRequest();
   // If IE does not support CORS, use XDomainRequest (copied from d3.xhr)
   if (this.XDomainRequest &&
       !('withCredentials' in request) &&
-      /^(http(s)?:)?\/\//.test(url)) request = new XDomainRequest();
+      /^(http(s)?:)?\/\//.test(opts.url)) request = new XDomainRequest();
 
   function respond() {
     var status = request.status;
@@ -122,7 +131,9 @@ function xhr(url, callback) {
     }
   }
 
-  request.open('GET', url, async);
+  request.open('GET', opts.url, async);
+  xhrSetHeader(request, load.headers);
+  xhrSetHeader(request, opts.headers);
   request.send();
 
   if (!async && xhrHasResponse(request)) {
@@ -162,5 +173,7 @@ function startsWith(string, searchString) {
 load.sanitizeUrl = sanitizeUrl;
 
 load.useXHR = (typeof XMLHttpRequest !== 'undefined');
+
+load.headers = false;
 
 module.exports = load;
