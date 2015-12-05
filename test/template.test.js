@@ -138,6 +138,7 @@ describe('template', function() {
     assert.equal('hello 1.000', f({a: 1}));
     f = template("hello {{a|number:'.3f'}}");
     assert.equal('hello 1.000', f({a: 1}));
+    assert.ok(template.format('.3f', 'number'));
   });
 
   it('should handle time filter', function() {

@@ -20,7 +20,7 @@ function template(text) {
 
 template.source = source;
 template.context = context;
-template.format = template_format;
+template.format = get_format;
 module.exports = template;
 
 // Clear cache of format objects.
@@ -87,16 +87,18 @@ function template_var(text, variable, properties) {
     return '(typeof ' + src + '==="number"?new Date('+src+'):'+src+')';
   }
 
-  function number_format(type) {
-    a = template_format(args[0], type);
+  function formatter(type) {
+    var pattern = args[0];
+    if ((pattern[0] === '\'' && pattern[pattern.length-1] === '\'') ||
+        (pattern[0] === '"'  && pattern[pattern.length-1] === '"')) {
+      pattern = pattern.slice(1, -1);
+    } else {
+      throw Error('Format pattern must be quoted: ' + pattern);
+    }
+    a = template_format(pattern, type);
     stringCast = false;
-    src = 'this.formats['+a+']('+src+')';
-  }
-
-  function time_format(type) {
-    a = template_format(args[0], type);
-    stringCast = false;
-    src = 'this.formats['+a+']('+date()+')';
+    var arg = type === 'number' ? src : date();
+    src = 'this.formats['+a+']('+arg+')';
   }
 
   if (properties) properties[prop] = 1;
@@ -164,13 +166,13 @@ function template_var(text, variable, properties) {
         src = 'this.pad(' + strcall() + ',' + a + ',\'' + b + '\')';
         break;
       case 'number':
-        number_format('number');
+        formatter('number');
         break;
       case 'time':
-        time_format('time');
+        formatter('time');
         break;
       case 'time-utc':
-        time_format('utc');
+        formatter('utc');
         break;
       case 'month':
         src = 'this.month(' + src + ')';
@@ -214,18 +216,17 @@ function template_escapeChar(match) {
 }
 
 function template_format(pattern, type) {
-  if ((pattern[0] === '\'' && pattern[pattern.length-1] === '\'') ||
-      (pattern[0] === '"'  && pattern[pattern.length-1] === '"')) {
-    pattern = pattern.slice(1, -1);
-  } else {
-    throw Error('Format pattern must be quoted: ' + pattern);
-  }
   var key = type + ':' + pattern;
   if (context.format_map[key] == null) {
     var f = format[type](pattern);
     var i = context.formats.length;
     context.formats.push(f);
     context.format_map[key] = i;
+    return i;
   }
   return context.format_map[key];
+}
+
+function get_format(pattern, type) {
+  return context.formats[template_format(pattern, type)];
 }
