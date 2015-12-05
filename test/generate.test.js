@@ -183,10 +183,15 @@ describe('generate', function() {
       assert.equal(1, bs())
       assert.deepEqual([1,1,1], bs.samples(3));
     });
-    it('should accept an array and a smoothing parameter',function(){
+    it('should accept an array and smoothing parameter',function(){
       var bs = gen.random.bootstrap([1], 5);
       var s = bs();
       assert.ok(Math.abs(1-s) >= 0);
+    });
+    it('should ignore invalid values',function(){
+      var bs = gen.random.bootstrap([1,null]);
+      assert.equal(1000, bs.samples(1000)
+        .filter(function(x) { return x != null; }).length);
     });
   });
 });

@@ -539,17 +539,20 @@ describe('stats', function() {
     it('should accept an array', function() {
       assert.deepEqual([1,1], stats.bootstrap.ci([1,1]));
     });
-    it('should accept an array and a number of samples', function() {
+    it('should accept an array and sample count', function() {
       assert.deepEqual([1,1], stats.bootstrap.ci([1,1], 100));
     });
-    it('should accept an array, a number of samples, and an alpha', function(){
+    it('should accept an array, sample count, and alpha', function(){
       assert.deepEqual([1,1], stats.bootstrap.ci([1,1], 100, 0.1));
     });
-    it('should accept an array, a number of samples, an alpha, and a smoothing parameter', function() {
+    it('should accept an array, sample count, alpha, and smoothing', function() {
       assert.notEqual(
         stats.bootstrap.ci([1,1], 100, 0.1),
         stats.bootstrap.ci([1,1], 100, 0.1, 5)
       );
+    });
+    it('should ignore invalid values', function() {
+      assert.deepEqual([1,1], stats.bootstrap.ci([1,null,1]));
     });
   });
 

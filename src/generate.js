@@ -1,4 +1,5 @@
-var gen = module.exports = {};
+var util = require('./util'),
+    gen = module.exports = {};
 
 gen.repeat = function(val, n) {
   var a = Array(n), i;
@@ -156,10 +157,11 @@ gen.random.normal = function(mean, stdev) {
 gen.random.bootstrap = function(domain, smooth) {
   // Generates a bootstrap sample from a set of observations.
   // Smooth bootstrapping adds random zero-centered noise to the samples.
-  var len = domain.length,
+  var val = domain.filter(util.isValid),
+      len = val.length,
       err = smooth ? gen.random.normal(0, smooth) : null;
   var f = function() {
-    return domain[~~(Math.random()*len)] + (err ? err() : 0);
+    return val[~~(Math.random()*len)] + (err ? err() : 0);
   };
   f.samples = function(n) {
     return gen.zeros(n).map(f);
