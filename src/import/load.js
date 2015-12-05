@@ -96,9 +96,9 @@ function xhrHasResponse(request) {
 }
 
 function getHeaders() {
-  for (var i=0, n = arguments.length, h=null; i<n; ++i) {
+  for (var i=0, n=arguments.length, h={}; i<n; ++i) {
     var o = arguments[i];
-    for (var key in o) { (h || (h={}))[key] = o[key]; }
+    for (var key in o) { h[key] = o[key]; }
   }
   return h;
 }
@@ -132,7 +132,8 @@ function xhr(url, opt, callback) {
 
   request.open('GET', url, async);
   var headers = getHeaders(load.headers, opt.headers);
-  if (headers && request.setRequestHeader) {
+  /* istanbul ignore else */
+  if (request.setRequestHeader) {
     for (var name in headers) {
       request.setRequestHeader(name, headers[name]);
     }
@@ -156,12 +157,10 @@ function http(url, opt, callback) {
   var headers = getHeaders(load.headers, opt.headers);
 
   if (!callback) {
-    var opt = headers ? {headers: headers} : undefined;
-    return require('sync-request')('GET', url, opt).getBody();
+    return require('sync-request')('GET', url, {headers: headers}).getBody();
   }
 
-  var options = {url: url, encoding: null, gzip: true};
-  if (headers) options.headers = headers;
+  var options = {url: url, encoding: null, gzip: true, headers: headers};
   require('request')(options, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       callback(null, body);
