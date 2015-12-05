@@ -44,7 +44,7 @@ describe('load', function() {
     assert.equal(null, load.sanitizeUrl({url: undefined}));
     assert.equal(null, load.sanitizeUrl({url: null}));
   });
-  
+
   it('should handle client-side sanitization', function() {
     var host = '';
     load.useXHR = true;
@@ -103,6 +103,13 @@ describe('load', function() {
 
   it('should load from http url', function(done) {
     load({url: url}, function(error, data) {
+      assert.equal(text, data);
+      done();
+    });
+  });
+
+  it('should load from http with headers', function(done) {
+    load({url: url, headers: {'User-Agent': 'datalib'}}, function(error, data) {
       assert.equal(text, data);
       done();
     });
@@ -190,7 +197,16 @@ describe('load', function() {
     load({url: file}, function(error, data) {
       load.useXHR = false;
       assert.equal(text, data);
-      done(); 
+      done();
+    });
+  });
+
+  it('should support xhr headers', function(done) {
+    load.useXHR = true;
+    load({url: file, headers: {'User-Agent': 'datalib'}}, function(error, data) {
+      load.useXHR = false;
+      assert.equal(text, data);
+      done();
     });
   });
 
@@ -201,13 +217,13 @@ describe('load', function() {
       load.useXHR = false;
       delete XMLHttpRequest.prototype.type;
       assert.equal(text, data);
-      done(); 
+      done();
     });
   });
 
   it('should support xhr sync', function() {
     load.useXHR = true;
-    assert.equal(text, load({url: file}));    
+    assert.equal(text, load({url: file}));
     load.useXHR = false;
   });
 
@@ -217,7 +233,7 @@ describe('load', function() {
       load.useXHR = false;
       assert.isNotNull(error);
       assert.isNull(data);
-      done(); 
+      done();
     });
   });
 
