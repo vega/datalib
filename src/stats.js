@@ -402,19 +402,33 @@ stats.bootstrap = {};
 // Construct a bootstrapped confidence interval at a given percentile level
 // Arguments are an array, an optional n (defaults to 1000),
 //  an optional alpha (defaults to 0.05), and an optional smoothing parameter
-stats.bootstrap.ci = function(values, n, alpha, smooth) {
-  var N = n ? +n : 1000,
-      q = alpha ? alpha : 0.05,
-      bs = gen.random.bootstrap(values, smooth),
-      means = Array(N), i;
+stats.bootstrap.ci = function(values, a, b, c, d) {
 
+  var X,N,alpha,bs,means,smooth,i;
+  if(util.isFunction(a)||util.isString(a)){
+  // Array and accessor
+    X = values.map(util.$(a));
+    N = b ? +b : 1000;
+    alpha = c ? c : 0.05;
+    smooth = d;
+  }
+  else{
+  // Array
+    X = values;
+    N = a ? +a : 1000;
+    alpha = b ? b : 0.05;
+    smooth = c;
+  }
+  bs = gen.random.bootstrap(X, smooth);
+  means = Array(N);
+  
   for (i=0; i<N; ++i) {
-    means[i] = stats.mean(bs.samples(values.length));
+    means[i] = stats.mean(bs.samples(X.length));
   }
   means = means.filter(util.isValid).sort(util.numcmp);
   return [
-    stats.quantile(means, q/2),
-    stats.quantile(means, 1-(q/2))
+    stats.quantile(means, alpha/2),
+    stats.quantile(means, 1-(alpha/2))
   ];
 };
 
@@ -423,10 +437,22 @@ stats.z = {};
 
 // Construct a z-confidence interval at a given significance level
 // Arguments are an array and an optional alpha (defaults to 0.05).
-stats.z.ci = function(values, alpha) {
-  var z = alpha ? gen.random.normal(0, 1).icdf(1-(alpha/2)) : 1.96,
-      mu = stats.mean(values),
-      SE = stats.stdev(values) / Math.sqrt(stats.count.valid(values));
+stats.z.ci = function(values, a, b) {
+  var X =  (util.isFunction(a) || util.isString(a)) ? values.map(util.$(a)) : values,
+      alpha;
+  if(b){
+    alpha = b;
+  }
+  else if(util.isNumber(a)){
+    alpha = a;
+  }
+  else{
+    alpha = 0.05;
+  }
+ 
+  var z = alpha!=0.05 ? gen.random.normal(0, 1).icdf(1-(alpha/2)) : 1.96,
+      mu = stats.mean(X),
+      SE = stats.stdev(X) / Math.sqrt(stats.count.valid(X));
   return [mu - (z*SE), mu + (z*SE)];
 };
 

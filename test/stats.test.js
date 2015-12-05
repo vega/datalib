@@ -536,21 +536,45 @@ describe('stats', function() {
   });
 
   describe('stats.bootstrap.ci', function() {
+    var g1 = [ {a:1},{a:1}];
     it('should accept an array', function() {
       assert.deepEqual([1,1], stats.bootstrap.ci([1,1]));
     });
+
     it('should accept an array and sample count', function() {
       assert.deepEqual([1,1], stats.bootstrap.ci([1,1], 100));
     });
+
     it('should accept an array, sample count, and alpha', function(){
       assert.deepEqual([1,1], stats.bootstrap.ci([1,1], 100, 0.1));
     });
+
     it('should accept an array, sample count, alpha, and smoothing', function() {
       assert.notEqual(
         stats.bootstrap.ci([1,1], 100, 0.1),
         stats.bootstrap.ci([1,1], 100, 0.1, 5)
       );
     });
+
+    it('should accept an array and accessor',function() {
+      assert.deepEqual([1,1],stats.bootstrap.ci(g1,a));
+    });
+
+    it('should accept an array, accessor, and sample count', function(){
+      assert.deepEqual([1,1],stats.bootstrap.ci(g1,a,100));
+    });
+
+    it('should accept an array, accessor, sample count, and alpha', function(){
+      assert.deepEqual([1,1],stats.bootstrap.ci(g1,a,100,0.1));
+    });
+
+    it('should accept an array, accessor, sample count, alpha, and smoothing', function(){
+      assert.notEqual(
+        stats.bootstrap.ci(g1,a,100,0.1),
+        stats.bootstrap.ci(g1,a,100,0.1,5)
+      );
+    });
+
     it('should ignore invalid values', function() {
       assert.deepEqual([1,1], stats.bootstrap.ci([1,null,1]));
     });
@@ -558,7 +582,9 @@ describe('stats', function() {
 
   describe('stats.z.ci', function() {
     var g1 = [1,2,3,4,5],
-        g2 = [1,1,1];
+        g2 = [1,1,1],
+        g3 = [{a:1},{a:2},{a:3},{a:4},{a:5}],
+        g4 = [{a:1},{a:1},{a:1}];
 
     it('should accept an array', function() {
       assert.deepEqual([1,1], stats.z.ci(g2));
@@ -572,7 +598,19 @@ describe('stats', function() {
       assert.equal(3, stats.z.ci(g1, 1)[0]);
       assert.equal(3, stats.z.ci(g1, 1)[1]);
     });
-
+    
+    it('should accept an array and accessor', function() {
+      assert.deepEqual([1,1], stats.z.ci(g4,a));
+    });
+ 
+    it('should accept an array, accessor, and alpha', function() {
+      assert.ok(
+        stats.z.ci(g3, a)[0] < stats.z.ci(g3, a, 0.1)[0] &&
+        stats.z.ci(g3, a)[1] > stats.z.ci(g3, a, 0.1)[1]
+      );
+      assert.equal(3, stats.z.ci(g3, a, 1)[0]);
+      assert.equal(3, stats.z.ci(g3, a, 1)[1]);
+    });
   });
 
   describe('stats.z.test', function() {
