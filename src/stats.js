@@ -435,7 +435,7 @@ stats.z = {};
 // Construct a z-confidence interval at a given significance level
 // Arguments are an array and an optional alpha (defaults to 0.05).
 stats.z.ci = function(values, a, b) {
-  var X = values, alpha = a, f;
+  var X = values, alpha = a;
   if (util.isFunction(a) || util.isString(a)) {
     X = values.map(util.$(a));
     alpha = b;
