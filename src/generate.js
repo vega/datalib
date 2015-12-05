@@ -153,13 +153,16 @@ gen.random.normal = function(mean, stdev) {
   return f;
 };
 
-gen.random.bootstrap = function(a,smoothing){
-// Generates a bootstrap sample from a set of observations. Smooth bootstrapping adds random zero-centered noise to the samples.
-  var n = a.length,
-      error = smoothing ? gen.random.normal(0,smoothing).samples(n) : gen.zeros(n),
-      bootstrapped = [];
-  for(var i = 0;i<n;i++){
-    bootstrapped[i] = a[Math.floor(Math.random()*n)]+error[i]; 
-  }
-  return bootstrapped;
+gen.random.bootstrap = function(domain, smooth) {
+  // Generates a bootstrap sample from a set of observations.
+  // Smooth bootstrapping adds random zero-centered noise to the samples.
+  var len = domain.length,
+      err = smooth ? gen.random.normal(0, smooth) : null;
+  var f = function() {
+    return domain[~~(Math.random()*len)] + (err ? err() : 0);
+  };
+  f.samples = function(n) {
+    return gen.zeros(n).map(f);
+  };
+  return f;
 };

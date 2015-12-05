@@ -176,17 +176,17 @@ describe('generate', function() {
       assert.closeTo(-1, n1.icdf(n1.cdf(-1)), 1e-3);
     });
   });
-  
+
   describe("random bootstrap", function(){
-   it('should accept an array', function(){
-     assert.deepEqual([1,1,1],gen.random.bootstrap([1,1,1]));
-   }); 
-   it('should accept an array and a smoothing parameter',function(){
-     assert.ok(Math.abs(1-gen.random.bootstrap([1],5)[0])>=0);
-   });
-   it('should generate an array of the same size as the input', function() {
-      assert.equal(4,gen.random.bootstrap([1,2,3,4]).length);
-   });
-    
+    it('should accept an array', function(){
+      var bs = gen.random.bootstrap([1,1,1]);
+      assert.equal(1, bs())
+      assert.deepEqual([1,1,1], bs.samples(3));
+    });
+    it('should accept an array and a smoothing parameter',function(){
+      var bs = gen.random.bootstrap([1], 5);
+      var s = bs();
+      assert.ok(Math.abs(1-s) >= 0);
+    });
   });
 });

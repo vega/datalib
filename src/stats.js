@@ -396,21 +396,26 @@ stats.linearRegression = function(values, a, b) {
   return fit;
 };
 
-// Namespace for bootstrapping
+// Namespace for bootstrap
 stats.bootstrap = {};
 
 // Construct a bootstrapped confidence interval at a given percentile level
-// Arguments are an array, an optional alpha (defaults to 0.05), an optional n
-// (defaults to 1000), and an optional smoothing parameter  
-stats.bootstrap.ci = function(a,samples,alpha,smoothing){
-  var means = [],
-      n = samples ? samples : 1000,
-      quantile = alpha ? alpha : 0.05;
-  for(var i = 0;i<n;i++){
-    means[i] = smoothing ? stats.mean(gen.random.bootstrap(a,smoothing)) : stats.mean(gen.random.bootstrap(a));
+// Arguments are an array, an optional n (defaults to 1000),
+//  an optional alpha (defaults to 0.05), and an optional smoothing parameter
+stats.bootstrap.ci = function(values, n, alpha, smooth) {
+  var N = n ? +n : 1000,
+      q = alpha ? alpha : 0.05,
+      bs = gen.random.bootstrap(values, smooth),
+      means = Array(N), i;
+
+  for (i=0; i<N; ++i) {
+    means[i] = stats.mean(bs.samples(values.length));
   }
-  means = means.filter(util.isValid).sort(util.cmp);
-  return [ stats.quantile(means,quantile/2),stats.quantile(means,1-(quantile/2))];
+  means = means.filter(util.isValid).sort(util.numcmp);
+  return [
+    stats.quantile(means, q/2),
+    stats.quantile(means, 1-(q/2))
+  ];
 };
 
 // Namespace for z-tests
@@ -418,10 +423,10 @@ stats.z = {};
 
 // Construct a z-confidence interval at a given significance level
 // Arguments are an array and an optional alpha (defaults to 0.05).
-stats.z.ci = function(a, alpha) {
+stats.z.ci = function(values, alpha) {
   var z = alpha ? gen.random.normal(0, 1).icdf(1-(alpha/2)) : 1.96,
-      mu = stats.mean(a),
-      SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
+      mu = stats.mean(values),
+      SE = stats.stdev(values) / Math.sqrt(stats.count.valid(values));
   return [mu - (z*SE), mu + (z*SE)];
 };
 
