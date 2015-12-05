@@ -1,3 +1,5 @@
+var util = require('../util');
+
 // Matches absolute URLs with optional protocol
 //   https://...    file://...    //...
 var protocol_re = /^([A-Za-z]+:)?\/\//;
@@ -95,14 +97,6 @@ function xhrHasResponse(request) {
     request.responseText; // '' on error
 }
 
-function getHeaders() {
-  for (var i=0, n=arguments.length, h={}; i<n; ++i) {
-    var o = arguments[i];
-    for (var key in o) { h[key] = o[key]; }
-  }
-  return h;
-}
-
 function xhr(url, opt, callback) {
   var async = !!callback;
   var request = new XMLHttpRequest();
@@ -131,9 +125,9 @@ function xhr(url, opt, callback) {
   }
 
   request.open('GET', url, async);
-  var headers = getHeaders(load.headers, opt.headers);
   /* istanbul ignore else */
   if (request.setRequestHeader) {
+    var headers = util.extend({}, load.headers, opt.headers);
     for (var name in headers) {
       request.setRequestHeader(name, headers[name]);
     }
@@ -154,7 +148,7 @@ function file(filename, callback) {
 }
 
 function http(url, opt, callback) {
-  var headers = getHeaders(load.headers, opt.headers);
+  var headers = util.extend({}, load.headers, opt.headers);
 
   if (!callback) {
     return require('sync-request')('GET', url, {headers: headers}).getBody();
@@ -178,5 +172,5 @@ function startsWith(string, searchString) {
 
 load.sanitizeUrl = sanitizeUrl;
 load.useXHR = (typeof XMLHttpRequest !== 'undefined');
-load.headers = null;
+load.headers = {};
 module.exports = load;
