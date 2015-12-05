@@ -127,6 +127,10 @@ describe('load', function() {
     assert.equal(text, load({url: url}));
   });
 
+  it('should load from http url synchronously with headers', function() {
+    assert.equal(text, load({url: url, headers: {'User-Agent': 'datalib'}}));
+  });
+
   it('should load from http base url + uri', function(done) {
     load(
       {baseURL: base, url: uri},

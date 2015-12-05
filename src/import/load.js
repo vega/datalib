@@ -153,12 +153,14 @@ function file(filename, callback) {
 }
 
 function http(url, opt, callback) {
+  var headers = getHeaders(load.headers, opt.headers);
+
   if (!callback) {
-    return require('sync-request')('GET', url).getBody();
+    var opt = headers ? {headers: headers} : undefined;
+    return require('sync-request')('GET', url, opt).getBody();
   }
 
   var options = {url: url, encoding: null, gzip: true};
-  var headers = getHeaders(load.headers, opt.headers);
   if (headers) options.headers = headers;
   require('request')(options, function(error, response, body) {
     if (!error && response.statusCode === 200) {
