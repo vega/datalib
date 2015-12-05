@@ -339,8 +339,8 @@ stats.cor = function(values, a, b) {
 
 // Compute the Spearman rank correlation of two arrays of values.
 stats.cor.rank = function(values, a, b) {
-  var ra = b ? stats.rank(values, util.$(a)) : stats.rank(values),
-      rb = b ? stats.rank(values, util.$(b)) : stats.rank(a),
+  var ra = b ? stats.rank(values, a) : stats.rank(values),
+      rb = b ? stats.rank(values, b) : stats.rank(a),
       n = values.length, i, s, d;
 
   for (i=0, s=0; i<n; ++i) {
@@ -403,29 +403,26 @@ stats.bootstrap = {};
 // Arguments are an array, an optional n (defaults to 1000),
 //  an optional alpha (defaults to 0.05), and an optional smoothing parameter
 stats.bootstrap.ci = function(values, a, b, c, d) {
-
-  var X,N,alpha,bs,means,smooth,i;
-  if(util.isFunction(a)||util.isString(a)){
-  // Array and accessor
+  var X, N, alpha, smooth, bs, means, i;
+  if (util.isFunction(a) || util.isString(a)) {
     X = values.map(util.$(a));
-    N = b ? +b : 1000;
-    alpha = c ? c : 0.05;
+    N = b;
+    alpha = c;
     smooth = d;
-  }
-  else{
-  // Array
+  } else {
     X = values;
-    N = a ? +a : 1000;
-    alpha = b ? b : 0.05;
+    N = a;
+    alpha = b;
     smooth = c;
   }
+  N = N ? +N : 1000;
+  alpha = alpha || 0.05;
+
   bs = gen.random.bootstrap(X, smooth);
-  means = Array(N);
-  
-  for (i=0; i<N; ++i) {
+  for (i=0, means = Array(N); i<N; ++i) {
     means[i] = stats.mean(bs.samples(X.length));
   }
-  means = means.filter(util.isValid).sort(util.numcmp);
+  means.sort(util.numcmp);
   return [
     stats.quantile(means, alpha/2),
     stats.quantile(means, 1-(alpha/2))
@@ -438,19 +435,14 @@ stats.z = {};
 // Construct a z-confidence interval at a given significance level
 // Arguments are an array and an optional alpha (defaults to 0.05).
 stats.z.ci = function(values, a, b) {
-  var X =  (util.isFunction(a) || util.isString(a)) ? values.map(util.$(a)) : values,
-      alpha;
-  if(b){
+  var X = values, alpha = a, f;
+  if (util.isFunction(a) || util.isString(a)) {
+    X = values.map(util.$(a));
     alpha = b;
   }
-  else if(util.isNumber(a)){
-    alpha = a;
-  }
-  else{
-    alpha = 0.05;
-  }
- 
-  var z = alpha!=0.05 ? gen.random.normal(0, 1).icdf(1-(alpha/2)) : 1.96,
+  alpha = alpha || 0.05;
+
+  var z = alpha===0.05 ? 1.96 : gen.random.normal(0, 1).icdf(1-(alpha/2)),
       mu = stats.mean(X),
       SE = stats.stdev(X) / Math.sqrt(stats.count.valid(X));
   return [mu - (z*SE), mu + (z*SE)];
@@ -469,19 +461,21 @@ stats.z.test = function(values, a, b, opt) {
     return (opt && opt.paired ? ztestP : ztest2)(opt, values, a, b);
   } else if (util.isArray(a)) { // two arrays
     return (b && b.paired ? ztestP : ztest2)(b, values, a);
-  } else { // one array
-    return ztest1(a, values);
+  } else if (util.isFunction(a) || util.isString(a)) {
+    return ztest1(b, values, a); // table and accessor
+  } else {
+    return ztest1(a, values); // one array
   }
 };
 
 // Perform a z-test of means. Returns the p-value.
 // Assuming we have a list of values, and a null hypothesis. If no null
 // hypothesis, assume our null hypothesis is mu=0.
-function ztest1(opt, a) {
+function ztest1(opt, X, f) {
   var nullH = opt && opt.nullh || 0,
       gaussian = gen.random.normal(0, 1),
-      mu = stats.mean(a),
-      SE = stats.stdev(a) / Math.sqrt(stats.count.valid(a));
+      mu = stats.mean(X,f),
+      SE = stats.stdev(X,f) / Math.sqrt(stats.count.valid(X,f));
 
   if (SE===0) {
     // Test not well defined when standard error is 0.

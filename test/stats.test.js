@@ -556,22 +556,22 @@ describe('stats', function() {
       );
     });
 
-    it('should accept an array and accessor',function() {
-      assert.deepEqual([1,1],stats.bootstrap.ci(g1,a));
+    it('should accept an array and accessor', function() {
+      assert.deepEqual([1,1], stats.bootstrap.ci(g1, a));
     });
 
-    it('should accept an array, accessor, and sample count', function(){
-      assert.deepEqual([1,1],stats.bootstrap.ci(g1,a,100));
+    it('should accept an array, accessor, and sample count', function() {
+      assert.deepEqual([1,1], stats.bootstrap.ci(g1, a, 100));
     });
 
-    it('should accept an array, accessor, sample count, and alpha', function(){
-      assert.deepEqual([1,1],stats.bootstrap.ci(g1,a,100,0.1));
+    it('should accept an array, accessor, sample count, and alpha', function() {
+      assert.deepEqual([1,1], stats.bootstrap.ci(g1, a, 100, 0.1));
     });
 
-    it('should accept an array, accessor, sample count, alpha, and smoothing', function(){
+    it('should accept an array, accessor, sample count, alpha, and smoothing', function() {
       assert.notEqual(
-        stats.bootstrap.ci(g1,a,100,0.1),
-        stats.bootstrap.ci(g1,a,100,0.1,5)
+        stats.bootstrap.ci(g1, a, 100, 0.1),
+        stats.bootstrap.ci(g1, a, 100, 0.1, 5)
       );
     });
 
@@ -598,11 +598,11 @@ describe('stats', function() {
       assert.equal(3, stats.z.ci(g1, 1)[0]);
       assert.equal(3, stats.z.ci(g1, 1)[1]);
     });
-    
+
     it('should accept an array and accessor', function() {
       assert.deepEqual([1,1], stats.z.ci(g4,a));
     });
- 
+
     it('should accept an array, accessor, and alpha', function() {
       assert.ok(
         stats.z.ci(g3, a)[0] < stats.z.ci(g3, a, 0.1)[0] &&
@@ -614,14 +614,23 @@ describe('stats', function() {
   });
 
   describe('stats.z.test', function() {
-    var g1 = [1,2,3,4,5];
+    var g1 = [1,2,3,4,5],
+        g2 = [{a:1},{a:2},{a:3},{a:4},{a:5}];
 
     it('should accept an array', function() {
-      assert.ok(stats.z.test(g1, 0) < 0.05);
+      assert.ok(stats.z.test(g1) < 0.05);
+    });
+
+    it('should accept an array and an accessor', function() {
+      assert.ok(stats.z.test(g2, a) < 0.05);
     });
 
     it('should accept an array and a null hypothesis', function() {
       assert.equal(1, stats.z.test(g1, {nullh:3}));
+    });
+
+    it('should accept an array, an accessor, and a null hypothesis', function() {
+      assert.equal(1, stats.z.test(g2, a, {nullh:3}));
     });
 
     it('should degrade gracefully if there is no variation', function() {
