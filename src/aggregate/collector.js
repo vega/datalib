@@ -85,12 +85,12 @@ proto.argmax = function(get) {
 
 proto.min = function(get) {
   var m = this.extent(get)[0];
-  return m ? get(m) : +Infinity;
+  return m != null ? get(m) : +Infinity;
 };
 
 proto.max = function(get) {
   var m = this.extent(get)[1];
-  return m ? get(m) : -Infinity;
+  return m != null ? get(m) : -Infinity;
 };
 
 proto.quartile = function(get) {
