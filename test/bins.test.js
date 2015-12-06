@@ -27,7 +27,7 @@ describe('binning', function() {
       assert.equal(b.stop, 10);
       assert.equal(b.step, 1);
     });
-  
+
     it('should bin numeric values', function() {
       var b = bins({min:1.354, max:98.432, maxbins: 11});
       assert.equal(b.start, 0);
@@ -43,6 +43,11 @@ describe('binning', function() {
       assert.equal(b.start, 0);
       assert.equal(b.stop, 100);
       assert.equal(b.step, 5);
+
+      b = bins({min:9, max:46.6, maxbins:10});
+      assert.equal(b.start, 5);
+      assert.equal(b.stop, 50);
+      assert.equal(b.step, 5);
     });
 
     it('should accept minimum step size', function() {
@@ -56,7 +61,7 @@ describe('binning', function() {
       assert.equal(b.stop, 10);
       assert.equal(b.step, 0.1);
     });
-  
+
     it('should accept fixed step size', function() {
       var b = bins({min:0, max:9, step: 3});
       assert.equal(b.start, 0);
@@ -69,7 +74,7 @@ describe('binning', function() {
       assert.equal(b.start, 0);
       assert.equal(b.stop, 20);
       assert.equal(b.step, 4);
-    
+
       b = bins({min:0, max:20, steps: [4,10], maxbins:3});
       assert.equal(b.start, 0);
       assert.equal(b.stop, 20);
@@ -175,7 +180,7 @@ describe('binning', function() {
       }
       test($bin(year, {type:'date', utc:true}));
       test($bin(year.map(function(d) { return new Date(d); }), {utc:true}));
-      
+
       var b = $bin(mon, {type:'date', unit:'month', utc:true});
       assert.equal(mon[0], +b(mon[0]));
       assert.equal(mon[1], +b(mon[1]));
@@ -194,7 +199,7 @@ describe('binning', function() {
       }
       assert.equal('foo', b({a:'foo'}));
     });
-    
+
     it('should bin object properties', function() {
       var o = num.map(function(x) { return {a:x}; });
       function test(b) {
@@ -233,7 +238,7 @@ describe('binning', function() {
       assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor('value')));
       assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor('count')));
     });
-    
+
     it('should handle accessor', function() {
       var vals = [1,2,3,4,5,6,7,1,2,3,4,5,1,2,3].map(function(x) {
         return {a: x};

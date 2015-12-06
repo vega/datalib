@@ -34,7 +34,7 @@ function bins(opt) {
     );
 
     // increase step size if too many bins
-    do { step *= base; } while (Math.ceil(span/step) > maxb);
+    while (Math.ceil(span/step) > maxb) { step *= base; }
 
     // decrease step size if allowed
     for (i=0; i<div.length; ++i) {
