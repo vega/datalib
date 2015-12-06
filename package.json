@@ -1,6 +1,6 @@
 {
   "name": "datalib",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "description": "JavaScript utilites for loading, summarizing and working with data.",
   "keywords": [
     "data",
