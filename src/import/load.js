@@ -64,6 +64,10 @@ function sanitizeUrl(opt) {
 }
 
 function load(opt, callback) {
+  return load.loader(opt, callback);
+}
+
+function loader(opt, callback) {
   var error = callback || function(e) { throw e; }, url;
 
   try {
@@ -77,16 +81,16 @@ function load(opt, callback) {
     error('Invalid URL: ' + opt.url);
   } else if (load.useXHR) {
     // on client, use xhr
-    return xhr(url, opt, callback);
+    return load.xhr(url, opt, callback);
   } else if (startsWith(url, fileProtocol)) {
     // on server, if url starts with 'file://', strip it and load from file
-    return file(url.slice(fileProtocol.length), callback);
+    return load.file(url.slice(fileProtocol.length), opt, callback);
   } else if (url.indexOf('://') < 0) { // TODO better protocol check?
     // on server, if no protocol assume file
-    return file(url, callback);
+    return load.file(url, opt, callback);
   } else {
     // for regular URLs on server
-    return http(url, opt, callback);
+    return load.http(url, opt, callback);
   }
 }
 
@@ -139,7 +143,7 @@ function xhr(url, opt, callback) {
   }
 }
 
-function file(filename, callback) {
+function file(filename, opt, callback) {
   var fs = require('fs');
   if (!callback) {
     return fs.readFileSync(filename, 'utf8');
@@ -170,7 +174,15 @@ function startsWith(string, searchString) {
   return string == null ? false : string.lastIndexOf(searchString, 0) === 0;
 }
 
+// Allow these functions to be overriden by the user of the library
+load.loader = loader;
 load.sanitizeUrl = sanitizeUrl;
+load.xhr = xhr;
+load.file = file;
+load.http = http;
+
+// Default settings
 load.useXHR = (typeof XMLHttpRequest !== 'undefined');
 load.headers = {};
+
 module.exports = load;
