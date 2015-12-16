@@ -19,7 +19,7 @@ describe('util', function() {
       assert.isFalse(util.isBuffer({}));
     });
   });
-  
+
   describe('comparison function', function() {
     it('should compare numbers', function() {
       assert(util.cmp(1, 0) > 0);
@@ -49,7 +49,7 @@ describe('util', function() {
       assert(isNaN(util.cmp(NaN, NaN)));
     });
   });
-  
+
   describe('number comparison function', function() {
     it('should compare numbers', function() {
       assert.equal(-1, util.numcmp(1, 2));
@@ -69,7 +69,7 @@ describe('util', function() {
       assert.equal(comparator({'p': 0}, {'p': 1}), -1);
       assert.equal(comparator({'p': 1}, {'p': 1}), 0);
     });
-    
+
     it('should handle single argument with "+" prefix', function() {
       var comparator = util.comparator(['+p']);
       assert.equal(comparator({'p': 1}, {'p': 0}), 1);
@@ -94,7 +94,7 @@ describe('util', function() {
     });
   });
 
-  describe('stable sort', function() {    
+  describe('stable sort', function() {
     it('should compute a stable sort', function() {
       var data = [
         {id: 1, a: 2},
@@ -153,27 +153,27 @@ describe('util', function() {
     it('should convert string "true" to true', function() {
       assert.strictEqual(util.boolean('true'), true);
     });
-    
+
     it('should convert string "false" to false', function() {
       assert.strictEqual(util.boolean('false'), false);
     });
-    
+
     it('should convert string "1" to true', function() {
       assert.strictEqual(util.boolean('1'), true);
     });
-    
+
     it('should convert string "0" to true', function() {
       assert.strictEqual(util.boolean('0'), true);
     });
-    
+
     it('should convert number 1 to true', function() {
       assert.strictEqual(util.boolean(1), true);
     });
-    
+
     it('should convert number 0 to false', function() {
       assert.strictEqual(util.boolean(0), false);
     });
-    
+
     it('should return null for null argument', function() {
       assert.strictEqual(util.boolean(null), null);
       assert.strictEqual(util.boolean(undefined), null);
@@ -378,132 +378,12 @@ describe('util', function() {
   });
 
   describe('accessor helpers', function() {
-    // utc
-    var tu = {t: Date.UTC(2005, 2, 3, 13, 17, 29)};
-    var du = {d: new Date(tu.t)};
-    // locale
-    var dl = {d: new Date(2005, 2, 3, 13, 17, 29)};
-    var tl = {t: +dl.d};
 
     it('should support length extraction', function() {
       assert.equal(5, util.$length('s')({s:'abcde'}));
       assert.equal(5, util.$length()('abcde'));
       assert.equal('length_s', util.name(util.$length('s')));
       assert.equal('length', util.name(util.$length()));
-    });
-
-    it('should support year extraction', function() {
-      assert.equal(2005, util.$year('t')(tl));
-      assert.equal(2005, util.$year('d')(dl));
-      assert.equal(2005, util.$year()(dl.d));
-      assert.equal('year_t', util.name(util.$year('t')));
-      assert.equal('year', util.name(util.$year()));
-    });
-
-    it('should support month extraction', function() {
-      assert.equal(2, util.$month('t')(tl));
-      assert.equal(2, util.$month('d')(dl));
-      assert.equal(2, util.$month()(dl.d));
-      assert.equal('month_t', util.name(util.$month('t')));
-      assert.equal('month', util.name(util.$month()));
-    });
-
-    it('should support date extraction', function() {
-      assert.equal(3, util.$date('t')(tl));
-      assert.equal(3, util.$date('d')(dl));
-      assert.equal(3, util.$date()(dl.d));
-      assert.equal('date_t', util.name(util.$date('t')));
-      assert.equal('date', util.name(util.$date()));
-    });
-
-    it('should support day extraction', function() {
-      var day = dl.d.getUTCDay();
-      assert.equal(day, util.$day('t')(tl));
-      assert.equal(day, util.$day('d')(dl));
-      assert.equal(day, util.$day()(dl.d));
-      assert.equal('day_t', util.name(util.$day('t')));
-      assert.equal('day', util.name(util.$day()));
-    });
-
-    it('should support hour extraction', function() {
-      assert.equal(13, util.$hour('t')(tl));
-      assert.equal(13, util.$hour('d')(dl));
-      assert.equal(13, util.$hour()(dl.d));
-      assert.equal('hour_t', util.name(util.$hour('t')));
-      assert.equal('hour', util.name(util.$hour()));
-    });
-
-    it('should support minute extraction', function() {
-      assert.equal(17, util.$minute('t')(tl));
-      assert.equal(17, util.$minute('d')(dl));
-      assert.equal(17, util.$minute()(dl.d));
-      assert.equal('minute_t', util.name(util.$minute('t')));
-      assert.equal('minute', util.name(util.$minute()));
-    });
-
-    it('should support second extraction', function() {
-      assert.equal(29, util.$second('t')(tl));
-      assert.equal(29, util.$second('d')(dl));
-      assert.equal(29, util.$second()(dl.d));
-      assert.equal('second_t', util.name(util.$second('t')));
-      assert.equal('second', util.name(util.$second()));
-    });
-
-    it('should support utc year extraction', function() {
-      assert.equal(2005, util.$utcYear('t')(tu));
-      assert.equal(2005, util.$utcYear('d')(du));
-      assert.equal(2005, util.$utcYear()(du.d));
-      assert.equal('utcYear_t', util.name(util.$utcYear('t')));
-      assert.equal('utcYear', util.name(util.$utcYear()));
-    });
-
-    it('should support utc month extraction', function() {
-      assert.equal(2, util.$utcMonth('t')(tu));
-      assert.equal(2, util.$utcMonth('d')(du));
-      assert.equal(2, util.$utcMonth()(du.d));
-      assert.equal('utcMonth_t', util.name(util.$utcMonth('t')));
-      assert.equal('utcMonth', util.name(util.$utcMonth()));
-    });
-
-    it('should support utc date extraction', function() {
-      assert.equal(3, util.$utcDate('t')(tu));
-      assert.equal(3, util.$utcDate('d')(du));
-      assert.equal(3, util.$utcDate()(du.d));
-      assert.equal('utcDate_t', util.name(util.$utcDate('t')));
-      assert.equal('utcDate', util.name(util.$utcDate()));
-    });
-
-    it('should support utc day extraction', function() {
-      var day = du.d.getUTCDay();
-      assert.equal(day, util.$utcDay('t')(tu));
-      assert.equal(day, util.$utcDay('d')(du));
-      assert.equal(day, util.$utcDay()(du.d));
-      assert.equal('utcDay_t', util.name(util.$utcDay('t')));
-      assert.equal('utcDay', util.name(util.$utcDay()));
-    });
-
-    it('should support utc hour extraction', function() {
-      assert.equal(13, util.$utcHour('t')(tu));
-      assert.equal(13, util.$utcHour('d')(du));
-      assert.equal(13, util.$utcHour()(du.d));
-      assert.equal('utcHour_t', util.name(util.$utcHour('t')));
-      assert.equal('utcHour', util.name(util.$utcHour()));
-    });
-
-    it('should support utc minute extraction', function() {
-      assert.equal(17, util.$utcMinute('t')(tu));
-      assert.equal(17, util.$utcMinute('d')(du));
-      assert.equal(17, util.$utcMinute()(du.d));
-      assert.equal('utcMinute_t', util.name(util.$utcMinute('t')));
-      assert.equal('utcMinute', util.name(util.$utcMinute()));
-    });
-
-    it('should support utc second extraction', function() {
-      assert.equal(29, util.$utcSecond('t')(tu));
-      assert.equal(29, util.$utcSecond('d')(du));
-      assert.equal(29, util.$utcSecond()(du.d));
-      assert.equal('utcSecond_t', util.name(util.$utcSecond('t')));
-      assert.equal('utcSecond', util.name(util.$utcSecond()));
     });
 
     it('should support set inclusion', function() {
@@ -601,7 +481,7 @@ describe('util', function() {
       assert.strictEqual(clone.string, 'text');
       assert.strictEqual(clone.boolean, true);
       assert.deepEqual(clone.array, [ 'arrayvalue' ]);
-      
+
       topic.clone.child.value = 'changed value';
       assert.equal(topic.original.child.value, 'original value');
 

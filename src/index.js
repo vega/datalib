@@ -16,6 +16,7 @@ var dl = {
 };
 
 util.extend(dl, util);
+util.extend(dl, require('./accessor'));
 util.extend(dl, require('./generate'));
 util.extend(dl, require('./stats'));
 util.extend(dl, require('./import/readers'));

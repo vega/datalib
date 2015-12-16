@@ -1,5 +1,5 @@
 var util = require('./util'),
-    gen = module.exports = {};
+    gen = module.exports;
 
 gen.repeat = function(val, n) {
   var a = Array(n), i;

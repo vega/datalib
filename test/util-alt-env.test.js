@@ -9,12 +9,11 @@ describe('util alternative environment', function() {
 
   describe('isBuffer', function() {
     it('should be false', function() {
-      var buffer = require('buffer');
-      var Buffer = buffer.Buffer;
-      buffer.Buffer = null;
+      var ib = Buffer.isBuffer;
+      Buffer.isBuffer = null;
       delete require.cache[utilpath];
       var util = require(utilpath);
-      buffer.Buffer = Buffer;
+      Buffer.isBuffer = ib;
 
       assert.strictEqual(util.false, util.isBuffer);
 

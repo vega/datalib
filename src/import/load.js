@@ -105,7 +105,7 @@ function xhr(url, opt, callback) {
   var async = !!callback;
   var request = new XMLHttpRequest();
   // If IE does not support CORS, use XDomainRequest (copied from d3.xhr)
-  if (this.XDomainRequest &&
+  if (typeof XDomainRequest !== 'undefined' &&
       !('withCredentials' in request) &&
       /^(http(s)?:)?\/\//.test(url)) request = new XDomainRequest();
 

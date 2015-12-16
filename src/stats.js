@@ -2,7 +2,7 @@ var util = require('./util');
 var type = require('./import/type');
 var gen = require('./generate');
 
-var stats = {};
+var stats = module.exports;
 
 // Collect unique values.
 // Output: an array of unique values, in first-observed order
@@ -686,5 +686,3 @@ stats.summary = function(data, fields) {
   });
   return (s.__summary__ = true, s);
 };
-
-module.exports = stats;
