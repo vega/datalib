@@ -125,7 +125,7 @@ stats.mean = function(values, f) {
 // Computer the geometric mean of an array of numbers.
 stats.geom = function(values, f) {
   f = util.$(f);
-  var mean,c,n,v;
+  var mean,c,n,v,i;
   for(i=0, c=0, n=values.length; i<n; i++) {
     v = f ? f(values[i]) : values[i];
     if(v<0){
