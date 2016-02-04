@@ -260,7 +260,7 @@ describe('stats', function() {
 
     it('should throw error if the data contains negative or zero  values', function() {
       assert.throws(function() {stats.geom([1,2,-1]);});
-      //assert.throws(function() {stats.geom([1,2,0]);});
+      assert.throws(function() {stats.geom([1,2,0]);});
     });
   });
   describe('variance & stdev', function() {

@@ -129,7 +129,7 @@ stats.geom = function(values, f) {
   for(i=0, c=0, n=values.length; i<n; i++) {
     v = f ? f(values[i]) : values[i];
     if(util.isValid(v)) {
-      if(v>=0){
+      if(v>0){
         mean = mean ? mean*v : v;
         c++;
       }
