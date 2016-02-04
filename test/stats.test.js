@@ -258,8 +258,9 @@ describe('stats', function() {
       assert.equal(stats.geom([null,null]),0);
     });
 
-    it('should throw error if the data contains negative values', function() {
+    it('should throw error if the data contains negative or zero  values', function() {
       assert.throws(function() {stats.geom([1,2,-1]);});
+      //assert.throws(function() {stats.geom([1,2,0]);});
     });
   });
   describe('variance & stdev', function() {
