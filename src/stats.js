@@ -122,6 +122,24 @@ stats.mean = function(values, f) {
   return mean;
 };
 
+// Computer the geometric mean of an array of numbers.
+stats.geom = function(values, f) {
+  f = util.$(f);
+  var mean,c,n,v;
+  for(i=0, c=0, n=values.length; i<n; i++) {
+    v = f ? f(values[i]) : values[i];
+    if(v<0){
+      throw Error("Geometric mean cannot contain negative values");
+    }
+    else if(util.isValid(v)) {
+      mean = mean ? mean*v : v;
+      c++;
+    }
+  }
+  mean = c>0 ? Math.pow(mean, 1/c) : 0;
+  return mean;
+};
+
 // Compute the sample variance of an array of numbers.
 stats.variance = function(values, f) {
   f = util.$(f);
