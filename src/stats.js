@@ -123,7 +123,7 @@ stats.mean = function(values, f) {
 };
 
 // Compute the geometric mean of an array of numbers.
-stats.geomean = function(values, f) {
+stats.mean.geometric = function(values, f) {
   f = util.$(f);
   var mean = 1, c, n, v, i;
   for (i=0, c=0, n=values.length; i<n; ++i) {
@@ -138,6 +138,20 @@ stats.geomean = function(values, f) {
   }
   mean = c > 0 ? Math.pow(mean, 1/c) : 0;
   return mean;
+};
+
+// Compute the harmonic mean of an array of numbers.
+stats.mean.harmonic = function(values, f) {
+  f = util.$(f);
+  var mean = 0, c, n, v, i;
+  for (i=0, c=0, n=values.length; i<n; ++i) {
+    v = f ? f(values[i]) : values[i];
+    if (util.isValid(v)) {
+      mean += 1/v;
+      ++c;
+    }
+  }
+  return c / mean;
 };
 
 // Compute the sample variance of an array of numbers.
