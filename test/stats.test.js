@@ -238,31 +238,32 @@ describe('stats', function() {
       assert.equal(stats.mean([{a:1}, {a:2}], 'a'), 1.5);
     });
   });
-  
-  describe('geom', function() {
+
+  describe('geomean', function() {
     it('should calculate geometric means', function() {
-      assert.equal(stats.geom([1,1,1]), 1);
-      assert.equal(stats.geom([1,2,3]), Math.pow(6,1/3));
-      assert.equal(stats.geom([5]),5);
+      assert.equal(stats.geomean([1,1,1]), 1);
+      assert.equal(stats.geomean([1,2,3]), Math.pow(6,1/3));
+      assert.equal(stats.geomean([5]),5);
     });
-    
+
     it('should ignore null values', function() {
-      assert.equal(stats.geom([1,2,null]), Math.sqrt(2));
+      assert.equal(stats.geomean([1,2,null]), Math.sqrt(2));
     });
 
     it('should support an array and accessor', function() {
-      assert.equal(stats.geom([{a:1},{a:2}],'a'),Math.sqrt(2));
-    });
-   
-    it('should return 0 if there are no valid values', function() {
-      assert.equal(stats.geom([null,null]),0);
+      assert.equal(stats.geomean([{a:1},{a:2}],'a'),Math.sqrt(2));
     });
 
-    it('should throw error if the data contains negative or zero  values', function() {
-      assert.throws(function() {stats.geom([1,2,-1]);});
-      assert.throws(function() {stats.geom([1,2,0]);});
+    it('should return 0 if there are no valid values', function() {
+      assert.equal(stats.geomean([null,null]),0);
+    });
+
+    it('should throw error if the data contains negative or zero values', function() {
+      assert.throws(function() {stats.geomean([1,2,-1]);});
+      assert.throws(function() {stats.geomean([1,2,0]);});
     });
   });
+
   describe('variance & stdev', function() {
     it('should calculate variance and stdev values', function() {
       assert.closeTo(stats.variance([3, 1, 2]), 1, EPSILON);
