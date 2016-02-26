@@ -240,12 +240,12 @@ describe('util', function() {
   });
 
   describe('str', function() {
-    it('should wrap string arguments in single quotation marks', function() {
-      assert.strictEqual(util.str('test'), "'test'");
+    it('should wrap string arguments in double quotation marks', function() {
+      assert.strictEqual(util.str('test'), '"test"');
     });
 
     it('should wrap arrays in square brackets', function() {
-      assert.equal(util.str(['1', '2']), "['1','2']");
+      assert.equal(util.str(['1', '2']), '["1","2"]');
     });
 
     it('should return boolean arguments as they are', function() {
@@ -260,12 +260,30 @@ describe('util', function() {
     });
 
     it('should recursively wrap arrays in square brackets', function() {
-      assert.equal(util.str([['1', 3], '2']), "[['1',3],'2']");
+      assert.equal(util.str([['1', 3], '2']), '[["1",3],"2"]');
     });
 
     it('should stringify objects', function() {
       var x = {a: {b: {c: 1}}};
       assert.equal(JSON.stringify(x), util.str(x));
+    });
+
+    it('should handle quotes in strings', function() {
+      var tests = ["'hello'", '"hello"', ];
+      tests.forEach(function(s) {
+        assert.equal(s, (1,eval)(util.str(s)));
+      });
+    });
+
+    it('should handle special characters in strings', function() {
+      var tests = ["\ntest", // newline
+        '\u0000',
+        '\u2028', // line separator
+        '\u2029' // paragraph separator
+      ];
+      tests.forEach(function(s) {
+        assert.equal(s, (1,eval)(util.str(s)));
+      });
     });
   });
 

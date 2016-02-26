@@ -122,15 +122,12 @@ u.array = function(x) {
 
 u.str = function(x) {
   return u.isArray(x) ? '[' + x.map(u.str) + ']'
-    : u.isObject(x) ? JSON.stringify(x)
-    : u.isString(x) ? ('\''+util_escape_str(x)+'\'') : x;
+    : u.isObject(x) || u.isString(x) ?
+      // Output valid JSON and JS source strings.
+      // See http://timelessrepo.com/json-isnt-a-javascript-subset
+      JSON.stringify(x).replace('\u2028','\\u2028').replace('\u2029', '\\u2029')
+    : x;
 };
-
-var escape_str_re = /(^|[^\\])'/g;
-
-function util_escape_str(x) {
-  return x.replace(escape_str_re, '$1\\\'');
-}
 
 // data access functions
 
@@ -146,7 +143,7 @@ u.field = function(f) {
 
 u.accessor = function(f) {
   return f==null || u.isFunction(f) ? f :
-    u.namedfunc(f, Function('x', 'return x[' + u.field(f).map(u.str).join('][') + ']'));
+    u.namedfunc(f, Function('x', 'return x[' + u.field(f).map(JSON.stringify).join('][') + ']'));
 }
 
 // short-cut for accessor
