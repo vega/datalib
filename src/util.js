@@ -145,13 +145,9 @@ u.field = function(f) {
 };
 
 u.accessor = function(f) {
-  var s;
   return f==null || u.isFunction(f) ? f :
-    u.namedfunc(f, (s = u.field(f)).length > 1 ?
-      function(x) { return s.reduce(function(x,f) { return x[f]; }, x); } :
-      function(x) { return x[f]; }
-    );
-};
+    u.namedfunc(f, Function('x', 'return x[' + u.field(f).map(u.str).join('][') + ']'));
+}
 
 // short-cut for accessor
 u.$ = u.accessor;
