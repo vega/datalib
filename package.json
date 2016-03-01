@@ -1,6 +1,6 @@
 {
   "name": "datalib",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "JavaScript utilites for loading, summarizing and working with data.",
   "keywords": [
     "data",
@@ -20,6 +20,16 @@
     "name": "Jeffrey Heer",
     "url": "http://idl.cs.washington.edu"
   },
+  "contributors": [
+    {
+      "name": "Michael Correll",
+      "url": "http://pages.cs.wisc.edu/~mcorrell/"
+    },
+    {
+      "name": "Ryan Russell",
+      "url": "https://github.com/RussellSprouts"
+    }
+  ],
   "license": "BSD-3-Clause",
   "dependencies": {
     "d3-dsv": "0.1",
