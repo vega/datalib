@@ -143,7 +143,7 @@ u.field = function(f) {
 
 u.accessor = function(f) {
   return f==null || u.isFunction(f) ? f :
-    u.namedfunc(f, Function('x', 'return x[' + u.field(f).map(JSON.stringify).join('][') + ']'));
+    u.namedfunc(f, Function('x', 'return x[' + u.field(f).map(dl.str).join('][') + ']'));
 }
 
 // short-cut for accessor
