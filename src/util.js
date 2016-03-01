@@ -146,7 +146,6 @@ u.accessor = function(f) {
   return f==null || u.isFunction(f) ? f :
     u.namedfunc(f, Function('x', 'return x[' + u.field(f).map(dl.str).join('][') + '];'));
 };
->>>>>>> b80847374ca0dfc02b8a3c223b7781f6176f79c1
 
 // short-cut for accessor
 u.$ = u.accessor;
