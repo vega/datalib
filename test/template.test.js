@@ -173,6 +173,12 @@ describe('template', function() {
     assert.equal('day: Tue', f({a: 2}));
   });
 
+  it('should handle quarter format filter', function() {
+    var f = template('Quarter: {{a|quarter}}');
+    assert.equal('Quarter: Q2',
+      f({a: new Date(Date.UTC(2011, 5, 1))}));
+  });
+
   it('should throw error if format pattern is unquoted', function() {
     assert.throws(function() { template('hello {{a|number:.3f}}'); });
   });
