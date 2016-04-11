@@ -18,7 +18,7 @@ function parse(data, types) {
   parsers = cols.map(function(c) {
     var t = types[c];
     if (t && t.indexOf('date:') === 0) {
-      var parts = t.split(':', 2),
+      var parts = t.split(/:(.+)?/, 2),  // split on first :
           pattern = parts[1];
       if ((pattern[0] === '\'' && pattern[pattern.length-1] === '\'') ||
           (pattern[0] === '"'  && pattern[pattern.length-1] === '"')) {

@@ -214,6 +214,24 @@ describe('read', function() {
         read(json, {type:'json', parse: types}),
         expected);
     });
+    it('should parse time with format %H:%M', function() {
+      var expected = [{foo: new Date(1900, 0, 1, 13, 15)}];
+      var json = [{foo: '13:15'}];
+      var types = {foo: 'date:"%H:%M"'};
+      type.annotation(expected, types);
+      assert.deepEqual(
+        read(json, {type:'json', parse: types}),
+        expected);
+
+      // repeat with single quoted pattern
+      var expected = [{foo: new Date(1900, 0, 1, 13, 15)}];
+      var json = [{foo: '13:15'}];
+      var types = {foo: "date:'%H:%M'"};
+      type.annotation(expected, types);
+      assert.deepEqual(
+        read(json, {type:'json', parse: types}),
+        expected);
+    });
     it('should throw error if format is not escaped', function() {
       var json = [{foo: '18.07.1990'}];
       var types = {foo: 'date:%d.%m.%Y'};
