@@ -561,6 +561,14 @@ describe('util', function() {
       assert.equal(util.pad('12345', 8, 'middle'), ' 12345  ');
     });
   });
+  
+  describe('permute', function() {
+    var a = [1,2,3,4];
+    it('should permute an array of values', function() {
+      assert.deepEqual(util.permute([1]), [1]);
+      assert.equal(util.permute(a).length,a.length);
+    });
+  });
 
   describe('truncate', function() {
     it('should reduce string length', function() {
