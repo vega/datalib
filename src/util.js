@@ -235,17 +235,18 @@ u.stablesort = function(array, sortBy, keyFn) {
 
 // permutes an array using a Knuth shuffle
 u.permute = function(a) {
-  var j,
-      toSwap,
-      i = 0,
-      array = a.slice(0);
+  var m = a.length,
+      array = a.slice(0),
+      swap,
+      i;
   
-  for(i; i<a.length; ++i){
-    j = Math.floor(Math.random()*a.length);
-    toSwap = array[j];
-    array[j] = array[i];
-    array[i] = toSwap;
+  while (m) {
+    i = Math.floor(Math.random() * m--);
+    swap = array[m];
+    array[m] = array[i];
+    array[i] = swap;
   }
+
   return array; 
 };
 
