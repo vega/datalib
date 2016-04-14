@@ -562,6 +562,22 @@ describe('util', function() {
     });
   });
 
+  describe('permute', function() {
+    var a = [1,2,3,4],
+        b = [1],
+        c = [];
+
+    util.permute(a);
+    util.permute(b);
+    util.permute(c);
+
+    it('should permute an array of values', function() {
+      assert.deepEqual(b, [1]);
+      assert.sameMembers(a, [1,2,3,4]);
+      assert.deepEqual(c, []);
+    });
+  });
+
   describe('truncate', function() {
     it('should reduce string length', function() {
       assert.equal(util.truncate('123456789', 5), '1234…');
