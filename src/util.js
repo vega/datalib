@@ -238,7 +238,7 @@ u.permute = function(a) {
   var m = a.length,
       swap,
       i;
-  
+
   while (m) {
     i = Math.floor(Math.random() * m--);
     swap = a[m];

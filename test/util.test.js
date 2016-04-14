@@ -561,17 +561,20 @@ describe('util', function() {
       assert.equal(util.pad('12345', 8, 'middle'), ' 12345  ');
     });
   });
-  
+
   describe('permute', function() {
     var a = [1,2,3,4],
-        b = [1];
-    
+        b = [1],
+        c = [];
+
     util.permute(a);
     util.permute(b);
+    util.permute(c);
 
     it('should permute an array of values', function() {
       assert.deepEqual(b, [1]);
-      assert.equal(a.length,4);
+      assert.sameMembers(a, [1,2,3,4]);
+      assert.deepEqual(c, []);
     });
   });
 
