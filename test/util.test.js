@@ -563,10 +563,15 @@ describe('util', function() {
   });
   
   describe('permute', function() {
-    var a = [1,2,3,4];
+    var a = [1,2,3,4],
+        b = [1];
+    
+    util.permute(a);
+    util.permute(b);
+
     it('should permute an array of values', function() {
-      assert.deepEqual(util.permute([1]), [1]);
-      assert.equal(util.permute(a).length,a.length);
+      assert.deepEqual(b, [1]);
+      assert.equal(a.length,4);
     });
   });
 

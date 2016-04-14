@@ -236,18 +236,15 @@ u.stablesort = function(array, sortBy, keyFn) {
 // permutes an array using a Knuth shuffle
 u.permute = function(a) {
   var m = a.length,
-      array = a.slice(0),
       swap,
       i;
   
   while (m) {
     i = Math.floor(Math.random() * m--);
-    swap = array[m];
-    array[m] = array[i];
-    array[i] = swap;
+    swap = a[m];
+    a[m] = a[i];
+    a[i] = swap;
   }
-
-  return array; 
 };
 
 // string functions
