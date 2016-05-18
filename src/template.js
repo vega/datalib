@@ -7,7 +7,8 @@ var context = {
   truncate:   util.truncate,
   pad:        util.pad,
   day:        format.day,
-  month:      format.month
+  month:      format.month,
+  quarter:    format.quarter
 };
 
 function template(text) {
@@ -185,6 +186,9 @@ function template_var(text, variable, properties) {
         break;
       case 'day-abbrev':
         src = 'this.day(' + src + ',true)';
+        break;
+      case 'quarter':
+        src = 'this.quarter(' + src + ')';
         break;
       default:
         throw Error('Unrecognized template filter: ' + f);
