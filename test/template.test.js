@@ -175,8 +175,18 @@ describe('template', function() {
 
   it('should handle quarter format filter', function() {
     var f = template('Quarter: Q{{a|quarter}}');
+    // June
     assert.equal('Quarter: Q2',
-      f({a: new Date(Date.UTC(2011, 5, 1))}));
+      f({a: 5}));
+    // July
+    assert.equal('Quarter: Q3',
+      f({a: 6}));
+    // January
+    assert.equal('Quarter: Q1',
+      f({a: 0}));
+    // December
+    assert.equal('Quarter: Q4',
+      f({a: 11}));
   });
 
   it('should throw error if format pattern is unquoted', function() {
