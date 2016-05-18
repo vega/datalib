@@ -222,6 +222,5 @@ function dayFormat(day, abbreviate) {
 }
 
 function quarterFormat(date) {
-  var month = date.getMonth();
-  return "Q"  + (Math.floor(month / 3) + 1);
+  return Math.floor(date.getMonth() / 3) + 1;
 }

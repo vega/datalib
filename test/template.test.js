@@ -174,7 +174,7 @@ describe('template', function() {
   });
 
   it('should handle quarter format filter', function() {
-    var f = template('Quarter: {{a|quarter}}');
+    var f = template('Quarter: Q{{a|quarter}}');
     assert.equal('Quarter: Q2',
       f({a: new Date(Date.UTC(2011, 5, 1))}));
   });
