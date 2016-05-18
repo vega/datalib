@@ -60,6 +60,11 @@ var types = {
     set:  'this.valid > 1 ? Math.sqrt(this.dev / this.valid) : 0',
     req:  ['variance'], idx: 2
   }),
+  'stderr': measure({
+    name: 'stderr',
+    set:  'this.valid > 1 ? Math.sqrt(this.dev / (this.valid * (this.valid-1))) : 0',
+    req:  ['variance'], idx: 2
+  }),
   'median': measure({
     name: 'median',
     set:  'cell.data.q2(this.get)',
@@ -113,7 +118,7 @@ var types = {
   'modeskew': measure({
     name: 'modeskew',
     set:  'this.dev===0 ? 0 : (this.mean - cell.data.q2(this.get)) / Math.sqrt(this.dev/(this.valid-1))',
-    req:  ['mean', 'stdev', 'median'], idx: 5
+    req:  ['mean', 'variance', 'median'], idx: 5
   })
 };
 

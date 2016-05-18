@@ -186,6 +186,11 @@ describe('aggregate', function() {
       assert.equal((N-1)*v/N, run({'a':'variancep'}).variancep_a);
     });
 
+    it('should compute stderr', function() {
+      var sn = Math.sqrt(stats.count.valid(values));
+      assert.equal(stats.stdev(values)/sn, run({'a':'stderr'}).stderr_a);
+    });
+
     it('should compute stdevp', function() {
       var N = stats.count.valid(values);
       var v = stats.variance(values);
