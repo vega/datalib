@@ -177,16 +177,32 @@ describe('template', function() {
     var f = template('Quarter: Q{{a|quarter}}');
     // June
     assert.equal('Quarter: Q2',
-      f({a: 5}));
+      f({a: new Date(2011, 5, 1)}));
     // July
     assert.equal('Quarter: Q3',
-      f({a: 6}));
+      f({a: new Date(2011, 6, 1)}));
     // January
     assert.equal('Quarter: Q1',
-      f({a: 0}));
+      f({a: new Date(2011, 0, 1)}));
     // December
     assert.equal('Quarter: Q4',
-      f({a: 11}));
+      f({a: new Date(2011, 11, 1)}));
+  });
+  
+  it('should handle utc quarter format filter', function() {
+    var f = template('Quarter: Q{{a|quarter-utc}}');
+    // June
+    assert.equal('Quarter: Q2',
+      f({a: new Date(Date.UTC(2011, 5, 1))}));
+    // July
+    assert.equal('Quarter: Q3',
+      f({a: new Date(Date.UTC(2011, 6, 1))}));
+    // January
+    assert.equal('Quarter: Q1',
+      f({a: new Date(Date.UTC(2011, 0, 1))}));
+    // December
+    assert.equal('Quarter: Q4',
+      f({a: new Date(Date.UTC(2011, 11, 1))}));
   });
 
   it('should throw error if format pattern is unquoted', function() {
