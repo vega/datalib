@@ -32,9 +32,10 @@ module.exports = {
     utc:      function() { return utcAutoFormat(); }
   },
 
-  month:    monthFormat,  // format month name from integer code
-  day:      dayFormat,    // format week day name from integer code
-  quarter:  quarterFormat // format quarter number from integer code
+  month:      monthFormat,      // format month name from integer code
+  day:        dayFormat,        // format week day name from integer code
+  quarter:    quarterFormat,    // format quarter name from timestamp
+  utcQuarter: utcQuarterFormat  // format quarter name from utc timestamp
 };
 
 // -- Locales ----
@@ -221,6 +222,10 @@ function dayFormat(day, abbreviate) {
   return (tmpDate.setMonth(0), tmpDate.setDate(2 + day), f(tmpDate));
 }
 
-function quarterFormat(month) {
-  return Math.floor(month / 3) + 1;
+function quarterFormat(date) {
+  return Math.floor(date.getMonth() / 3) + 1;
+}
+
+function utcQuarterFormat(date) {
+  return Math.floor(date.getUTCMonth() / 3) + 1;
 }

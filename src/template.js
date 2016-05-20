@@ -8,7 +8,8 @@ var context = {
   pad:        util.pad,
   day:        format.day,
   month:      format.month,
-  quarter:    format.quarter
+  quarter:    format.quarter,
+  utcQuarter: format.utcQuarter
 };
 
 function template(text) {
@@ -189,6 +190,9 @@ function template_var(text, variable, properties) {
         break;
       case 'quarter':
         src = 'this.quarter(' + src + ')';
+        break;
+      case 'quarter-utc':
+        src = 'this.utcQuarter(' + src + ')';
         break;
       default:
         throw Error('Unrecognized template filter: ' + f);
