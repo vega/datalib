@@ -194,8 +194,9 @@ u.comparator = function(sort) {
     var i, n, f, x, y;
     for (i=0, n=sort.length; i<n; ++i) {
       f = sort[i]; x = f(a); y = f(b);
-      if (x < y) return -1 * sign[i];
-      if (x > y) return sign[i];
+      if (x == null && y == null) return 0;
+      if (x < y || x == null) return -1 * sign[i];
+      if (x > y || y == null) return sign[i];
     }
     return 0;
   };
