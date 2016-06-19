@@ -33,9 +33,21 @@ describe('util', function() {
       assert.strictEqual(util.cmp('foo', 'foo'), 0);
     });
 
+    it('should compare dates', function() {
+      assert(util.cmp(new Date(0), new Date(1)) < 0);
+      assert(util.cmp(new Date(1), new Date(0)) > 0);
+      assert(util.cmp(new Date('foo'), new Date(0)) < 0);
+      assert(util.cmp(new Date(0), new Date('foo')) > 0);
+      assert.strictEqual(util.cmp(new Date(0), new Date(0)), 0);
+    });
+
     it('should compare numbers to null', function() {
       assert(util.cmp(1, null) > 0);
       assert(util.cmp(null, 1) < 0);
+      assert(util.cmp(-1,null) > 0);
+      assert(util.cmp(null,-1) < 0);
+      assert(util.cmp(0, null) > 0);
+      assert(util.cmp(null, 0) < 0);
       assert.strictEqual(util.cmp(null, null), 0);
     });
 
@@ -44,9 +56,19 @@ describe('util', function() {
       assert(util.cmp('b', null) > 0);
     });
 
-    it('should compare null and NaN values', function() {
-      assert.equal(0, util.cmp(null, null));
-      assert(isNaN(util.cmp(NaN, NaN)));
+    it('should compare null, undefined and NaN values', function() {
+      assert.strictEqual(util.cmp(null, null), 0);
+      assert.strictEqual(util.cmp(undefined, undefined), 0);
+      assert.strictEqual(util.cmp(NaN, NaN), 0);
+
+      assert.strictEqual(util.cmp(null, NaN), -1);
+      assert.strictEqual(util.cmp(NaN, null), 1);
+
+      assert.strictEqual(util.cmp(undefined, NaN), -1);
+      assert.strictEqual(util.cmp(NaN, undefined), 1);
+
+      assert.strictEqual(util.cmp(null, undefined), 0);
+      assert.strictEqual(util.cmp(undefined, null), 0);
     });
   });
 
