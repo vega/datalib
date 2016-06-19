@@ -190,30 +190,23 @@ u.comparator = function(sort) {
     sign.push(s);
     return u.accessor(f);
   });
-  return function(a,b) {
-    var i, n, f, x, y;
+  return function(a, b) {
+    var i, n, f, c;
     for (i=0, n=sort.length; i<n; ++i) {
-      f = sort[i]; x = f(a); y = f(b);
-      if (x < y) return -1 * sign[i];
-      if (x > y) return sign[i];
+      f = sort[i];
+      c = u.cmp(f(a), f(b));
+      if (c) return c * sign[i];
     }
     return 0;
   };
 };
 
 u.cmp = function(a, b) {
-  if (a < b) {
-    return -1;
-  } else if (a > b) {
-    return 1;
-  } else if (a >= b) {
-    return 0;
-  } else if (a === null) {
-    return -1;
-  } else if (b === null) {
-    return 1;
-  }
-  return NaN;
+  return (a < b || a == null) && b != null ? -1 :
+    (a > b || b == null) && a != null ? 1 :
+    ((b = b instanceof Date ? +b : b),
+     (a = a instanceof Date ? +a : a)) !== a && b === b ? -1 :
+    b !== b && a === a ? 1 : 0;
 };
 
 u.numcmp = function(a, b) { return a - b; };
