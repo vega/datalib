@@ -154,11 +154,10 @@ function file(filename, opt, callback) {
 function http(url, opt, callback) {
   var headers = util.extend({}, load.headers, opt.headers);
 
-  if (!callback) {
-    return require('sync-request')('GET', url, {headers: headers}).getBody();
-  }
-
   var options = {url: url, encoding: null, gzip: true, headers: headers};
+  if (!callback) {
+    return require('sync-request')('GET', url, options).getBody();
+  }
   require('request')(options, function(error, response, body) {
     if (!error && response.statusCode === 200) {
       callback(null, body);
