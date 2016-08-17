@@ -163,7 +163,7 @@ stats.mean.iqm = function(values, f) {
       n = values.length,
       c = n/4,
       v, i;
-  for(i = c; i<(3*c); i+=0.25){
+  for (i = c; i<(3*c); i+=0.25) {
     v = values[Math.floor(i)];
     mean+=0.25*v;
   }
