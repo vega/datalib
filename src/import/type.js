@@ -47,7 +47,8 @@ function typeAll(data, fields) {
   if (!data.length) return;
   fields = fields || util.keys(data[0]);
   return fields.reduce(function(types, f) {
-    return (types[f] = type(data, f), types);
+    // don't expand embedded periods
+    return (types[f] = type(data, '[' + f + ']'), types);
   }, {});
 }
 
@@ -79,7 +80,8 @@ function infer(values, f) {
 function inferAll(data, fields) {
   fields = fields || util.keys(data[0]);
   return fields.reduce(function(types, f) {
-    types[f] = infer(data, f);
+    // don't expand embedded periods
+    types[f] = infer(data, '[' + f + ']');
     return types;
   }, {});
 }
