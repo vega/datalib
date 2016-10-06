@@ -42,7 +42,6 @@
   },
   "devDependencies": {
     "browserify": "^12.0.1",
-    "browserify-versionify": "^1.0.6",
     "chai": "^3.4.1",
     "istanbul": "latest",
     "jshint": "^2.9.1-rc1",
@@ -57,11 +56,6 @@
     "cover": "TZ=America/Los_Angeles istanbul cover _mocha -- --recursive test/",
     "build": "browserify src/index.js -d -s dl -o datalib.js",
     "postbuild": "uglifyjs datalib.js -c -m -o datalib.min.js"
-  },
-  "browserify": {
-    "transform": [
-      "browserify-versionify"
-    ]
   },
   "browser": {
     "buffer": false,

@@ -1,7 +1,7 @@
 var util = require('./util');
 
 var dl = {
-  version:    '__VERSION__',
+  version:    require('../package.json').version,
   load:       require('./import/load'),
   read:       require('./import/read'),
   type:       require('./import/type'),
