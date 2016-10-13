@@ -12,22 +12,22 @@ var d3_timeF = require('d3-time-format');
 
 chai.config.truncateThreshold = 0;
 
-var fields = ['a', 'b', 'c', 'd', 'e'];
+var fields = ['a', 'b', 'c', 'd', 'e', 'f.g'];
 var data = [
-  {a:1, b:'aaa', c:true,  d:'1/1/2001', e:1.2},
-  {a:2, b:'bbb', c:false, d:'1/2/2001', e:3.4},
-  {a:3, b:'ccc', c:false, d:'1/3/2001', e:5.6},
-  {a:4, b:'ddd', c:true,  d:'1/4/2001', e:7.8},
+  {a:1, b:'aaa', c:true,  d:'1/1/2001', e:1.2, 'f.g': 1},
+  {a:2, b:'bbb', c:false, d:'1/2/2001', e:3.4, 'f.g': 2},
+  {a:3, b:'ccc', c:false, d:'1/3/2001', e:5.6, 'f.g': 3},
+  {a:4, b:'ddd', c:true,  d:'1/4/2001', e:7.8, 'f.g': 4},
 ];
 var strings = data.map(function(x) {
-  return {a:String(x.a), b:x.b, c:String(x.c), d:x.d, e:String(x.e)};
+  return {a:String(x.a), b:x.b, c:String(x.c), d:x.d, e:String(x.e), 'f.g':String(x['f.g'])};
 });
 strings.columns = fields;
 
 // d3-dsv includes "columns" annotation, json parse does not
 // so create two versions of parsed columns for testing
 var parsed = data.map(function(x) {
-  return {a:x.a, b:x.b, c:x.c, d:Date.parse(x.d), e:x.e};
+  return {a:x.a, b:x.b, c:x.c, d:Date.parse(x.d), e:x.e, 'f.g': x['f.g']};
 });
 var parsedNoColumns = util.duplicate(parsed);
 parsed.columns = fields;
@@ -37,7 +37,8 @@ var typeAnnotations = {
   b: 'string',
   c: 'boolean',
   d: 'date',
-  e: 'number'
+  e: 'number',
+  'f.g': 'integer'
 };
 type.annotation(parsed, typeAnnotations);
 type.annotation(parsedNoColumns, typeAnnotations);
