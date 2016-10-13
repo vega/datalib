@@ -22,6 +22,14 @@ function annotation(data, types) {
   data[TYPES] = types;
 }
 
+function fieldNames(datum) {
+  return util.keys(datum);
+}
+
+function bracket(fieldName) {
+  return '[' + fieldName + ']';
+}
+
 function type(values, f) {
   values = util.array(values);
   f = util.$(f);
@@ -45,10 +53,9 @@ function type(values, f) {
 
 function typeAll(data, fields) {
   if (!data.length) return;
-  fields = fields || util.keys(data[0]);
+  var get = fields ? identity : (fields = fieldNames(data[0]), bracket);
   return fields.reduce(function(types, f) {
-    // don't expand embedded periods
-    return (types[f] = type(data, '[' + f + ']'), types);
+    return (types[f] = type(data, get(f)), types);
   }, {});
 }
 
@@ -78,10 +85,9 @@ function infer(values, f) {
 }
 
 function inferAll(data, fields) {
-  fields = fields || util.keys(data[0]);
+  var get = fields ? identity : (fields = fieldNames(data[0]), bracket);
   return fields.reduce(function(types, f) {
-    // don't expand embedded periods
-    types[f] = infer(data, '[' + f + ']');
+    types[f] = infer(data, get(f));
     return types;
   }, {});
 }
