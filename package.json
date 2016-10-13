@@ -50,9 +50,9 @@
   },
   "main": "src/index.js",
   "scripts": {
-    "deploy": "npm run lint && npm run test && scripts/deploy.sh",
+    "deploy": "npm run test && scripts/deploy.sh",
     "lint": "jshint src/",
-    "test": "TZ=America/Los_Angeles mocha --recursive test/",
+    "test": "npm run lint && TZ=America/Los_Angeles mocha --recursive test/",
     "cover": "TZ=America/Los_Angeles istanbul cover _mocha -- --recursive test/",
     "build": "browserify src/index.js -d -s dl -o datalib.js",
     "postbuild": "uglifyjs datalib.js -c -m -o datalib.min.js"
