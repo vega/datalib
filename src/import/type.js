@@ -53,7 +53,7 @@ function type(values, f) {
 
 function typeAll(data, fields) {
   if (!data.length) return;
-  var get = fields ? identity : (fields = fieldNames(data[0]), bracket);
+  var get = fields ? util.identity : (fields = fieldNames(data[0]), bracket);
   return fields.reduce(function(types, f) {
     return (types[f] = type(data, get(f)), types);
   }, {});
@@ -85,7 +85,7 @@ function infer(values, f) {
 }
 
 function inferAll(data, fields) {
-  var get = fields ? identity : (fields = fieldNames(data[0]), bracket);
+  var get = fields ? util.identity : (fields = fieldNames(data[0]), bracket);
   return fields.reduce(function(types, f) {
     types[f] = infer(data, get(f));
     return types;
