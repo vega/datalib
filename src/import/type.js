@@ -44,7 +44,7 @@ function type(values, f) {
   for (i=0, n=values.length; !util.isValid(v) && i<n; ++i) {
     v = f ? f(values[i]) : values[i];
   }
- 
+
   return util.isDate(v) ? 'date' :
     util.isNumber(v)    ? 'number' :
     util.isBoolean(v)   ? 'boolean' :
@@ -72,7 +72,7 @@ function infer(values, f, ignore) {
     v = f ? f(values[i]) : values[i];
     // test value against remaining types
     for (j=0; j<types.length; ++j) {
-      if ((!ignore || ignore.test(v)) && util.isValid(v) && !TESTS[types[j]](v)) {
+      if ((!ignore || !ignore.test(v)) && util.isValid(v) && !TESTS[types[j]](v)) {
         types.splice(j, 1);
         j -= 1;
       }
