@@ -60,3 +60,19 @@ To use datalib in the browser, you need to build the datalib.js and datalib.min.
 
 1. Run `npm install` in the datalib folder to install dependencies.
 2. Run `npm run build`. This will invoke [browserify](http://browserify.org/) to bundle the source files into datalib.js, and then [uglify-js](http://lisperator.net/uglifyjs/) to create the minified datalib.min.js.
+
+
+### Webpack 1
+
+If you are using Webpack 1, you need to enable a JSON-loader. To do so, first `npm install --save json-loader`, then add the loader to your webpack config:
+
+```js
+{
+  module: {
+    loaders: [{
+      test: /\.json$/,
+      loader: 'json-loader'
+    }]
+  }
+}
+```
