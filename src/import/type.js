@@ -59,7 +59,7 @@ function typeAll(data, fields) {
   }, {});
 }
 
-function infer(values, f) {
+function infer(values, f, ignore) {
   values = util.array(values);
   f = util.$(f);
   var i, j, v;
@@ -72,7 +72,7 @@ function infer(values, f) {
     v = f ? f(values[i]) : values[i];
     // test value against remaining types
     for (j=0; j<types.length; ++j) {
-      if (util.isValid(v) && !TESTS[types[j]](v)) {
+      if ((!ignore || !ignore.test(v)) && util.isValid(v) && !TESTS[types[j]](v)) {
         types.splice(j, 1);
         j -= 1;
       }
@@ -84,10 +84,10 @@ function infer(values, f) {
   return types[0];
 }
 
-function inferAll(data, fields) {
+function inferAll(data, fields, ignore) {
   var get = fields ? util.identity : (fields = fieldNames(data[0]), bracket);
   return fields.reduce(function(types, f) {
-    types[f] = infer(data, get(f));
+    types[f] = infer(data, get(f), ignore);
     return types;
   }, {});
 }
