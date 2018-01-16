@@ -314,15 +314,15 @@ describe('stats', function() {
 
   describe('npskew', function() {
     it('should calculate modeskew values', function() {
-      assert.equal(stats.modeskew([]), 0);
-      assert.equal(stats.modeskew([1]), 0);
-      assert.equal(stats.modeskew([1,3]), 0);
-      assert.equal(stats.modeskew([1,1,4]), 1/Math.sqrt(3));
+      assert.equal(stats.npskew([]), 0);
+      assert.equal(stats.npskew([1]), 0);
+      assert.equal(stats.npskew([1,3]), 0);
+      assert.equal(stats.npskew([1,1,4]), 1/Math.sqrt(3));
     });
 
     it('should support accessor', function() {
-      assert.equal(stats.modeskew([{a:1}, {a:2}], 'a'), 0);
-      assert.equal(stats.modeskew([{a:1}, {a:1} ,{a:4}], 'a'), 1/Math.sqrt(3));
+      assert.equal(stats.npskew([{a:1}, {a:2}], 'a'), 0);
+      assert.equal(stats.npskew([{a:1}, {a:1} ,{a:4}], 'a'), 1/Math.sqrt(3));
     });
   });
 
