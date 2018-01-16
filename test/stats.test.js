@@ -312,7 +312,7 @@ describe('stats', function() {
     });
   });
 
-  describe('modeskew', function() {
+  describe('npskew', function() {
     it('should calculate modeskew values', function() {
       assert.equal(stats.modeskew([]), 0);
       assert.equal(stats.modeskew([1]), 0);
@@ -325,6 +325,25 @@ describe('stats', function() {
       assert.equal(stats.modeskew([{a:1}, {a:1} ,{a:4}], 'a'), 1/Math.sqrt(3));
     });
   });
+
+  describe('skew', function() {
+    it('should calculate skew values', function() {
+      assert.equal(stats.skew([]), 0);
+      assert.equal(stats.skew([1]), 0);
+      assert.equal(stats.skew([1,3]), 0);
+      assert.closeTo(Math.sqrt(3), stats.skew([1,1,4]), EPSILON);
+    });
+
+    it('should support accessor', function() {
+      assert.equal(stats.skew([{a:1}, {a:2}], 'a'), 0);
+      assert.closeTo(Math.sqrt(3), stats.skew([{a:1}, {a:1} ,{a:4}], 'a'), EPSILON);
+    });
+
+    it('should ignore invalid values', function() {
+      assert.equal(stats.skew([1,3,NaN]), 0);
+    });
+  });
+
 
   describe('rank', function() {
     it('should calculate rank values', function() {
