@@ -18,7 +18,7 @@ Datalib provides a set of utilities for working with data. These include:
 - Utilities for working with JavaScript functions, objects and arrays.
 
 Datalib can be used both server-side and client-side. For use in node.js,
-simply `npm install datalib` or include datalib as a dependency in your package.json file. For use on the client, install datalib via `bower install datalib` or include datalib.min.js on your web page. The minified JS file is built using browserify (see below for details).
+simply `npm install datalib` or include datalib as a dependency in your package.json file. For use on the client, install datalib via `bower install datalib` or include datalib.min.js on your web page. The minified JS file is built using rollup (see below for details).
 
 ### Example
 
@@ -59,7 +59,7 @@ console.log(dl.mutual.dist(counts, 'bin_price', 'year_date', 'count'));
 To use datalib in the browser, you need to build the datalib.js and datalib.min.js files. We assume that you have [npm](https://www.npmjs.com/) installed.
 
 1. Run `npm install` in the datalib folder to install dependencies.
-2. Run `npm run build`. This will invoke [browserify](http://browserify.org/) to bundle the source files into datalib.js, and then [uglify-js](http://lisperator.net/uglifyjs/) to create the minified datalib.min.js.
+2. Run `npm run build`. This will invoke [rollup](https://rollupjs.org) to bundle the source files into datalib.js, and then [uglify-js](http://lisperator.net/uglifyjs/) to create the minified datalib.min.js.
 
 
 ### Webpack 1
