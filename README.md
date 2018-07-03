@@ -29,7 +29,7 @@ var dl = require('datalib');
 // Load and parse a CSV file. Datalib does type inference for you.
 // The result is an array of JavaScript objects with named values.
 // Parsed dates are stored as UNIX timestamp values.
-var data = dl.csv('http://vega.github.io/datalib/data/stocks.csv');
+var data = dl.csv('https://vega.github.io/datalib/data/stocks.csv');
 
 // Show summary statistics for each column of the data table.
 console.log(dl.format.summary(data));
