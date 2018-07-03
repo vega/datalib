@@ -7,7 +7,7 @@ var read = require('../src/import/read');
 var type = require('../src/import/type');
 
 var fs = require('fs');
-var topojson = require('topojson');
+var topojson = require('topojson-client');
 var d3_timeF = require('d3-time-format');
 
 chai.config.truncateThreshold = 0;

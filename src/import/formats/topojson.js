@@ -23,5 +23,5 @@ var reader = function(data, format) {
   }
 };
 
-reader.topojson = require('topojson');
+reader.topojson = require('topojson-client');
 module.exports = reader;
