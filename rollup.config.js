@@ -12,7 +12,7 @@ export default {
     exports: 'named'
   },
   plugins: [
-    resolve(),
+    resolve({browser: true}),
     commonjs(),
     json()
   ]
