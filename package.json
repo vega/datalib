@@ -52,6 +52,8 @@
     "uglify-js": "^2.6.1"
   },
   "main": "src/index.js",
+  "unpkg": "datalib.min.js",
+  "jsdelivr": "datalib.min.js",
   "scripts": {
     "deploy": "npm run test && scripts/deploy.sh",
     "lint": "jshint src/",
