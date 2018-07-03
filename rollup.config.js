@@ -8,8 +8,7 @@ export default {
     file: 'datalib.js',
     format: 'umd',
     sourcemap: true,
-    name: 'dl',
-    exports: 'named'
+    name: 'dl'
   },
   plugins: [
     resolve({browser: true}),
