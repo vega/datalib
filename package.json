@@ -37,7 +37,7 @@
     "d3-time": "0.1",
     "d3-time-format": "0.2",
     "request": "^2.67.0",
-    "sync-request": "^2.1.0",
+    "sync-request": "^6.0.0",
     "topojson-client": "^3.0.0"
   },
   "devDependencies": {
