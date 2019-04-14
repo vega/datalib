@@ -91,9 +91,10 @@ stats.quartile = function(values, f) {
 stats.quantile = function(values, f, p) {
   if (p === undefined) { p = f; f = util.identity; }
   f = util.$(f);
+  var x = f(values[h - 1]);
   var H = (values.length - 1) * p + 1,
       h = Math.floor(H),
-      v = +f(values[h - 1]),
+      v = +((type(values, f) === 'date') ? (new Date(x)).getTime() : x),
       e = H - h;
   return e ? v + e * (f(values[h]) - v) : v;
 };
@@ -103,6 +104,7 @@ stats.sum = function(values, f) {
   f = util.$(f);
   for (var sum=0, i=0, n=values.length, v; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = type(values, f) === 'date' ? (new Date(v)).getTime() : v;
     if (util.isValid(v)) sum += v;
   }
   return sum;
@@ -114,6 +116,7 @@ stats.mean = function(values, f) {
   var mean = 0, delta, i, n, c, v;
   for (i=0, c=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = type(values, f) === 'date' ? (new Date(v)).getTime() : v;
     if (util.isValid(v)) {
       delta = v - mean;
       mean = mean + delta / (++c);
@@ -128,6 +131,7 @@ stats.mean.geometric = function(values, f) {
   var mean = 1, c, n, v, i;
   for (i=0, c=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = type(values, f) === 'date' ? (new Date(v)).getTime() : v;
     if (util.isValid(v)) {
       if (v <= 0) {
         throw Error("Geometric mean only defined for positive values.");
@@ -146,6 +150,7 @@ stats.mean.harmonic = function(values, f) {
   var mean = 0, c, n, v, i;
   for (i=0, c=0, n=values.length; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = type(values, f) === 'date' ? (new Date(v)).getTime() : v;
     if (util.isValid(v)) {
       mean += 1/v;
       ++c;
@@ -161,6 +166,7 @@ stats.variance = function(values, f) {
   var mean = 0, M2 = 0, delta, i, c, v;
   for (i=0, c=0; i<values.length; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = type(values, f) === 'date' ? (new Date(v)).getTime() : v;
     if (util.isValid(v)) {
       delta = v - mean;
       mean = mean + delta / (++c);
@@ -200,6 +206,7 @@ stats.extent = function(values, f) {
   var a, b, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = type(values, f) === 'date' ? (new Date(v)).getTime() : v;
     if (util.isValid(v)) { a = b = v; break; }
   }
   for (; i<n; ++i) {
@@ -218,10 +225,12 @@ stats.extent.index = function(values, f) {
   var x = -1, y = -1, a, b, v, i, n = values.length;
   for (i=0; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = type(values, f) === 'date' ? (new Date(v)).getTime() : v;
     if (util.isValid(v)) { a = b = v; x = y = i; break; }
   }
   for (; i<n; ++i) {
     v = f ? f(values[i]) : values[i];
+    v = type(values, f) === 'date' ? (new Date(v)).getTime() : v;
     if (util.isValid(v)) {
       if (v < a) { a = v; x = i; }
       if (v > b) { b = v; y = i; }
@@ -334,6 +343,7 @@ stats.rank = function(values, f) {
 
   for (i=0; i<n; ++i) {
     v = a[i].val;
+    v = type(values, f) === 'date' ? (new Date(v)).getTime() : v;
     if (tie < 0 && p === v) {
       tie = i - 1;
     } else if (tie > -1 && p !== v) {
@@ -594,13 +604,17 @@ stats.dist.mat = function(X) {
 // Compute the Shannon entropy (log base 2) of an array of counts.
 stats.entropy = function(counts, f) {
   f = util.$(f);
-  var i, p, s = 0, H = 0, n = counts.length;
-  for (i=0; i<n; ++i) {
-    s += (f ? f(counts[i]) : counts[i]);
+  var i, v, p, s = 0, H = 0, n = counts.length;
+  for (i = 0; i < n; ++i) {
+    v = f ? f(counts[i]) : counts[i];
+    v = type(counts, f) === 'date' ? (new Date(v)).getTime() : v;
+    s += v;
   }
   if (s === 0) return 0;
-  for (i=0; i<n; ++i) {
-    p = (f ? f(counts[i]) : counts[i]) / s;
+  for (i = 0; i < n; ++i) {
+    v = f ? f(counts[i]) : counts[i];
+    v = type(counts, f) === 'date' ? (new Date(v)).getTime() : v;
+    p = v / s;
     if (p) H += p * Math.log(p);
   }
   return -H / Math.LN2;
@@ -663,6 +677,7 @@ stats.profile = function(values, f) {
       max = null,
       M2 = 0,
       vals = [],
+      t = type(values, f),
       u = {}, delta, sd, i, v, x;
 
   // compute summary stats
@@ -676,7 +691,7 @@ stats.profile = function(values, f) {
       ++missing;
     } else if (util.isValid(v)) {
       // update stats
-      x = (typeof v === 'string') ? v.length : v;
+      x = (t === 'date') ? (new Date(v)).getTime() : (typeof v === 'string') ? v.length : v;
       if (min===null || x < min) min = x;
       if (max===null || x > max) max = x;
       delta = x - mean;
@@ -692,7 +707,7 @@ stats.profile = function(values, f) {
   vals.sort(util.cmp);
 
   return {
-    type:     type(values, f),
+    type:     t,
     unique:   u,
     count:    values.length,
     valid:    valid,
