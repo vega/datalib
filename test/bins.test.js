@@ -9,6 +9,7 @@ var units = time.utc;
 var util = require('../src/util');
 var gen = require('../src/generate');
 
+
 describe('binning', function() {
 
   describe('bins', function() {
@@ -223,6 +224,16 @@ describe('binning', function() {
       var h = histogram(numbers, {maxbins: 10});
       assert.deepEqual([1,2,3,4,5,6,7], h.map(util.accessor('value')));
       assert.deepEqual([3,3,3,2,2,1,1], h.map(util.accessor('count')));
+    });
+
+    it('should bin many small numeric values', function() {
+      var numbers = require('./data/fatality-rates.json');
+      var epsilon = 1e-14;
+      var h = histogram(numbers, {maxbins: 100});
+      const results = h.map(util.accessor('value'));
+      [...Array(63).keys()].map(d => (d) / 100).forEach((val, idx) => {
+        assert.isBelow(Math.abs(val - results[idx]), epsilon);
+      });
     });
 
     it('should ignore null values among numbers', function() {

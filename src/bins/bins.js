@@ -1,6 +1,6 @@
 var util = require('../util'),
     time = require('../time'),
-    EPSILON = 1e-15;
+    EPSILON = 1e-14;
 
 function bins(opt) {
   if (!opt) { throw Error("Missing binning options."); }
@@ -70,8 +70,9 @@ function bisect(a, x, lo, hi) {
 }
 
 function value(v) {
-  return this.step * Math.floor(v / this.step + EPSILON);
+  return this.start + this.step * Math.floor((EPSILON + (v - this.start)) / this.step);
 }
+
 
 function index(v) {
   return Math.floor((v - this.start) / this.step + EPSILON);
