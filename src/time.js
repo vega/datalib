@@ -1,8 +1,8 @@
 var d3_time = require('d3-time');
 
 var tempDate = new Date(),
-    baseDate = new Date(0, 0, 1).setFullYear(0), // Jan 1, 0 AD
-    utcBaseDate = new Date(Date.UTC(0, 0, 1)).setUTCFullYear(0);
+    baseDate = new Date(2000, 0, 1),
+    utcBaseDate = new Date(Date.UTC(2000, 0, 1));
 
 function date(d) {
   return (tempDate.setTime(+d), tempDate);
@@ -38,7 +38,7 @@ var locale = [
   create('hour',   d3_time.hour,   baseDate),
   create('day',    d3_time.day,    baseDate, [1, 7]),
   create('month',  d3_time.month,  baseDate, [1, 3, 6]),
-  create('year',   d3_time.year,   baseDate),
+  create('year',   d3_time.year,   new Date(baseDate).setFullYear(0)),
 
   // periodic units
   entry('seconds',
@@ -79,7 +79,7 @@ var utc = [
   create('hour',   d3_time.utcHour,   utcBaseDate),
   create('day',    d3_time.utcDay,    utcBaseDate, [1, 7]),
   create('month',  d3_time.utcMonth,  utcBaseDate, [1, 3, 6]),
-  create('year',   d3_time.utcYear,   utcBaseDate),
+  create('year',   d3_time.utcYear,   new Date(utcBaseDate).setUTCFullYear(0)),
 
   // periodic units
   entry('seconds',

@@ -13,12 +13,12 @@ describe('time', function() {
         b = u.unit(d2);
     assert.equal(dist, b-a);
   }
-  
+
   function dateMatch(units, name, d) {
     var u = units[name];
     assert.equal(+d, +u.date(u.unit(d)));
   }
-  
+
   function distMatch(units, name, d1, d2) {
     var u = units[name],
         a = u.unit(d1),
