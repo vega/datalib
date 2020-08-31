@@ -21,7 +21,9 @@ proto.rem = function(v) {
 };
 
 proto.values = function() {
-  this._get = null;
+  if (this._get) {
+    this._get = this._ext = this._q = null;
+  }
   if (this._rem.length === 0) return this._add;
 
   var a = this._add,
