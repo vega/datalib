@@ -10,6 +10,10 @@
 		return module = { exports: {} }, fn(module, module.exports), module.exports;
 	}
 
+	function getCjsExportFromNamespace (n) {
+		return n && n.default || n;
+	}
+
 	var util = createCommonjsModule(function (module) {
 	var u = module.exports;
 
@@ -312,7 +316,7 @@
 	});
 
 	var name = "datalib";
-	var version = "1.9.0";
+	var version = "1.9.3";
 	var description = "JavaScript utilites for loading, summarizing and working with data.";
 	var keywords = [
 		"data",
@@ -340,6 +344,10 @@
 		{
 			name: "Ryan Russell",
 			url: "https://github.com/RussellSprouts"
+		},
+		{
+			name: "Matthew Conlen",
+			url: "https://github.com/mathisonian"
 		}
 	];
 	var license = "BSD-3-Clause";
@@ -349,7 +357,7 @@
 		"d3-time": "0.1",
 		"d3-time-format": "0.2",
 		request: "^2.67.0",
-		"sync-request": "^2.1.0",
+		"sync-request": "^6.0.0",
 		"topojson-client": "^3.0.0"
 	};
 	var devDependencies = {
@@ -419,13 +427,7 @@
 		default: _package
 	});
 
-	var empty = {};
-
-	var empty$1 = /*#__PURE__*/Object.freeze({
-		default: empty
-	});
-
-	var require$$3 = ( empty$1 && empty ) || empty$1;
+	var require$$3 = {};
 
 	// Matches absolute URLs with optional protocol
 	//   https://...    file://...    //...
@@ -953,6 +955,7 @@
 	}
 
 	function feature(topology, o) {
+	  if (typeof o === "string") o = topology.objects[o];
 	  return o.type === "GeometryCollection"
 	      ? {type: "FeatureCollection", features: o.geometries.map(function(o) { return feature$1(topology, o); })}
 	      : feature$1(topology, o);
@@ -1239,6 +1242,8 @@
 	      }
 
 	      return arcs;
+	    }).filter(function(arcs) {
+	      return arcs.length > 0;
 	    })
 	  };
 	}
@@ -1373,7 +1378,7 @@
 
 
 
-	var topojsonClient = /*#__PURE__*/Object.freeze({
+	var src = /*#__PURE__*/Object.freeze({
 		bbox: bbox,
 		feature: feature,
 		mesh: mesh,
@@ -1409,7 +1414,7 @@
 	  }
 	};
 
-	reader.topojson = topojsonClient;
+	reader.topojson = src;
 	var topojson = reader;
 
 	var treejson = function(tree, format) {
@@ -4471,7 +4476,9 @@
 	};
 
 	proto.values = function() {
-	  this._get = null;
+	  if (this._get) {
+	    this._get = this._ext = this._q = null;
+	  }
 	  if (this._rem.length === 0) return this._add;
 
 	  var a = this._add,
@@ -4886,8 +4893,8 @@
 	};
 
 	var tempDate = new Date(),
-	    baseDate = new Date(0, 0, 1).setFullYear(0), // Jan 1, 0 AD
-	    utcBaseDate = new Date(Date.UTC(0, 0, 1)).setUTCFullYear(0);
+	    baseDate = new Date(2000, 0, 1),
+	    utcBaseDate = new Date(Date.UTC(2000, 0, 1));
 
 	function date(d) {
 	  return (tempDate.setTime(+d), tempDate);
@@ -4923,7 +4930,7 @@
 	  create$1('hour',   d3Time.hour,   baseDate),
 	  create$1('day',    d3Time.day,    baseDate, [1, 7]),
 	  create$1('month',  d3Time.month,  baseDate, [1, 3, 6]),
-	  create$1('year',   d3Time.year,   baseDate),
+	  create$1('year',   d3Time.year,   new Date(baseDate).setFullYear(0)),
 
 	  // periodic units
 	  entry('seconds',
@@ -4964,7 +4971,7 @@
 	  create$1('hour',   d3Time.utcHour,   utcBaseDate),
 	  create$1('day',    d3Time.utcDay,    utcBaseDate, [1, 7]),
 	  create$1('month',  d3Time.utcMonth,  utcBaseDate, [1, 3, 6]),
-	  create$1('year',   d3Time.utcYear,   utcBaseDate),
+	  create$1('year',   d3Time.utcYear,   new Date(utcBaseDate).setUTCFullYear(0)),
 
 	  // periodic units
 	  entry('seconds',
@@ -5054,7 +5061,7 @@
 	var utc_1 = toUnitMap(utc);
 	time.utc = utc_1;
 
-	var EPSILON = 1e-15;
+	var EPSILON = 1e-14;
 
 	function bins(opt) {
 	  if (!opt) { throw Error("Missing binning options."); }
@@ -5124,8 +5131,9 @@
 	}
 
 	function value$1(v) {
-	  return this.step * Math.floor(v / this.step + EPSILON);
+	  return this.start + this.step * Math.floor((EPSILON + (v - this.start)) / this.step);
 	}
+
 
 	function index(v) {
 	  return Math.floor((v - this.start) / this.step + EPSILON);
@@ -5637,7 +5645,7 @@
 	  return list.concat(top).join('\n');
 	}
 
-	var require$$0 = ( _package$1 && _package ) || _package$1;
+	var require$$0 = getCjsExportFromNamespace(_package$1);
 
 	var dl = {
 	  version:    require$$0.version,
@@ -5668,9 +5676,9 @@
 	  summary: dl.format.summary
 	};
 
-	var src = dl;
+	var src$1 = dl;
 
-	return src;
+	return src$1;
 
 })));
 //# sourceMappingURL=datalib.js.map
