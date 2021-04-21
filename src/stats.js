@@ -154,6 +154,23 @@ stats.mean.harmonic = function(values, f) {
   return c / mean;
 };
 
+// Compute the midmean aka interquartile mean = mean (data - Q1 union Q4)
+// as per standard definition, should compute weighted average for n non-congruent to 0 mod 4
+stats.mean.iqm = function(values, f) {
+  if (f) values = values.map(util.$(f));
+  values = values.filter(util.isValid).sort(util.cmp);
+  var mean = 0,
+      n = values.length,
+      c = n/4,
+      v, i;
+  for (i = c; i<(3*c); i+=0.25) {
+    v = values[Math.floor(i)];
+    mean+=0.25*v;
+  }
+  mean = n>0 ? mean/(2*c) : 0;
+  return mean;
+};
+
 // Compute the sample variance of an array of numbers.
 stats.variance = function(values, f) {
   f = util.$(f);

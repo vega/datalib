@@ -283,6 +283,30 @@ describe('stats', function() {
       assert.equal(stats.mean.harmonic([0, 1]), 0);
     })
   });
+         
+ describe('mean.iqm', function() {
+    it('should calculate midmeans', function() {
+       assert.equal(stats.mean.iqm([1, 1, 1, 1]), 1);
+       assert.equal(stats.mean.iqm([5, 8, 4, 38, 8, 6, 9, 7, 7, 3, 1, 6]), 6.5);
+    });
+    
+    it('should handle n%4!=0', function() {
+       assert.equal(stats.mean.iqm([1, 2, 3, 4, 5]), 3);
+       assert.equal(stats.mean.iqm([1, 3, 5, 7, 9, 11, 13, 15, 17]), 9);
+    });
+    
+    it('should ignore null values', function() {
+       assert.equal(stats.mean.iqm([1, 2, 3, null]), 2);
+    });
+    
+    it('should support an array and accessor', function() {
+       assert.equal(stats.mean.iqm([{a:1}, {a:2}, {a:3}], 'a'), 2);
+    });
+    
+    it('should return 0 if there are no valid values', function() {
+       assert.equal(stats.mean.iqm([null,null]),0);
+    });
+  });
 
   describe('variance & stdev', function() {
     it('should calculate variance and stdev values', function() {
