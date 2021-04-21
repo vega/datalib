@@ -176,12 +176,39 @@ stats.stdev = function(values, f) {
   return Math.sqrt(stats.variance(values, f));
 };
 
-// Compute the Pearson mode skewness ((median-mean)/stdev) of an array of numbers.
-stats.modeskew = function(values, f) {
+
+// DEPRECATED reference to original modeskew function.
+stats.modeskew = function(values, f){
+  return stats.npskew(values, f);
+};
+
+// Compute the non-parametric skewness ((mean-med)/stdev) of an array of numbers.
+stats.npskew = function(values, f) {
   var avg = stats.mean(values, f),
       med = stats.median(values, f),
       std = stats.stdev(values, f);
   return std === 0 ? 0 : (avg - med) / std;
+};
+
+//Compute the sample skewness
+stats.skew = function(values, f) {
+  var avg = stats.mean(values, f),
+      std = stats.stdev(values, f),
+      sampleFactor,
+      moment = 0, delta, i, n, c, v;
+
+  //compute sample third central moment
+  for (i=0, c=0, n=values.length; i<n; ++i) {
+    v = f ? util.$(f)(values[i]) : values[i];
+    if (util.isValid(v)) {
+      delta = Math.pow(v - avg, 3) - moment;
+      moment = moment + delta / (++c);
+    }
+  }
+
+  //convert to symmetric unbiased estimators
+  sampleFactor = (n * n) / ((n - 1) * (n - 2));
+  return std && n > 2 ? sampleFactor * moment / Math.pow(std, 3) : 0;
 };
 
 // Find the minimum value in an array.
