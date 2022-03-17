@@ -75,7 +75,7 @@ u.isFunction = function(obj) {
 };
 
 u.isString = function(obj) {
-  return typeof value === 'string' || toString.call(obj) === '[object String]';
+  return typeof obj === 'string' || toString.call(obj) === '[object String]';
 };
 
 u.isArray = Array.isArray || function(obj) {
